@@ -74,7 +74,11 @@ func (api *TelegramBotAPI) updateLoop() {
 			offset = putUpdatesInChannel(api.Updates, updates.Update)
 		}
 
-		updates, err = api.getUpdatesByOffset(offset)
+		if offset == -1 {
+			updates, err = api.getUpdates()
+		} else {
+			updates, err = api.getUpdatesByOffset(offset + 1)
+		}
 	}
 }
 
@@ -90,7 +94,8 @@ func putUpdatesInChannel(channel chan model.Update, updates []model.Update) int 
 
 func (api *TelegramBotAPI) getUpdates() (*model.UpdateResponse, error) {
 	resp := &model.UpdateResponse{}
-	_, err := api.baseApi.Res("GetUpdates", resp).Get()
+	querystring := map[string]string{"timeout": fmt.Sprint(60)}
+	_, err := api.baseApi.Res("GetUpdates", resp).Get(querystring)
 	if err != nil {
 		return nil, err
 	}
@@ -99,7 +104,7 @@ func (api *TelegramBotAPI) getUpdates() (*model.UpdateResponse, error) {
 
 func (api *TelegramBotAPI) getUpdatesByOffset(offset int) (*model.UpdateResponse, error) {
 	resp := &model.UpdateResponse{}
-	querystring := map[string]string{"offset": fmt.Sprint(offset)}
+	querystring := map[string]string{"offset": fmt.Sprint(offset), "timeout": fmt.Sprint(60)}
 	_, err := api.baseApi.Res("GetUpdates", resp).Get(querystring)
 	if err != nil {
 		return nil, err

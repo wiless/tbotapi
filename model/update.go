@@ -18,6 +18,6 @@ func (resp *UpdateResponse) Sort() {
 }
 
 type Update struct {
-	Id      int     `json:"id"`
+	Id      int     `json:"update_id"`
 	Message Message `json:"message"`
 }
