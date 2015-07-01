@@ -2,7 +2,6 @@ package model
 
 import (
 	"encoding/json"
-	"fmt"
 )
 
 type MessageResponse struct {
@@ -45,7 +44,6 @@ type messageChatInner struct {
 }
 
 func (inner *messageChatInner) UnmarshalJSON(b []byte) error {
-	fmt.Println("In UnmarshalJSON")
 	var f interface{}
 	err := json.Unmarshal(b, &f)
 
@@ -54,8 +52,6 @@ func (inner *messageChatInner) UnmarshalJSON(b []byte) error {
 	}
 
 	m := f.(map[string]interface{})
-
-	fmt.Printf("%+v\n", m)
 
 	_, ok := m["title"] //if we have this, we have a group chat
 	if ok {
