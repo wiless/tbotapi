@@ -130,3 +130,12 @@ func (api *TelegramBotAPI) SendMessage(chatId int, text string) (*model.MessageR
 	}
 	return resp, nil
 }
+
+func (api *TelegramBotAPI) SendMessageExtended(querystring model.Querystring) (*model.MessageResponse, error) {
+	resp := &model.MessageResponse{}
+	_, err := api.baseApi.Res("SendMessage", resp).Get(map[string]string(querystring))
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
