@@ -1,5 +1,10 @@
 package model
 
+type MessageResponse struct {
+	BaseResponse
+	Message Message `json:"result"`
+}
+
 type Message struct {
 	noReplyMessage
 	ReplyToMessage noReplyMessage `json:"reply_to_message"`

@@ -1,5 +1,10 @@
 package model
 
+type UserResponse struct {
+	BaseResponse
+	User User `json:"result"`
+}
+
 type User struct {
 	Id        int    `json:"id"`
 	FirstName string `json:"first_name"`
