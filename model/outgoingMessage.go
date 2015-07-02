@@ -26,10 +26,8 @@ func NewOutgoingMessage(chatId int, text string) *OutgoingMessage {
 }
 
 func (om *OutgoingMessage) SetDisableWebPagePreview(to bool) *OutgoingMessage {
-	if !to {
-		om.disableWebPagePreview = to
-		om.disableWebPagePreviewSet = true
-	}
+	om.disableWebPagePreview = to
+	om.disableWebPagePreviewSet = true
 	return om
 }
 
