@@ -39,8 +39,9 @@ type noReplyMessage struct {
 
 type messageChatInner struct {
 	IsGroupChat bool
-	ChatUser    User      `json:"chat"`
-	ChatGroup   GroupChat `json:"chat"`
+	Id          int
+	ChatUser    User
+	ChatGroup   GroupChat
 }
 
 func (inner *messageChatInner) UnmarshalJSON(b []byte) error {
@@ -57,9 +58,11 @@ func (inner *messageChatInner) UnmarshalJSON(b []byte) error {
 	if ok {
 		inner.IsGroupChat = true
 		err = json.Unmarshal(b, &inner.ChatGroup)
+		inner.Id = inner.ChatGroup.Id
 	} else {
 		inner.IsGroupChat = false
 		err = json.Unmarshal(b, &inner.ChatUser)
+		inner.Id = inner.ChatUser.Id
 	}
 
 	return err
