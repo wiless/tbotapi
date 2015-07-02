@@ -139,3 +139,13 @@ func (api *TelegramBotAPI) SendMessageExtended(querystring model.Querystring) (*
 	}
 	return resp, nil
 }
+
+func (api *TelegramBotAPI) ForwardMessage(chatId, fromChatId, messageId int) (*model.MessageResponse, error) {
+	resp := &model.MessageResponse{}
+	querystring := map[string]string{"chat_id": fmt.Sprint(chatId), "from_chat_id": fmt.Sprint(fromChatId), "message_id": fmt.Sprint(messageId)}
+	_, err := api.baseApi.Res("ForwardMessage", resp).Get(querystring)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
