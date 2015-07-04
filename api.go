@@ -187,7 +187,40 @@ func (api *TelegramBotAPI) SendPhoto(op *model.OutgoingPhoto, file io.Reader, fi
 	}
 
 	err = rest.PostMultipart(resp, fmt.Sprint(api.baseUri, "/SendPhoto"), message)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
 
+func (api *TelegramBotAPI) ResendAudio(op *model.OutgoingAudio, fileId string) (*model.MessageResponse, error) {
+	resp := &model.MessageResponse{}
+	querystring := url.Values(op.GetQueryString())
+	querystring.Set("audio", fileId)
+	err := rest.Get(resp, fmt.Sprint(api.baseUri, "/SendAudio"), querystring)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+func (api *TelegramBotAPI) SendAudio(op *model.OutgoingAudio, file io.Reader, fileName string) (*model.MessageResponse, error) {
+	resp := &model.MessageResponse{}
+	files := rest.FileMap{
+		"photo": []rest.File{
+			{
+				Name:   fileName,
+				Reader: file,
+			},
+		},
+	}
+
+	message, err := rest.NewMultipartMessage(url.Values(op.GetQueryString()), files)
+	if err != nil {
+		return nil, err
+	}
+
+	err = rest.PostMultipart(resp, fmt.Sprint(api.baseUri, "/SendAudio"), message)
 	if err != nil {
 		return nil, err
 	}
