@@ -137,9 +137,9 @@ func (api *TelegramBotAPI) SendMessage(chatId int, text string) (*model.MessageR
 	return resp, nil
 }
 
-func (api *TelegramBotAPI) SendMessageExtended(querystring model.Querystring) (*model.MessageResponse, error) {
+func (api *TelegramBotAPI) SendMessageExtended(om model.OutgoingMessage) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
-	err := rest.Get(resp, fmt.Sprint(api.baseUri, "/SendMessage"), url.Values(querystring))
+	err := rest.Get(resp, fmt.Sprint(api.baseUri, "/SendMessage"), url.Values(om.GetQueryString()))
 	if err != nil {
 		return nil, err
 	}
