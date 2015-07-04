@@ -294,3 +294,37 @@ func (api *TelegramBotAPI) SendSticker(os *model.OutgoingSticker, file io.Reader
 	}
 	return resp, nil
 }
+
+func (api *TelegramBotAPI) ResendVideo(ov *model.OutgoingVideo, fileId string) (*model.MessageResponse, error) {
+	resp := &model.MessageResponse{}
+	querystring := url.Values(ov.GetQueryString())
+	querystring.Set("video", fileId)
+	err := rest.Get(resp, fmt.Sprint(api.baseUri, "/SendSticker"), querystring)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+func (api *TelegramBotAPI) SendVideo(ov *model.OutgoingVideo, file io.Reader, fileName string) (*model.MessageResponse, error) {
+	resp := &model.MessageResponse{}
+	files := rest.FileMap{
+		"video": []rest.File{
+			{
+				Name:   fileName,
+				Reader: file,
+			},
+		},
+	}
+
+	message, err := rest.NewMultipartMessage(url.Values(ov.GetQueryString()), files)
+	if err != nil {
+		return nil, err
+	}
+
+	err = rest.PostMultipart(resp, fmt.Sprint(api.baseUri, "/SendSticker"), message)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
