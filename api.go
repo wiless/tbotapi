@@ -299,7 +299,7 @@ func (api *TelegramBotAPI) ResendVideo(ov *model.OutgoingVideo, fileId string) (
 	resp := &model.MessageResponse{}
 	querystring := url.Values(ov.GetQueryString())
 	querystring.Set("video", fileId)
-	err := rest.Get(resp, fmt.Sprint(api.baseUri, "/SendSticker"), querystring)
+	err := rest.Get(resp, fmt.Sprint(api.baseUri, "/SendVideo"), querystring)
 	if err != nil {
 		return nil, err
 	}
@@ -322,7 +322,17 @@ func (api *TelegramBotAPI) SendVideo(ov *model.OutgoingVideo, file io.Reader, fi
 		return nil, err
 	}
 
-	err = rest.PostMultipart(resp, fmt.Sprint(api.baseUri, "/SendSticker"), message)
+	err = rest.PostMultipart(resp, fmt.Sprint(api.baseUri, "/SendVideo"), message)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+func (api *TelegramBotAPI) SendLocation(ov *model.OutgoingLocation) (*model.MessageResponse, error) {
+	resp := &model.MessageResponse{}
+	querystring := url.Values(ov.GetQueryString())
+	err := rest.Get(resp, fmt.Sprint(api.baseUri, "/SendLocation"), querystring)
 	if err != nil {
 		return nil, err
 	}
