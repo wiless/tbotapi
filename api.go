@@ -4,9 +4,10 @@ import (
 	"bitbucket.org/mrd0ll4r/tbotapi/model"
 	"errors"
 	"fmt"
-	"github.com/syncthing/syncthing/internal/sync"
+	"io"
 	"menteslibres.net/gosexy/rest"
 	"net/url"
+	"sync"
 )
 
 type TelegramBotAPI struct {
@@ -28,7 +29,6 @@ func New(apiKey string) (*TelegramBotAPI, error) {
 		Updates: make(chan model.Update),
 		Errors:  make(chan error),
 		closed:  make(chan struct{}),
-		wg:      sync.NewWaitGroup(),
 	}
 	user, err := toReturn.GetMe()
 	if err != nil {
@@ -137,7 +137,7 @@ func (api *TelegramBotAPI) SendMessage(chatId int, text string) (*model.MessageR
 	return resp, nil
 }
 
-func (api *TelegramBotAPI) SendMessageExtended(om model.OutgoingMessage) (*model.MessageResponse, error) {
+func (api *TelegramBotAPI) SendMessageExtended(om *model.OutgoingMessage) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
 	err := rest.Get(resp, fmt.Sprint(api.baseUri, "/SendMessage"), url.Values(om.GetQueryString()))
 	if err != nil {
@@ -153,6 +153,41 @@ func (api *TelegramBotAPI) ForwardMessage(chatId, fromChatId, messageId int) (*m
 	querystring.Set("from_chat_id", fmt.Sprint(fromChatId))
 	querystring.Set("message_id", fmt.Sprint(messageId))
 	err := rest.Get(resp, fmt.Sprint(api.baseUri, "/ForwardMessage"), querystring)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+func (api *TelegramBotAPI) ResendPhoto(op *model.OutgoingPhoto, fileId string) (*model.MessageResponse, error) {
+	resp := &model.MessageResponse{}
+	querystring := url.Values(op.GetQueryString())
+	querystring.Set("photo", fileId)
+	err := rest.Get(resp, fmt.Sprint(api.baseUri, "/SendPhoto"), querystring)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+func (api *TelegramBotAPI) SendPhoto(op *model.OutgoingPhoto, file io.Reader, fileName string) (*model.MessageResponse, error) {
+	resp := &model.MessageResponse{}
+	files := rest.FileMap{
+		"photo": []rest.File{
+			{
+				Name:   fileName,
+				Reader: file,
+			},
+		},
+	}
+
+	message, err := rest.NewMultipartMessage(url.Values(op.GetQueryString()), files)
+	if err != nil {
+		return nil, err
+	}
+
+	err = rest.PostMultipart(resp, fmt.Sprint(api.baseUri, "/SendPhoto"), message)
+
 	if err != nil {
 		return nil, err
 	}
