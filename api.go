@@ -68,8 +68,6 @@ func (api *TelegramBotAPI) updateLoop() {
 
 		if err != nil {
 			api.Errors <- err
-		} else if !updates.Ok {
-			api.Errors <- errors.New(fmt.Sprintf("TBotAPI: GetUpdates:%d - %s", updates.ErrorCode, updates.Description))
 		} else {
 			updates.Sort()
 			offset = putUpdatesInChannel(api.Updates, updates.Update)
@@ -101,6 +99,10 @@ func (api *TelegramBotAPI) getUpdates() (*model.UpdateResponse, error) {
 	if err != nil {
 		return nil, err
 	}
+	err = check(&resp.BaseResponse)
+	if err != nil {
+		return nil, err
+	}
 	return resp, nil
 }
 
@@ -113,12 +115,20 @@ func (api *TelegramBotAPI) getUpdatesByOffset(offset int) (*model.UpdateResponse
 	if err != nil {
 		return nil, err
 	}
+	err = check(&resp.BaseResponse)
+	if err != nil {
+		return nil, err
+	}
 	return resp, nil
 }
 
 func (api *TelegramBotAPI) GetMe() (*model.UserResponse, error) {
 	resp := &model.UserResponse{}
 	err := rest.Get(resp, fmt.Sprint(api.baseUri, "/GetMe"), nil)
+	if err != nil {
+		return nil, err
+	}
+	err = check(&resp.BaseResponse)
 	if err != nil {
 		return nil, err
 	}
@@ -134,12 +144,20 @@ func (api *TelegramBotAPI) SendMessage(chatId int, text string) (*model.MessageR
 	if err != nil {
 		return nil, err
 	}
+	err = check(&resp.BaseResponse)
+	if err != nil {
+		return nil, err
+	}
 	return resp, nil
 }
 
 func (api *TelegramBotAPI) SendMessageExtended(om *model.OutgoingMessage) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
 	err := rest.Get(resp, fmt.Sprint(api.baseUri, "/SendMessage"), url.Values(om.GetQueryString()))
+	if err != nil {
+		return nil, err
+	}
+	err = check(&resp.BaseResponse)
 	if err != nil {
 		return nil, err
 	}
@@ -156,6 +174,10 @@ func (api *TelegramBotAPI) ForwardMessage(chatId, fromChatId, messageId int) (*m
 	if err != nil {
 		return nil, err
 	}
+	err = check(&resp.BaseResponse)
+	if err != nil {
+		return nil, err
+	}
 	return resp, nil
 }
 
@@ -164,6 +186,10 @@ func (api *TelegramBotAPI) ResendPhoto(op *model.OutgoingPhoto, fileId string) (
 	querystring := url.Values(op.GetQueryString())
 	querystring.Set("photo", fileId)
 	err := rest.Get(resp, fmt.Sprint(api.baseUri, "/SendPhoto"), querystring)
+	if err != nil {
+		return nil, err
+	}
+	err = check(&resp.BaseResponse)
 	if err != nil {
 		return nil, err
 	}
@@ -190,6 +216,10 @@ func (api *TelegramBotAPI) SendPhoto(op *model.OutgoingPhoto, file io.Reader, fi
 	if err != nil {
 		return nil, err
 	}
+	err = check(&resp.BaseResponse)
+	if err != nil {
+		return nil, err
+	}
 	return resp, nil
 }
 
@@ -198,6 +228,10 @@ func (api *TelegramBotAPI) ResendAudio(oa *model.OutgoingAudio, fileId string) (
 	querystring := url.Values(oa.GetQueryString())
 	querystring.Set("audio", fileId)
 	err := rest.Get(resp, fmt.Sprint(api.baseUri, "/SendAudio"), querystring)
+	if err != nil {
+		return nil, err
+	}
+	err = check(&resp.BaseResponse)
 	if err != nil {
 		return nil, err
 	}
@@ -224,6 +258,10 @@ func (api *TelegramBotAPI) SendAudio(oa *model.OutgoingAudio, file io.Reader, fi
 	if err != nil {
 		return nil, err
 	}
+	err = check(&resp.BaseResponse)
+	if err != nil {
+		return nil, err
+	}
 	return resp, nil
 }
 
@@ -232,6 +270,10 @@ func (api *TelegramBotAPI) ResendDocument(od *model.OutgoingDocument, fileId str
 	querystring := url.Values(od.GetQueryString())
 	querystring.Set("document", fileId)
 	err := rest.Get(resp, fmt.Sprint(api.baseUri, "/SendDocument"), querystring)
+	if err != nil {
+		return nil, err
+	}
+	err = check(&resp.BaseResponse)
 	if err != nil {
 		return nil, err
 	}
@@ -258,6 +300,10 @@ func (api *TelegramBotAPI) SendDocument(od *model.OutgoingDocument, file io.Read
 	if err != nil {
 		return nil, err
 	}
+	err = check(&resp.BaseResponse)
+	if err != nil {
+		return nil, err
+	}
 	return resp, nil
 }
 
@@ -266,6 +312,10 @@ func (api *TelegramBotAPI) ResendSticker(os *model.OutgoingSticker, fileId strin
 	querystring := url.Values(os.GetQueryString())
 	querystring.Set("sticker", fileId)
 	err := rest.Get(resp, fmt.Sprint(api.baseUri, "/SendSticker"), querystring)
+	if err != nil {
+		return nil, err
+	}
+	err = check(&resp.BaseResponse)
 	if err != nil {
 		return nil, err
 	}
@@ -292,6 +342,10 @@ func (api *TelegramBotAPI) SendSticker(os *model.OutgoingSticker, file io.Reader
 	if err != nil {
 		return nil, err
 	}
+	err = check(&resp.BaseResponse)
+	if err != nil {
+		return nil, err
+	}
 	return resp, nil
 }
 
@@ -300,6 +354,10 @@ func (api *TelegramBotAPI) ResendVideo(ov *model.OutgoingVideo, fileId string) (
 	querystring := url.Values(ov.GetQueryString())
 	querystring.Set("video", fileId)
 	err := rest.Get(resp, fmt.Sprint(api.baseUri, "/SendVideo"), querystring)
+	if err != nil {
+		return nil, err
+	}
+	err = check(&resp.BaseResponse)
 	if err != nil {
 		return nil, err
 	}
@@ -326,6 +384,10 @@ func (api *TelegramBotAPI) SendVideo(ov *model.OutgoingVideo, file io.Reader, fi
 	if err != nil {
 		return nil, err
 	}
+	err = check(&resp.BaseResponse)
+	if err != nil {
+		return nil, err
+	}
 	return resp, nil
 }
 
@@ -333,6 +395,10 @@ func (api *TelegramBotAPI) SendLocation(ov *model.OutgoingLocation) (*model.Mess
 	resp := &model.MessageResponse{}
 	querystring := url.Values(ov.GetQueryString())
 	err := rest.Get(resp, fmt.Sprint(api.baseUri, "/SendLocation"), querystring)
+	if err != nil {
+		return nil, err
+	}
+	err = check(&resp.BaseResponse)
 	if err != nil {
 		return nil, err
 	}
@@ -348,6 +414,10 @@ func (api *TelegramBotAPI) SendChatAction(chatId int, action model.ChatAction) (
 	if err != nil {
 		return nil, err
 	}
+	err = check(resp)
+	if err != nil {
+		return nil, err
+	}
 	return resp, nil
 }
 
@@ -357,5 +427,17 @@ func (api *TelegramBotAPI) GetProfilePhotos(op *model.OutgoingUserProfilePhotosR
 	if err != nil {
 		return nil, err
 	}
+	err = check(&resp.BaseResponse)
+	if err != nil {
+		return nil, err
+	}
 	return resp, nil
+}
+
+func check(br *model.BaseResponse) error {
+	if br.Ok {
+		return nil
+	}
+
+	return errors.New(fmt.Sprintf("tbotapi: API error: %d - %s", br.ErrorCode, br.Description))
 }
