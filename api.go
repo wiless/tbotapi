@@ -338,3 +338,15 @@ func (api *TelegramBotAPI) SendLocation(ov *model.OutgoingLocation) (*model.Mess
 	}
 	return resp, nil
 }
+
+func (api *TelegramBotAPI) SendChatAction(chatId int, action model.ChatAction) (*model.BaseResponse, error) {
+	resp := &model.BaseResponse{}
+	querystring := url.Values{}
+	querystring.Set("chat_id", fmt.Sprint(chatId))
+	querystring.Set("action", string(action))
+	err := rest.Get(resp, fmt.Sprint(api.baseUri, "/SendChatAction"), querystring)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
