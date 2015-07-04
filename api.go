@@ -350,3 +350,12 @@ func (api *TelegramBotAPI) SendChatAction(chatId int, action model.ChatAction) (
 	}
 	return resp, nil
 }
+
+func (api *TelegramBotAPI) GetProfilePhotos(op *model.OutgoingUserProfilePhotosRequest) (*model.UserProfilePhotosResponse, error) {
+	resp := &model.UserProfilePhotosResponse{}
+	err := rest.Get(resp, fmt.Sprint(api.baseUri, "/GetUserProfilePhotos"), url.Values(op.GetQueryString()))
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
