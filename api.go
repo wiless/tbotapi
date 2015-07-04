@@ -193,9 +193,9 @@ func (api *TelegramBotAPI) SendPhoto(op *model.OutgoingPhoto, file io.Reader, fi
 	return resp, nil
 }
 
-func (api *TelegramBotAPI) ResendAudio(op *model.OutgoingAudio, fileId string) (*model.MessageResponse, error) {
+func (api *TelegramBotAPI) ResendAudio(oa *model.OutgoingAudio, fileId string) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
-	querystring := url.Values(op.GetQueryString())
+	querystring := url.Values(oa.GetQueryString())
 	querystring.Set("audio", fileId)
 	err := rest.Get(resp, fmt.Sprint(api.baseUri, "/SendAudio"), querystring)
 	if err != nil {
@@ -204,7 +204,7 @@ func (api *TelegramBotAPI) ResendAudio(op *model.OutgoingAudio, fileId string) (
 	return resp, nil
 }
 
-func (api *TelegramBotAPI) SendAudio(op *model.OutgoingAudio, file io.Reader, fileName string) (*model.MessageResponse, error) {
+func (api *TelegramBotAPI) SendAudio(oa *model.OutgoingAudio, file io.Reader, fileName string) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
 	files := rest.FileMap{
 		"audio": []rest.File{
@@ -215,7 +215,7 @@ func (api *TelegramBotAPI) SendAudio(op *model.OutgoingAudio, file io.Reader, fi
 		},
 	}
 
-	message, err := rest.NewMultipartMessage(url.Values(op.GetQueryString()), files)
+	message, err := rest.NewMultipartMessage(url.Values(oa.GetQueryString()), files)
 	if err != nil {
 		return nil, err
 	}
@@ -227,18 +227,18 @@ func (api *TelegramBotAPI) SendAudio(op *model.OutgoingAudio, file io.Reader, fi
 	return resp, nil
 }
 
-func (api *TelegramBotAPI) ResendDocument(op *model.OutgoingDocument, fileId string) (*model.MessageResponse, error) {
+func (api *TelegramBotAPI) ResendDocument(od *model.OutgoingDocument, fileId string) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
-	querystring := url.Values(op.GetQueryString())
+	querystring := url.Values(od.GetQueryString())
 	querystring.Set("document", fileId)
-	err := rest.Get(resp, fmt.Sprint(api.baseUri, "/SendAudio"), querystring)
+	err := rest.Get(resp, fmt.Sprint(api.baseUri, "/SendDocument"), querystring)
 	if err != nil {
 		return nil, err
 	}
 	return resp, nil
 }
 
-func (api *TelegramBotAPI) SendDocument(op *model.OutgoingDocument, file io.Reader, fileName string) (*model.MessageResponse, error) {
+func (api *TelegramBotAPI) SendDocument(od *model.OutgoingDocument, file io.Reader, fileName string) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
 	files := rest.FileMap{
 		"document": []rest.File{
@@ -249,12 +249,46 @@ func (api *TelegramBotAPI) SendDocument(op *model.OutgoingDocument, file io.Read
 		},
 	}
 
-	message, err := rest.NewMultipartMessage(url.Values(op.GetQueryString()), files)
+	message, err := rest.NewMultipartMessage(url.Values(od.GetQueryString()), files)
 	if err != nil {
 		return nil, err
 	}
 
-	err = rest.PostMultipart(resp, fmt.Sprint(api.baseUri, "/SendAudio"), message)
+	err = rest.PostMultipart(resp, fmt.Sprint(api.baseUri, "/SendDocument"), message)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+func (api *TelegramBotAPI) ResendSticker(os *model.OutgoingSticker, fileId string) (*model.MessageResponse, error) {
+	resp := &model.MessageResponse{}
+	querystring := url.Values(os.GetQueryString())
+	querystring.Set("sticker", fileId)
+	err := rest.Get(resp, fmt.Sprint(api.baseUri, "/SendSticker"), querystring)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+func (api *TelegramBotAPI) SendSticker(os *model.OutgoingSticker, file io.Reader, fileName string) (*model.MessageResponse, error) {
+	resp := &model.MessageResponse{}
+	files := rest.FileMap{
+		"sticker": []rest.File{
+			{
+				Name:   fileName,
+				Reader: file,
+			},
+		},
+	}
+
+	message, err := rest.NewMultipartMessage(url.Values(os.GetQueryString()), files)
+	if err != nil {
+		return nil, err
+	}
+
+	err = rest.PostMultipart(resp, fmt.Sprint(api.baseUri, "/SendSticker"), message)
 	if err != nil {
 		return nil, err
 	}
