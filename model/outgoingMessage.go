@@ -3,6 +3,7 @@ package model
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 )
 
 type OutgoingMessage struct {
@@ -16,7 +17,7 @@ type OutgoingMessage struct {
 	replyMarkupSet           bool
 }
 
-type Querystring map[string]string
+type Querystring url.Values
 
 func NewOutgoingMessage(chatId int, text string) *OutgoingMessage {
 	return &OutgoingMessage{
@@ -94,22 +95,21 @@ func (om *OutgoingMessage) SetForceReply(to ForceReply) *OutgoingMessage {
 }
 
 func (om *OutgoingMessage) GetQueryString() Querystring {
-	toReturn := map[string]string{
-		"chat_id": fmt.Sprint(om.chatId),
-		"text":    om.text,
-	}
+	toReturn := url.Values{}
+	toReturn.Set("chat_id", fmt.Sprint(om.chatId))
+	toReturn.Set("text", om.text)
 
 	if om.disableWebPagePreviewSet {
-		toReturn["disable_web_page_preview"] = fmt.Sprint(om.disableWebPagePreview)
+		toReturn.Set("disable_web_page_preview", fmt.Sprint(om.disableWebPagePreview))
 	}
 
 	if om.replyToMessageIdSet {
-		toReturn["reply_to_message_id"] = fmt.Sprint(om.replyToMessageId)
+		toReturn.Set("reply_to_message_id", fmt.Sprint(om.replyToMessageId))
 	}
 
 	if om.replyMarkupSet {
-		toReturn["reply_markup"] = om.replyMarkup
+		toReturn.Set("reply_markup", om.replyMarkup)
 	}
 
-	return toReturn
+	return Querystring(toReturn)
 }

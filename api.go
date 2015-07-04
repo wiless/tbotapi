@@ -4,12 +4,13 @@ import (
 	"bitbucket.org/mrd0ll4r/tbotapi/model"
 	"errors"
 	"fmt"
-	"github.com/bndr/gopencils"
 	"github.com/syncthing/syncthing/internal/sync"
+	"menteslibres.net/gosexy/rest"
+	"net/url"
 )
 
 type TelegramBotAPI struct {
-	baseApi  *gopencils.Resource
+	baseUri  string
 	Id       int
 	Name     string
 	Username string
@@ -19,11 +20,11 @@ type TelegramBotAPI struct {
 	wg       sync.WaitGroup
 }
 
-const baseUri string = "https://api.telegram.org/bot%s"
+const apiBaseUri string = "https://api.telegram.org/bot%s"
 
 func New(apiKey string) (*TelegramBotAPI, error) {
 	toReturn := TelegramBotAPI{
-		baseApi: gopencils.Api(fmt.Sprintf(baseUri, apiKey)),
+		baseUri: fmt.Sprintf(apiBaseUri, apiKey),
 		Updates: make(chan model.Update),
 		Errors:  make(chan error),
 		closed:  make(chan struct{}),
@@ -94,8 +95,9 @@ func putUpdatesInChannel(channel chan model.Update, updates []model.Update) int 
 
 func (api *TelegramBotAPI) getUpdates() (*model.UpdateResponse, error) {
 	resp := &model.UpdateResponse{}
-	querystring := map[string]string{"timeout": fmt.Sprint(60)}
-	_, err := api.baseApi.Res("GetUpdates", resp).Get(querystring)
+	querystring := url.Values{}
+	querystring.Set("timeout", fmt.Sprint(60))
+	err := rest.Get(resp, fmt.Sprint(api.baseUri, "/GetUpdates"), querystring)
 	if err != nil {
 		return nil, err
 	}
@@ -104,8 +106,10 @@ func (api *TelegramBotAPI) getUpdates() (*model.UpdateResponse, error) {
 
 func (api *TelegramBotAPI) getUpdatesByOffset(offset int) (*model.UpdateResponse, error) {
 	resp := &model.UpdateResponse{}
-	querystring := map[string]string{"offset": fmt.Sprint(offset), "timeout": fmt.Sprint(60)}
-	_, err := api.baseApi.Res("GetUpdates", resp).Get(querystring)
+	querystring := url.Values{}
+	querystring.Set("timeout", fmt.Sprint(60))
+	querystring.Set("offset", fmt.Sprint(offset))
+	err := rest.Get(resp, fmt.Sprint(api.baseUri, "/GetUpdates"), querystring)
 	if err != nil {
 		return nil, err
 	}
@@ -114,7 +118,7 @@ func (api *TelegramBotAPI) getUpdatesByOffset(offset int) (*model.UpdateResponse
 
 func (api *TelegramBotAPI) GetMe() (*model.UserResponse, error) {
 	resp := &model.UserResponse{}
-	_, err := api.baseApi.Res("GetMe", resp).Get()
+	err := rest.Get(resp, fmt.Sprint(api.baseUri, "/GetMe"), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -123,8 +127,10 @@ func (api *TelegramBotAPI) GetMe() (*model.UserResponse, error) {
 
 func (api *TelegramBotAPI) SendMessage(chatId int, text string) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
-	querystring := map[string]string{"chat_id": fmt.Sprint(chatId), "text": text}
-	_, err := api.baseApi.Res("SendMessage", resp).Get(querystring)
+	querystring := url.Values{}
+	querystring.Set("chat_id", fmt.Sprint(chatId))
+	querystring.Set("text", text)
+	err := rest.Get(resp, fmt.Sprint(api.baseUri, "/SendMessage"), querystring)
 	if err != nil {
 		return nil, err
 	}
@@ -133,7 +139,7 @@ func (api *TelegramBotAPI) SendMessage(chatId int, text string) (*model.MessageR
 
 func (api *TelegramBotAPI) SendMessageExtended(querystring model.Querystring) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
-	_, err := api.baseApi.Res("SendMessage", resp).Get(map[string]string(querystring))
+	err := rest.Get(resp, fmt.Sprint(api.baseUri, "/SendMessage"), url.Values(querystring))
 	if err != nil {
 		return nil, err
 	}
@@ -142,8 +148,11 @@ func (api *TelegramBotAPI) SendMessageExtended(querystring model.Querystring) (*
 
 func (api *TelegramBotAPI) ForwardMessage(chatId, fromChatId, messageId int) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
-	querystring := map[string]string{"chat_id": fmt.Sprint(chatId), "from_chat_id": fmt.Sprint(fromChatId), "message_id": fmt.Sprint(messageId)}
-	_, err := api.baseApi.Res("ForwardMessage", resp).Get(querystring)
+	querystring := url.Values{}
+	querystring.Set("chat_id", fmt.Sprint(chatId))
+	querystring.Set("from_chat_id", fmt.Sprint(fromChatId))
+	querystring.Set("message_id", fmt.Sprint(messageId))
+	err := rest.Get(resp, fmt.Sprint(api.baseUri, "/ForwardMessage"), querystring)
 	if err != nil {
 		return nil, err
 	}
