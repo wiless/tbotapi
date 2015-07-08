@@ -3,9 +3,9 @@ package main
 import (
 	"bitbucket.org/mrd0ll4r/tbotapi"
 	"fmt"
-	"github.com/syncthing/syncthing/internal/sync"
 	"log"
 	"time"
+	"sync"
 )
 
 func main() {
@@ -19,7 +19,7 @@ func main() {
 	fmt.Printf("Bot Username: %s\n", api.Username)
 
 	close := make(chan struct{})
-	wg := sync.NewWaitGroup()
+	wg := &sync.WaitGroup{}
 
 	wg.Add(1)
 	go func() {
