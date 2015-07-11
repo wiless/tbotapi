@@ -2,6 +2,8 @@
 
 This is a simple wrapper for the Telegram Bot-API for Go. It provides a high-level API in Go that works with the Telegram REST API.
 
+[![GoDoc](https://godoc.org/bitbucket.org/mrd0ll4r/tbotapi?status.svg)](https://godoc.org/bitbucket.org/mrd0ll4r/tbotapi)
+
 ### How do I get set up? ###
 
 A simple
