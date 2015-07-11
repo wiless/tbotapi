@@ -13,24 +13,24 @@ import (
 // A TelegramBotAPI is an API Client for one Telegram bot.
 // Create a new client by calling the New() function.
 type TelegramBotAPI struct {
-	Id       int                // the bots ID
+	ID       int                // the bots ID
 	Name     string             // the bots Name as seen by users
 	Username string             // the bots username
 	Updates  chan *model.Update // a channel providing updates this bot receives
 	Errors   chan error         // a channel providing errors that occur during the retrieval of updates
-	baseUri  string
+	baseURI  string
 	closed   chan struct{}
 	wg       sync.WaitGroup
 }
 
-const apiBaseUri string = "https://api.telegram.org/bot%s"
+const apiBaseURI string = "https://api.telegram.org/bot%s"
 
 // New creates a new API Client for a Telegram bot using the apiKey provided.
 // It will call the GetMe method to retrieve the bots id, name and username.
 // Additionally, an update loop is started, pumping updates into the Updates channel.
 func New(apiKey string) (*TelegramBotAPI, error) {
 	toReturn := TelegramBotAPI{
-		baseUri: fmt.Sprintf(apiBaseUri, apiKey),
+		baseURI: fmt.Sprintf(apiBaseURI, apiKey),
 		Updates: make(chan *model.Update),
 		Errors:  make(chan error),
 		closed:  make(chan struct{}),
@@ -39,7 +39,7 @@ func New(apiKey string) (*TelegramBotAPI, error) {
 	if err != nil {
 		return nil, err
 	}
-	toReturn.Id = user.User.Id
+	toReturn.ID = user.User.Id
 	toReturn.Name = user.User.FirstName
 	toReturn.Username = user.User.Username
 
@@ -104,7 +104,7 @@ func (api *TelegramBotAPI) getUpdates() (*model.UpdateResponse, error) {
 	resp := &model.UpdateResponse{}
 	querystring := url.Values{}
 	querystring.Set("timeout", fmt.Sprint(60))
-	err := rest.Get(resp, fmt.Sprint(api.baseUri, "/GetUpdates"), querystring)
+	err := rest.Get(resp, fmt.Sprint(api.baseURI, "/GetUpdates"), querystring)
 	if err != nil {
 		return nil, err
 	}
@@ -120,7 +120,7 @@ func (api *TelegramBotAPI) getUpdatesByOffset(offset int) (*model.UpdateResponse
 	querystring := url.Values{}
 	querystring.Set("timeout", fmt.Sprint(60))
 	querystring.Set("offset", fmt.Sprint(offset))
-	err := rest.Get(resp, fmt.Sprint(api.baseUri, "/GetUpdates"), querystring)
+	err := rest.Get(resp, fmt.Sprint(api.baseURI, "/GetUpdates"), querystring)
 	if err != nil {
 		return nil, err
 	}
@@ -134,7 +134,7 @@ func (api *TelegramBotAPI) getUpdatesByOffset(offset int) (*model.UpdateResponse
 // GetMe returns basic information about the bot in form of a UserResponse.
 func (api *TelegramBotAPI) GetMe() (*model.UserResponse, error) {
 	resp := &model.UserResponse{}
-	err := rest.Get(resp, fmt.Sprint(api.baseUri, "/GetMe"), nil)
+	err := rest.Get(resp, fmt.Sprint(api.baseURI, "/GetMe"), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -145,15 +145,15 @@ func (api *TelegramBotAPI) GetMe() (*model.UserResponse, error) {
 	return resp, nil
 }
 
-// SendMessage sends a text message to the chatId specified, with the given text.
+// SendMessage sends a text message to the chatID specified, with the given text.
 // For more options, use the SendMessageExtended function.
 // On success, the sent message is returned as a MessageResponse.
-func (api *TelegramBotAPI) SendMessage(chatId int, text string) (*model.MessageResponse, error) {
+func (api *TelegramBotAPI) SendMessage(chatID int, text string) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
 	querystring := url.Values{}
-	querystring.Set("chat_id", fmt.Sprint(chatId))
+	querystring.Set("chat_id", fmt.Sprint(chatID))
 	querystring.Set("text", text)
-	err := rest.Get(resp, fmt.Sprint(api.baseUri, "/SendMessage"), querystring)
+	err := rest.Get(resp, fmt.Sprint(api.baseURI, "/SendMessage"), querystring)
 	if err != nil {
 		return nil, err
 	}
@@ -169,7 +169,7 @@ func (api *TelegramBotAPI) SendMessage(chatId int, text string) (*model.MessageR
 // On success, the sent message is returned as a MessageResponse.
 func (api *TelegramBotAPI) SendMessageExtended(om *model.OutgoingMessage) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
-	err := rest.Get(resp, fmt.Sprint(api.baseUri, "/SendMessage"), url.Values(om.GetQueryString()))
+	err := rest.Get(resp, fmt.Sprint(api.baseURI, "/SendMessage"), url.Values(om.GetQueryString()))
 	if err != nil {
 		return nil, err
 	}
@@ -180,15 +180,15 @@ func (api *TelegramBotAPI) SendMessageExtended(om *model.OutgoingMessage) (*mode
 	return resp, nil
 }
 
-// ForwardMessage forwards a message with id messageId from the fromChatId to the toChatId chat.
+// ForwardMessage forwards a message with ID messageID from the fromChatID to the toChatID chat.
 // On success, the sent message is returned as a MessageResponse.
-func (api *TelegramBotAPI) ForwardMessage(toChatId, fromChatId, messageId int) (*model.MessageResponse, error) {
+func (api *TelegramBotAPI) ForwardMessage(toChatID, fromChatID, messageID int) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
 	querystring := url.Values{}
-	querystring.Set("chat_id", fmt.Sprint(toChatId))
-	querystring.Set("from_chat_id", fmt.Sprint(fromChatId))
-	querystring.Set("message_id", fmt.Sprint(messageId))
-	err := rest.Get(resp, fmt.Sprint(api.baseUri, "/ForwardMessage"), querystring)
+	querystring.Set("chat_id", fmt.Sprint(toChatID))
+	querystring.Set("from_chat_id", fmt.Sprint(fromChatID))
+	querystring.Set("message_id", fmt.Sprint(messageID))
+	err := rest.Get(resp, fmt.Sprint(api.baseURI, "/ForwardMessage"), querystring)
 	if err != nil {
 		return nil, err
 	}
@@ -199,14 +199,14 @@ func (api *TelegramBotAPI) ForwardMessage(toChatId, fromChatId, messageId int) (
 	return resp, nil
 }
 
-// ResendPhoto resends a photo that is already on the Telegram servers by fileId.
+// ResendPhoto resends a photo that is already on the Telegram servers by fileID.
 // Use NewOutgoingPhoto to construct the outgoing photo message.
 // On success, the sent message is returned as a MessageResponse.
-func (api *TelegramBotAPI) ResendPhoto(op *model.OutgoingPhoto, fileId string) (*model.MessageResponse, error) {
+func (api *TelegramBotAPI) ResendPhoto(op *model.OutgoingPhoto, fileID string) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
 	querystring := url.Values(op.GetQueryString())
-	querystring.Set("photo", fileId)
-	err := rest.Get(resp, fmt.Sprint(api.baseUri, "/SendPhoto"), querystring)
+	querystring.Set("photo", fileID)
+	err := rest.Get(resp, fmt.Sprint(api.baseURI, "/SendPhoto"), querystring)
 	if err != nil {
 		return nil, err
 	}
@@ -237,7 +237,7 @@ func (api *TelegramBotAPI) SendPhoto(op *model.OutgoingPhoto, file io.Reader, fi
 		return nil, err
 	}
 
-	err = rest.PostMultipart(resp, fmt.Sprint(api.baseUri, "/SendPhoto"), message)
+	err = rest.PostMultipart(resp, fmt.Sprint(api.baseURI, "/SendPhoto"), message)
 	if err != nil {
 		return nil, err
 	}
@@ -248,14 +248,14 @@ func (api *TelegramBotAPI) SendPhoto(op *model.OutgoingPhoto, file io.Reader, fi
 	return resp, nil
 }
 
-// ResendAudio resends audio that is already on the Telegram servers by fileId.
+// ResendAudio resends audio that is already on the Telegram servers by fileID.
 // Use NewOutgoingAudio to construct the audio message.
 // On success, the sent message is returned as a MessageResponse.
-func (api *TelegramBotAPI) ResendAudio(oa *model.OutgoingAudio, fileId string) (*model.MessageResponse, error) {
+func (api *TelegramBotAPI) ResendAudio(oa *model.OutgoingAudio, fileID string) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
 	querystring := url.Values(oa.GetQueryString())
-	querystring.Set("audio", fileId)
-	err := rest.Get(resp, fmt.Sprint(api.baseUri, "/SendAudio"), querystring)
+	querystring.Set("audio", fileID)
+	err := rest.Get(resp, fmt.Sprint(api.baseURI, "/SendAudio"), querystring)
 	if err != nil {
 		return nil, err
 	}
@@ -287,7 +287,7 @@ func (api *TelegramBotAPI) SendAudio(oa *model.OutgoingAudio, file io.Reader, fi
 		return nil, err
 	}
 
-	err = rest.PostMultipart(resp, fmt.Sprint(api.baseUri, "/SendAudio"), message)
+	err = rest.PostMultipart(resp, fmt.Sprint(api.baseURI, "/SendAudio"), message)
 	if err != nil {
 		return nil, err
 	}
@@ -298,14 +298,14 @@ func (api *TelegramBotAPI) SendAudio(oa *model.OutgoingAudio, file io.Reader, fi
 	return resp, nil
 }
 
-// ResendDocument resends a general file that is already on the Telegram servers by fileId.
+// ResendDocument resends a general file that is already on the Telegram servers by fileID.
 // Use NewOutgoingDocument to construct the message.
 // On success, the sent message is returned as a MessageResponse.
-func (api *TelegramBotAPI) ResendDocument(od *model.OutgoingDocument, fileId string) (*model.MessageResponse, error) {
+func (api *TelegramBotAPI) ResendDocument(od *model.OutgoingDocument, fileID string) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
 	querystring := url.Values(od.GetQueryString())
-	querystring.Set("document", fileId)
-	err := rest.Get(resp, fmt.Sprint(api.baseUri, "/SendDocument"), querystring)
+	querystring.Set("document", fileID)
+	err := rest.Get(resp, fmt.Sprint(api.baseURI, "/SendDocument"), querystring)
 	if err != nil {
 		return nil, err
 	}
@@ -336,7 +336,7 @@ func (api *TelegramBotAPI) SendDocument(od *model.OutgoingDocument, file io.Read
 		return nil, err
 	}
 
-	err = rest.PostMultipart(resp, fmt.Sprint(api.baseUri, "/SendDocument"), message)
+	err = rest.PostMultipart(resp, fmt.Sprint(api.baseURI, "/SendDocument"), message)
 	if err != nil {
 		return nil, err
 	}
@@ -347,14 +347,14 @@ func (api *TelegramBotAPI) SendDocument(od *model.OutgoingDocument, file io.Read
 	return resp, nil
 }
 
-// ResendSticker resends a sticker that is already on the Telegram servers by fileId.
+// ResendSticker resends a sticker that is already on the Telegram servers by fileID.
 // Use NewOutgoingSticker to construct the message.
 // On success, the sent message is returned as a MessageResponse.
-func (api *TelegramBotAPI) ResendSticker(os *model.OutgoingSticker, fileId string) (*model.MessageResponse, error) {
+func (api *TelegramBotAPI) ResendSticker(os *model.OutgoingSticker, fileID string) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
 	querystring := url.Values(os.GetQueryString())
-	querystring.Set("sticker", fileId)
-	err := rest.Get(resp, fmt.Sprint(api.baseUri, "/SendSticker"), querystring)
+	querystring.Set("sticker", fileID)
+	err := rest.Get(resp, fmt.Sprint(api.baseURI, "/SendSticker"), querystring)
 	if err != nil {
 		return nil, err
 	}
@@ -386,7 +386,7 @@ func (api *TelegramBotAPI) SendSticker(os *model.OutgoingSticker, file io.Reader
 		return nil, err
 	}
 
-	err = rest.PostMultipart(resp, fmt.Sprint(api.baseUri, "/SendSticker"), message)
+	err = rest.PostMultipart(resp, fmt.Sprint(api.baseURI, "/SendSticker"), message)
 	if err != nil {
 		return nil, err
 	}
@@ -397,14 +397,14 @@ func (api *TelegramBotAPI) SendSticker(os *model.OutgoingSticker, file io.Reader
 	return resp, nil
 }
 
-// ResendVideo resends a video that is already on the Telegram servers by fileId.
+// ResendVideo resends a video that is already on the Telegram servers by fileID.
 // Use NewOutgoingVideo to construct the video message.
 // On success, the sent message is returned as a MessageResponse.
-func (api *TelegramBotAPI) ResendVideo(ov *model.OutgoingVideo, fileId string) (*model.MessageResponse, error) {
+func (api *TelegramBotAPI) ResendVideo(ov *model.OutgoingVideo, fileID string) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
 	querystring := url.Values(ov.GetQueryString())
-	querystring.Set("video", fileId)
-	err := rest.Get(resp, fmt.Sprint(api.baseUri, "/SendVideo"), querystring)
+	querystring.Set("video", fileID)
+	err := rest.Get(resp, fmt.Sprint(api.baseURI, "/SendVideo"), querystring)
 	if err != nil {
 		return nil, err
 	}
@@ -436,7 +436,7 @@ func (api *TelegramBotAPI) SendVideo(ov *model.OutgoingVideo, file io.Reader, fi
 		return nil, err
 	}
 
-	err = rest.PostMultipart(resp, fmt.Sprint(api.baseUri, "/SendVideo"), message)
+	err = rest.PostMultipart(resp, fmt.Sprint(api.baseURI, "/SendVideo"), message)
 	if err != nil {
 		return nil, err
 	}
@@ -453,7 +453,7 @@ func (api *TelegramBotAPI) SendVideo(ov *model.OutgoingVideo, file io.Reader, fi
 func (api *TelegramBotAPI) SendLocation(ol *model.OutgoingLocation) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
 	querystring := url.Values(ol.GetQueryString())
-	err := rest.Get(resp, fmt.Sprint(api.baseUri, "/SendLocation"), querystring)
+	err := rest.Get(resp, fmt.Sprint(api.baseURI, "/SendLocation"), querystring)
 	if err != nil {
 		return nil, err
 	}
@@ -464,15 +464,15 @@ func (api *TelegramBotAPI) SendLocation(ol *model.OutgoingLocation) (*model.Mess
 	return resp, nil
 }
 
-// SendChatAction sends a chat action to the specified chatId.
+// SendChatAction sends a chat action to the specified chatID.
 // Use the ChatAction constants to specify the action.
 // On success, a BaseResponse is returned.
-func (api *TelegramBotAPI) SendChatAction(chatId int, action model.ChatAction) (*model.BaseResponse, error) {
+func (api *TelegramBotAPI) SendChatAction(chatID int, action model.ChatAction) (*model.BaseResponse, error) {
 	resp := &model.BaseResponse{}
 	querystring := url.Values{}
-	querystring.Set("chat_id", fmt.Sprint(chatId))
+	querystring.Set("chat_id", fmt.Sprint(chatID))
 	querystring.Set("action", string(action))
-	err := rest.Get(resp, fmt.Sprint(api.baseUri, "/SendChatAction"), querystring)
+	err := rest.Get(resp, fmt.Sprint(api.baseURI, "/SendChatAction"), querystring)
 	if err != nil {
 		return nil, err
 	}
@@ -488,7 +488,7 @@ func (api *TelegramBotAPI) SendChatAction(chatId int, action model.ChatAction) (
 // On success, the photos are returned as a UserProfilePhotosResponse.
 func (api *TelegramBotAPI) GetProfilePhotos(op *model.OutgoingUserProfilePhotosRequest) (*model.UserProfilePhotosResponse, error) {
 	resp := &model.UserProfilePhotosResponse{}
-	err := rest.Get(resp, fmt.Sprint(api.baseUri, "/GetUserProfilePhotos"), url.Values(op.GetQueryString()))
+	err := rest.Get(resp, fmt.Sprint(api.baseURI, "/GetUserProfilePhotos"), url.Values(op.GetQueryString()))
 	if err != nil {
 		return nil, err
 	}
@@ -504,5 +504,5 @@ func check(br *model.BaseResponse) error {
 		return nil
 	}
 
-	return errors.New(fmt.Sprintf("tbotapi: API error: %d - %s", br.ErrorCode, br.Description))
+	return fmt.Errorf("tbotapi: API error: %d - %s", br.ErrorCode, br.Description)
 }

@@ -15,7 +15,7 @@ func main() {
 	}
 
 	// just to show its working
-	fmt.Printf("User ID: %d\n", api.Id)
+	fmt.Printf("User ID: %d\n", api.ID)
 	fmt.Printf("Bot Name: %s\n", api.Name)
 	fmt.Printf("Bot Username: %s\n", api.Username)
 
