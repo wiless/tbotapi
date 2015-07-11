@@ -15,33 +15,33 @@ type Message struct {
 }
 
 type noReplyMessage struct {
-	Chat                messageChatInner `json:"chat"`
-	Id                  int              `json:"message_id"`
-	From                User             `json:"from"`
-	Date                int              `json:"date"`
-	ForwardFrom         User             `json:"forward_from"`
-	ForwardDate         int              `json:"forward_date"`
-	Text                string           `json:"text"`
-	Audio               Audio            `json:"audio"`
-	Document            Document         `json:"document"`
-	Photo               []PhotoSize      `json:"photo"`
-	Sticker             Sticker          `json:"sticker"`
-	Video               Video            `json:"video"`
-	Contact             Contact          `json:"contact"`
-	Location            Location         `json:"location"`
-	NewChatParticipant  User             `json:"new_chat_participant"`
-	LeftChatParticipant User             `json:"left_chat_participant"`
-	NewChatTitle        string           `json:"new_chat_title"`
-	NewChatPhoto        []PhotoSize      `json:"new_chat_photo"`
-	DeleteChatPhoto     bool             `json:"delete_chat_photo"`
-	GroupChatCreated    bool             `json:"group_chat_created"`
+	Chat                messageChatInner `json:"chat"`                  // information about the chat
+	Id                  int              `json:"message_id"`            // message id
+	From                User             `json:"from"`                  // sender
+	Date                int              `json:"date"`                  // timestamp
+	ForwardFrom         User             `json:"forward_from"`          // forwarded from who
+	ForwardDate         int              `json:"forward_date"`          // forwarded from when
+	Text                string           `json:"text"`                  // the actual text content
+	Audio               Audio            `json:"audio"`                 // information about audio contents
+	Document            Document         `json:"document"`              // information about file contents
+	Photo               []PhotoSize      `json:"photo"`                 // information about photo contents
+	Sticker             Sticker          `json:"sticker"`               // information about sticker contents
+	Video               Video            `json:"video"`                 // information about video contents
+	Contact             Contact          `json:"contact"`               // information about contact contents
+	Location            Location         `json:"location"`              // information about location contents
+	NewChatParticipant  User             `json:"new_chat_participant"`  // information about a new chat participant
+	LeftChatParticipant User             `json:"left_chat_participant"` // information about a chat participant who left
+	NewChatTitle        string           `json:"new_chat_title"`        // information about changes in the group name
+	NewChatPhoto        []PhotoSize      `json:"new_chat_photo"`        // information about a new chat photo
+	DeleteChatPhoto     bool             `json:"delete_chat_photo"`     // information about a deleted chat photo
+	GroupChatCreated    bool             `json:"group_chat_created"`    // information about a created group chat
 }
 
 type messageChatInner struct {
-	IsGroupChat bool
-	Id          int
-	ChatUser    User
-	ChatGroup   GroupChat
+	IsGroupChat bool      // is a group chat -> check ChatGroup
+	Id          int       // the chat id, independent of group/user-chat
+	ChatUser    User      // if not a group chat: Information about the user chat
+	ChatGroup   GroupChat //if group chat: Information about the group chat
 }
 
 func (inner *messageChatInner) UnmarshalJSON(b []byte) error {
