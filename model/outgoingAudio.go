@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"net/url"
 )
 
@@ -44,7 +45,7 @@ func (oa *OutgoingAudio) GetQueryString() Querystring {
 	toReturn := url.Values(oa.GetBaseQueryString())
 
 	if oa.durationSet {
-		toReturn.Set("duration", oa.duration)
+		toReturn.Set("duration", fmt.Sprint(oa.duration))
 	}
 
 	if oa.performerSet {

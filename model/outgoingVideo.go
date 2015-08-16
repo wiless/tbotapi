@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"net/url"
 )
 
@@ -40,7 +41,7 @@ func (ov *OutgoingVideo) GetQueryString() Querystring {
 	}
 
 	if ov.durationSet {
-		toReturn.Set("duration", ov.duration)
+		toReturn.Set("duration", fmt.Sprint(ov.duration))
 	}
 
 	return Querystring(toReturn)
