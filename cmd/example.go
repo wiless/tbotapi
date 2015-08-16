@@ -31,7 +31,7 @@ func main() {
 				return
 			case val := <-api.Updates:
 				// -> simple echo bot
-				msg, err := api.SendMessage(val.Message.Chat.Id, val.Message.Text)
+				msg, err := api.SendMessage(val.Message.Chat.Id, *val.Message.Text)
 
 				// -> simple echo bot with disabled web page preview
 				//msg, err := api.SendMessageExtended(model.NewOutgoingMessage(val.Message.Chat.Id, val.Message.Text).SetDisableWebPagePreview(true))

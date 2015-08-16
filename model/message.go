@@ -19,24 +19,24 @@ type noReplyMessage struct {
 	Id                  int              `json:"message_id"`            // message id
 	From                User             `json:"from"`                  // sender
 	Date                int              `json:"date"`                  // timestamp
-	ForwardFrom         User             `json:"forward_from"`          // forwarded from who
-	ForwardDate         int              `json:"forward_date"`          // forwarded from when
-	Text                string           `json:"text"`                  // the actual text content
-	Caption             string           `json:"caption"`               // caption for photo or video messages
-	Audio               Audio            `json:"audio"`                 // information about audio contents
-	Document            Document         `json:"document"`              // information about file contents
-	Photo               []PhotoSize      `json:"photo"`                 // information about photo contents
-	Sticker             Sticker          `json:"sticker"`               // information about sticker contents
-	Video               Video            `json:"video"`                 // information about video contents
-	Voice               Voice            `json:"voice"`                 // information about voice message contents
-	Contact             Contact          `json:"contact"`               // information about contact contents
-	Location            Location         `json:"location"`              // information about location contents
-	NewChatParticipant  User             `json:"new_chat_participant"`  // information about a new chat participant
-	LeftChatParticipant User             `json:"left_chat_participant"` // information about a chat participant who left
-	NewChatTitle        string           `json:"new_chat_title"`        // information about changes in the group name
-	NewChatPhoto        []PhotoSize      `json:"new_chat_photo"`        // information about a new chat photo
-	DeleteChatPhoto     bool             `json:"delete_chat_photo"`     // information about a deleted chat photo
-	GroupChatCreated    bool             `json:"group_chat_created"`    // information about a created group chat
+	ForwardFrom         *User            `json:"forward_from"`          // forwarded from who
+	ForwardDate         *int             `json:"forward_date"`          // forwarded from when
+	Text                *string          `json:"text"`                  // the actual text content
+	Caption             *string          `json:"caption"`               // caption for photo or video messages
+	Audio               *Audio           `json:"audio"`                 // information about audio contents
+	Document            *Document        `json:"document"`              // information about file contents
+	Photo               *[]PhotoSize     `json:"photo"`                 // information about photo contents
+	Sticker             *Sticker         `json:"sticker"`               // information about sticker contents
+	Video               *Video           `json:"video"`                 // information about video contents
+	Voice               *Voice           `json:"voice"`                 // information about voice message contents
+	Contact             *Contact         `json:"contact"`               // information about contact contents
+	Location            *Location        `json:"location"`              // information about location contents
+	NewChatParticipant  *User            `json:"new_chat_participant"`  // information about a new chat participant
+	LeftChatParticipant *User            `json:"left_chat_participant"` // information about a chat participant who left
+	NewChatTitle        *string          `json:"new_chat_title"`        // information about changes in the group name
+	NewChatPhoto        *[]PhotoSize     `json:"new_chat_photo"`        // information about a new chat photo
+	DeleteChatPhoto     *bool            `json:"delete_chat_photo"`     // information about a deleted chat photo
+	GroupChatCreated    *bool            `json:"group_chat_created"`    // information about a created group chat
 }
 
 type messageChatInner struct {
