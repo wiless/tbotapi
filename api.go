@@ -2,7 +2,6 @@ package tbotapi
 
 import (
 	"bitbucket.org/mrd0ll4r/tbotapi/model"
-	"errors"
 	"fmt"
 	"io"
 	"menteslibres.net/gosexy/rest"
