@@ -8,7 +8,7 @@ import (
 type OutgoingMessage struct {
 	OutgoingBase
 	text                     string
-	disableWebPagePreview    bool `json:"disable_web_page_preview"`
+	disableWebPagePreview    bool
 	disableWebPagePreviewSet bool
 }
 
