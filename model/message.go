@@ -28,6 +28,7 @@ type noReplyMessage struct {
 	Photo               []PhotoSize      `json:"photo"`                 // information about photo contents
 	Sticker             Sticker          `json:"sticker"`               // information about sticker contents
 	Video               Video            `json:"video"`                 // information about video contents
+	Voice               Voice            `json:"voice"`                 // information about voice message contents
 	Contact             Contact          `json:"contact"`               // information about contact contents
 	Location            Location         `json:"location"`              // information about location contents
 	NewChatParticipant  User             `json:"new_chat_participant"`  // information about a new chat participant
