@@ -14,6 +14,50 @@ type Message struct {
 	ReplyToMessage *noReplyMessage `json:"reply_to_message"`
 }
 
+func (m *Message) IsForwarded() bool {
+	return m.ForwardFrom != nil
+}
+
+func (m *Message) IsReply() bool {
+	return m.ReplyToMessage != nil
+}
+
+func (m *Message) Type() MessageType {
+	if m.Text != nil {
+		return TEXT
+	} else if m.Audio != nil {
+		return AUDIO
+	} else if m.Document != nil {
+		return DOCUMENT
+	} else if m.Photo != nil {
+		return PHOTO
+	} else if m.Sticker != nil {
+		return STICKER
+	} else if m.Video != nil {
+		return VIDEO
+	} else if m.Voice != nil {
+		return VOICE
+	} else if m.Contact != nil {
+		return CONTACT
+	} else if m.Location != nil {
+		return LOCATION
+	} else if m.NewChatParticipant != nil {
+		return NEW_CHAT_PARTICIPANT
+	} else if m.LeftChatParticipant != nil {
+		return LEFT_CHAT_PARTICIPANT
+	} else if m.NewChatTitle != nil {
+		return NEW_CHAT_TITLE
+	} else if m.NewChatPhoto != nil {
+		return NEW_CHAT_PHOTO
+	} else if m.DeleteChatPhoto != nil {
+		return DELETE_CHAT_PHOTO
+	} else if m.GroupChatCreated != nil {
+		return GROUP_CHAT_CREATED
+	}
+
+	return UNKNOWN
+}
+
 type noReplyMessage struct {
 	Chat                messageChatInner `json:"chat"`                  // information about the chat
 	Id                  int              `json:"message_id"`            // message id
@@ -43,7 +87,7 @@ type messageChatInner struct {
 	IsGroupChat bool      // is a group chat -> check ChatGroup
 	Id          int       // the chat id, independent of group/user-chat
 	ChatUser    User      // if not a group chat: Information about the user chat
-	ChatGroup   GroupChat //if group chat: Information about the group chat
+	ChatGroup   GroupChat // if group chat: Information about the group chat
 }
 
 func (inner *messageChatInner) UnmarshalJSON(b []byte) error {
