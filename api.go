@@ -247,6 +247,56 @@ func (api *TelegramBotAPI) SendPhoto(op *model.OutgoingPhoto, file io.Reader, fi
 	return resp, nil
 }
 
+// ResendVoice resends a voice message that is already on the Telegram servers by fileID.
+// Use NewOutgoingVoice to construct the voice message.
+// On success, the sent message is returned as a MessageResponse.
+func (api *TelegramBotAPI) ResendVoice(ov *model.OutgoingVoice, fileID string) (*model.MessageResponse, error) {
+	resp := &model.MessageResponse{}
+	querystring := url.Values(ov.GetQueryString())
+	querystring.Set("audio", fileID)
+	err := rest.Get(resp, fmt.Sprint(api.baseURI, "/SendVoice"), querystring)
+	if err != nil {
+		return nil, err
+	}
+	err = check(&resp.BaseResponse)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+// SendVoice sends a voice message with the contents not already on the Telegram servers.
+// Use NewOutgoingVoice to construct the voice message, specify an io.Reader and a fileName.
+// Note that the Telegram servers check the extension of the file name and will reject non-audio files.
+// Check the current API documentation for the file types accepted.
+// On success, the sent message is returned as a MessageResponse.
+func (api *TelegramBotAPI) SendVoice(ov *model.OutgoingVoice, file io.Reader, fileName string) (*model.MessageResponse, error) {
+	resp := &model.MessageResponse{}
+	files := rest.FileMap{
+		"audio": []rest.File{
+			{
+				Name:   fileName,
+				Reader: file,
+			},
+		},
+	}
+
+	message, err := rest.NewMultipartMessage(url.Values(ov.GetQueryString()), files)
+	if err != nil {
+		return nil, err
+	}
+
+	err = rest.PostMultipart(resp, fmt.Sprint(api.baseURI, "/SendVoice"), message)
+	if err != nil {
+		return nil, err
+	}
+	err = check(&resp.BaseResponse)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
 // ResendAudio resends audio that is already on the Telegram servers by fileID.
 // Use NewOutgoingAudio to construct the audio message.
 // On success, the sent message is returned as a MessageResponse.
