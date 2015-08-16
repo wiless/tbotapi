@@ -14,14 +14,18 @@ type Message struct {
 	ReplyToMessage *noReplyMessage `json:"reply_to_message"`
 }
 
+// IsForwarded checks if the message was forwarded
 func (m *Message) IsForwarded() bool {
 	return m.ForwardFrom != nil
 }
 
+// IsReply checks if the message is a reply
 func (m *Message) IsReply() bool {
 	return m.ReplyToMessage != nil
 }
 
+// Type determines the type of the message.
+// Note that, for all these types, messages can still be replies or forwarded.
 func (m *Message) Type() MessageType {
 	if m.Text != nil {
 		return TEXT
