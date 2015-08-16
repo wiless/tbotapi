@@ -2,6 +2,7 @@ package main
 
 import (
 	"bitbucket.org/mrd0ll4r/tbotapi"
+	"bitbucket.org/mrd0ll4r/tbotapi/model"
 	"fmt"
 	"log"
 	"sync"
@@ -30,6 +31,12 @@ func main() {
 				wg.Done()
 				return
 			case val := <-api.Updates:
+				typ := val.Message.Type()
+				if typ != model.TEXT {
+					//ignore non-text messages for now
+					continue
+				}
+
 				// -> simple echo bot
 				msg, err := api.SendMessage(val.Message.Chat.Id, *val.Message.Text)
 
