@@ -22,6 +22,7 @@ type noReplyMessage struct {
 	ForwardFrom         User             `json:"forward_from"`          // forwarded from who
 	ForwardDate         int              `json:"forward_date"`          // forwarded from when
 	Text                string           `json:"text"`                  // the actual text content
+	Caption             string           `json:"caption"`               // caption for photo or video messages
 	Audio               Audio            `json:"audio"`                 // information about audio contents
 	Document            Document         `json:"document"`              // information about file contents
 	Photo               []PhotoSize      `json:"photo"`                 // information about photo contents
