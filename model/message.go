@@ -11,7 +11,7 @@ type MessageResponse struct {
 
 type Message struct {
 	noReplyMessage
-	ReplyToMessage noReplyMessage `json:"reply_to_message"`
+	ReplyToMessage *noReplyMessage `json:"reply_to_message"`
 }
 
 type noReplyMessage struct {
