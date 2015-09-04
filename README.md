@@ -31,3 +31,9 @@ We use
 ### Who do I talk to? ###
 
 * Repo owner or admin
+
+### License
+This work is licensed under the MIT License. A copy of the MIT License can be found in `license.txt`.
+
+Feel free to use this library for any bot whatsoever. If you find any bugs, have any ideas about improvements or just
+want to show me what you've done with this, please contact me at [![Telegram](https://telegram.me/tbotapibot)].
