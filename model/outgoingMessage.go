@@ -10,6 +10,8 @@ type OutgoingMessage struct {
 	text                     string
 	disableWebPagePreview    bool
 	disableWebPagePreviewSet bool
+	isMarkdown               bool
+	isMarkdownSet            bool
 }
 
 type Querystring url.Values
@@ -21,6 +23,12 @@ func NewOutgoingMessage(chatId int, text string) *OutgoingMessage {
 		},
 		text: text,
 	}
+}
+
+func (om *OutgoingMessage) SetMarkdown(to bool) *OutgoingMessage {
+	om.isMarkdown = to
+	om.isMarkdownSet = true
+	return om
 }
 
 func (om *OutgoingMessage) SetDisableWebPagePreview(to bool) *OutgoingMessage {
@@ -35,6 +43,10 @@ func (om *OutgoingMessage) GetQueryString() Querystring {
 
 	if om.disableWebPagePreviewSet {
 		toReturn.Set("disable_web_page_preview", fmt.Sprint(om.disableWebPagePreview))
+	}
+
+	if om.isMarkdownSet && om.isMarkdown {
+		toReturn.Set("parse_mode", "Markdown")
 	}
 
 	return Querystring(toReturn)
