@@ -66,9 +66,7 @@ func main() {
 	}()
 
 	// let it run for five minutes
-	timer := time.NewTimer(time.Duration(5) * time.Minute)
-
-	<-timer.C
+	time.Sleep(time.Duration(5) * time.Minute)
 
 	fmt.Println("Closing...")
 
