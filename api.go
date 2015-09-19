@@ -8,6 +8,7 @@ import (
 	"menteslibres.net/gosexy/rest"
 	"net/url"
 	"sync"
+	"time"
 )
 
 // A TelegramBotAPI is an API Client for one Telegram bot.
@@ -78,7 +79,11 @@ func (api *TelegramBotAPI) updateLoop() {
 		}
 
 		if err != nil {
-			api.Errors <- err
+			if err.Error() != "Could not convert response []uint8 to model.UpdateResponse." {
+				api.Errors <- err
+			} else {
+				time.Sleep(time.Duration(10) * time.Second)
+			}
 		} else {
 			updates.Sort()
 			offset = putUpdatesInChannel(api.Updates, updates.Update)
