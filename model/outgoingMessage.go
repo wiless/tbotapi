@@ -1,17 +1,21 @@
 package model
 
 import (
-	"fmt"
 	"net/url"
 )
 
+type OutgoingMessagePub struct {
+	OutgoingBasePub
+	Text                  string `json:"text"`
+	DisableWebPagePreview bool   `json:"disable_web_page_preview,omitempty"`
+	ParseMode             string `json:"parse_mode,omitempty"`
+}
+
 type OutgoingMessage struct {
 	OutgoingBase
-	text                     string
-	disableWebPagePreview    bool
-	disableWebPagePreviewSet bool
-	isMarkdown               bool
-	isMarkdownSet            bool
+	text                  string
+	disableWebPagePreview bool
+	isMarkdown            bool
 }
 
 type Querystring url.Values
@@ -27,27 +31,24 @@ func NewOutgoingMessage(chatId int, text string) *OutgoingMessage {
 
 func (om *OutgoingMessage) SetMarkdown(to bool) *OutgoingMessage {
 	om.isMarkdown = to
-	om.isMarkdownSet = true
 	return om
 }
 
 func (om *OutgoingMessage) SetDisableWebPagePreview(to bool) *OutgoingMessage {
 	om.disableWebPagePreview = to
-	om.disableWebPagePreviewSet = true
 	return om
 }
 
-func (om *OutgoingMessage) GetQueryString() Querystring {
-	toReturn := url.Values(om.GetBaseQueryString())
-	toReturn.Set("text", om.text)
-
-	if om.disableWebPagePreviewSet {
-		toReturn.Set("disable_web_page_preview", fmt.Sprint(om.disableWebPagePreview))
+func (om *OutgoingMessage) GetPub() OutgoingMessagePub {
+	markup := ""
+	if om.isMarkdown {
+		markup = "Markdown"
 	}
 
-	if om.isMarkdownSet && om.isMarkdown {
-		toReturn.Set("parse_mode", "Markdown")
+	return OutgoingMessagePub{
+		OutgoingBasePub: om.OutgoingBase.GetPubBase(),
+		Text:            om.text,
+		DisableWebPagePreview: om.disableWebPagePreview,
+		ParseMode:             markup,
 	}
-
-	return Querystring(toReturn)
 }

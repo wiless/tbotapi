@@ -6,12 +6,18 @@ import (
 	"net/url"
 )
 
+type OutgoingBasePub struct {
+	ChatId           int    `json:"chat_id"`
+	ReplyToMessageId int    `json:"reply_to_message_id,omitempty"`
+	ReplyMarkup      string `json:"reply_markup,omitempty"`
+}
+
 type OutgoingBase struct {
-	chatId              int
-	replyToMessageId    int
-	replyMarkup         string
-	replyToMessageIdSet bool
-	replyMarkupSet      bool
+	chatId              int    `json:"chat_id"`
+	replyToMessageId    int    `json:"reply_to_message_id,omitempty"`
+	replyMarkup         string `json:"reply_markup,omitempty"`
+	replyToMessageIdSet bool   `json:"-"`
+	replyMarkupSet      bool   `json:"-"`
 }
 
 func (op *OutgoingBase) SetReplyToMessageId(to int) {
@@ -82,4 +88,12 @@ func (op *OutgoingBase) GetBaseQueryString() Querystring {
 	}
 
 	return Querystring(toReturn)
+}
+
+func (ob *OutgoingBase) GetPubBase() OutgoingBasePub {
+	return OutgoingBasePub{
+		ChatId:           ob.chatId,
+		ReplyMarkup:      ob.replyMarkup,
+		ReplyToMessageId: ob.replyToMessageId,
+	}
 }

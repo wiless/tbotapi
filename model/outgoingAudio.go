@@ -5,6 +5,13 @@ import (
 	"net/url"
 )
 
+type OutgoingAudioPub struct {
+	OutgoingBasePub
+	Duration  int    `json:"duration,omitempty"`
+	Title     string `json:"title,omitempty"`
+	Performer string `json:"performer,omitempty"`
+}
+
 type OutgoingAudio struct {
 	OutgoingBase
 	duration     int
@@ -57,4 +64,13 @@ func (oa *OutgoingAudio) GetQueryString() Querystring {
 	}
 
 	return Querystring(toReturn)
+}
+
+func (oa *OutgoingAudio) GetPub() OutgoingAudioPub {
+	return OutgoingAudioPub{
+		OutgoingBasePub: oa.GetPubBase(),
+		Duration:        oa.duration,
+		Performer:       oa.performer,
+		Title:           oa.title,
+	}
 }

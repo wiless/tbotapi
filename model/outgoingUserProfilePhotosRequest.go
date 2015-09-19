@@ -5,6 +5,12 @@ import (
 	"net/url"
 )
 
+type OutgoingUserProfilePhotosRequestPub struct {
+	UserId int `json:"user_id"`
+	Offset int `json:"offset,omitempty"`
+	Limit  int `json:"limit,omitempty"`
+}
+
 type OutgoingUserProfilePhotosRequest struct {
 	userId    int
 	offset    int
@@ -42,4 +48,12 @@ func (op *OutgoingUserProfilePhotosRequest) GetQueryString() Querystring {
 	}
 
 	return Querystring(toReturn)
+}
+
+func (op *OutgoingUserProfilePhotosRequest) GetPub() OutgoingUserProfilePhotosRequestPub {
+	return OutgoingUserProfilePhotosRequestPub{
+		UserId: op.userId,
+		Offset: op.offset,
+		Limit:  op.limit,
+	}
 }

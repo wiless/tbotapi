@@ -4,6 +4,11 @@ import (
 	"net/url"
 )
 
+type OutgoingPhotoPub struct {
+	OutgoingBasePub
+	Caption string `json:"caption"`
+}
+
 type OutgoingPhoto struct {
 	OutgoingBase
 	caption    string
@@ -32,4 +37,11 @@ func (op *OutgoingPhoto) GetQueryString() Querystring {
 	}
 
 	return Querystring(toReturn)
+}
+
+func (op *OutgoingPhoto) GetPub() OutgoingPhotoPub {
+	return OutgoingPhotoPub{
+		OutgoingBasePub: op.GetPubBase(),
+		Caption:         op.caption,
+	}
 }

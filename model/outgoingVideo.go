@@ -5,6 +5,12 @@ import (
 	"net/url"
 )
 
+type OutgoingVideoPub struct {
+	OutgoingBasePub
+	Duration int    `json:"duration,omitempty"`
+	Caption  string `json:"caption,omitempty"`
+}
+
 type OutgoingVideo struct {
 	OutgoingBase
 	duration    int
@@ -45,4 +51,12 @@ func (ov *OutgoingVideo) GetQueryString() Querystring {
 	}
 
 	return Querystring(toReturn)
+}
+
+func (ov *OutgoingVideo) GetPub() OutgoingVideoPub {
+	return OutgoingVideoPub{
+		OutgoingBasePub: ov.GetPubBase(),
+		Duration:        ov.duration,
+		Caption:         ov.caption,
+	}
 }

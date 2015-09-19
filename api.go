@@ -3,6 +3,7 @@ package tbotapi
 import (
 	"bitbucket.org/mrd0ll4r/tbotapi/model"
 	"fmt"
+	"github.com/jmcvetta/napping"
 	"io"
 	"menteslibres.net/gosexy/rest"
 	"net/url"
@@ -20,6 +21,7 @@ type TelegramBotAPI struct {
 	baseURI  string
 	closed   chan struct{}
 	wg       sync.WaitGroup
+	session  napping.Session
 }
 
 const apiBaseURI string = "https://api.telegram.org/bot%s"
@@ -33,6 +35,7 @@ func New(apiKey string) (*TelegramBotAPI, error) {
 		Updates: make(chan *model.Update),
 		Errors:  make(chan error),
 		closed:  make(chan struct{}),
+		session: napping.Session{},
 	}
 	user, err := toReturn.GetMe()
 	if err != nil {
@@ -103,7 +106,7 @@ func (api *TelegramBotAPI) getUpdates() (*model.UpdateResponse, error) {
 	resp := &model.UpdateResponse{}
 	querystring := url.Values{}
 	querystring.Set("timeout", fmt.Sprint(60))
-	err := rest.Get(resp, fmt.Sprint(api.baseURI, "/GetUpdates"), querystring)
+	_, err := api.session.Get(fmt.Sprint(api.baseURI, "/GetUpdates"), &querystring, resp, resp)
 	if err != nil {
 		return nil, err
 	}
@@ -119,7 +122,7 @@ func (api *TelegramBotAPI) getUpdatesByOffset(offset int) (*model.UpdateResponse
 	querystring := url.Values{}
 	querystring.Set("timeout", fmt.Sprint(60))
 	querystring.Set("offset", fmt.Sprint(offset))
-	err := rest.Get(resp, fmt.Sprint(api.baseURI, "/GetUpdates"), querystring)
+	_, err := api.session.Get(fmt.Sprint(api.baseURI, "/GetUpdates"), &querystring, resp, resp)
 	if err != nil {
 		return nil, err
 	}
@@ -133,7 +136,7 @@ func (api *TelegramBotAPI) getUpdatesByOffset(offset int) (*model.UpdateResponse
 // GetMe returns basic information about the bot in form of a UserResponse.
 func (api *TelegramBotAPI) GetMe() (*model.UserResponse, error) {
 	resp := &model.UserResponse{}
-	err := rest.Get(resp, fmt.Sprint(api.baseURI, "/GetMe"), nil)
+	_, err := api.session.Get(fmt.Sprint(api.baseURI, "/GetMe"), nil, resp, resp)
 	if err != nil {
 		return nil, err
 	}
@@ -148,19 +151,7 @@ func (api *TelegramBotAPI) GetMe() (*model.UserResponse, error) {
 // For more options, use the SendMessageExtended function.
 // On success, the sent message is returned as a MessageResponse.
 func (api *TelegramBotAPI) SendMessage(chatID int, text string) (*model.MessageResponse, error) {
-	resp := &model.MessageResponse{}
-	querystring := url.Values{}
-	querystring.Set("chat_id", fmt.Sprint(chatID))
-	querystring.Set("text", text)
-	err := rest.Get(resp, fmt.Sprint(api.baseURI, "/SendMessage"), querystring)
-	if err != nil {
-		return nil, err
-	}
-	err = check(&resp.BaseResponse)
-	if err != nil {
-		return nil, err
-	}
-	return resp, nil
+	return api.SendMessageExtended(model.NewOutgoingMessage(chatID, text))
 }
 
 // SendMessageExtended sends a text message with additional options.
@@ -168,7 +159,8 @@ func (api *TelegramBotAPI) SendMessage(chatID int, text string) (*model.MessageR
 // On success, the sent message is returned as a MessageResponse.
 func (api *TelegramBotAPI) SendMessageExtended(om *model.OutgoingMessage) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
-	err := rest.Get(resp, fmt.Sprint(api.baseURI, "/SendMessage"), url.Values(om.GetQueryString()))
+
+	_, err := api.session.Post(fmt.Sprint(api.baseURI, "/SendMessage"), om.GetPub(), resp, resp)
 	if err != nil {
 		return nil, err
 	}
@@ -183,11 +175,19 @@ func (api *TelegramBotAPI) SendMessageExtended(om *model.OutgoingMessage) (*mode
 // On success, the sent message is returned as a MessageResponse.
 func (api *TelegramBotAPI) ForwardMessage(toChatID, fromChatID, messageID int) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
-	querystring := url.Values{}
-	querystring.Set("chat_id", fmt.Sprint(toChatID))
-	querystring.Set("from_chat_id", fmt.Sprint(fromChatID))
-	querystring.Set("message_id", fmt.Sprint(messageID))
-	err := rest.Get(resp, fmt.Sprint(api.baseURI, "/ForwardMessage"), querystring)
+	toSend := struct {
+		model.OutgoingBasePub
+		FromChatId int `json:"from_chat_id"`
+		MessageId  int `json:"message_id"`
+	}{
+		OutgoingBasePub: model.OutgoingBasePub{
+			ChatId: toChatID,
+		},
+		FromChatId: fromChatID,
+		MessageId:  messageID,
+	}
+
+	_, err := api.session.Post(fmt.Sprint(api.baseURI, "/ForwardMessage"), toSend, resp, resp)
 	if err != nil {
 		return nil, err
 	}
@@ -203,9 +203,15 @@ func (api *TelegramBotAPI) ForwardMessage(toChatID, fromChatID, messageID int) (
 // On success, the sent message is returned as a MessageResponse.
 func (api *TelegramBotAPI) ResendPhoto(op *model.OutgoingPhoto, fileID string) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
-	querystring := url.Values(op.GetQueryString())
-	querystring.Set("photo", fileID)
-	err := rest.Get(resp, fmt.Sprint(api.baseURI, "/SendPhoto"), querystring)
+	toSend := struct {
+		model.OutgoingPhotoPub
+		Photo string `json:"photo"`
+	}{
+		OutgoingPhotoPub: op.GetPub(),
+		Photo:            fileID,
+	}
+
+	_, err := api.session.Post(fmt.Sprint(api.baseURI, "/SendPhoto"), toSend, resp, resp)
 	if err != nil {
 		return nil, err
 	}
@@ -252,9 +258,15 @@ func (api *TelegramBotAPI) SendPhoto(op *model.OutgoingPhoto, file io.Reader, fi
 // On success, the sent message is returned as a MessageResponse.
 func (api *TelegramBotAPI) ResendVoice(ov *model.OutgoingVoice, fileID string) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
-	querystring := url.Values(ov.GetQueryString())
-	querystring.Set("audio", fileID)
-	err := rest.Get(resp, fmt.Sprint(api.baseURI, "/SendVoice"), querystring)
+	toSend := struct {
+		model.OutgoingVoicePub
+		Audio string `json:"audio"`
+	}{
+		OutgoingVoicePub: ov.GetPub(),
+		Audio:            fileID,
+	}
+
+	_, err := api.session.Post(fmt.Sprint(api.baseURI, "/SendVoice"), toSend, resp, resp)
 	if err != nil {
 		return nil, err
 	}
@@ -302,9 +314,15 @@ func (api *TelegramBotAPI) SendVoice(ov *model.OutgoingVoice, file io.Reader, fi
 // On success, the sent message is returned as a MessageResponse.
 func (api *TelegramBotAPI) ResendAudio(oa *model.OutgoingAudio, fileID string) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
-	querystring := url.Values(oa.GetQueryString())
-	querystring.Set("audio", fileID)
-	err := rest.Get(resp, fmt.Sprint(api.baseURI, "/SendAudio"), querystring)
+	toSend := struct {
+		model.OutgoingAudioPub
+		Audio string `json:"audio"`
+	}{
+		OutgoingAudioPub: oa.GetPub(),
+		Audio:            fileID,
+	}
+
+	_, err := api.session.Post(fmt.Sprint(api.baseURI, "/SendAudio"), toSend, resp, resp)
 	if err != nil {
 		return nil, err
 	}
@@ -352,9 +370,15 @@ func (api *TelegramBotAPI) SendAudio(oa *model.OutgoingAudio, file io.Reader, fi
 // On success, the sent message is returned as a MessageResponse.
 func (api *TelegramBotAPI) ResendDocument(od *model.OutgoingDocument, fileID string) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
-	querystring := url.Values(od.GetQueryString())
-	querystring.Set("document", fileID)
-	err := rest.Get(resp, fmt.Sprint(api.baseURI, "/SendDocument"), querystring)
+	toSend := struct {
+		model.OutgoingDocumentPub
+		Document string `json:"document"`
+	}{
+		OutgoingDocumentPub: od.GetPub(),
+		Document:            fileID,
+	}
+
+	_, err := api.session.Post(fmt.Sprint(api.baseURI, "/SendDocument"), toSend, resp, resp)
 	if err != nil {
 		return nil, err
 	}
@@ -401,9 +425,15 @@ func (api *TelegramBotAPI) SendDocument(od *model.OutgoingDocument, file io.Read
 // On success, the sent message is returned as a MessageResponse.
 func (api *TelegramBotAPI) ResendSticker(os *model.OutgoingSticker, fileID string) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
-	querystring := url.Values(os.GetQueryString())
-	querystring.Set("sticker", fileID)
-	err := rest.Get(resp, fmt.Sprint(api.baseURI, "/SendSticker"), querystring)
+	toSend := struct {
+		model.OutgoingStickerPub
+		Sticker string `json:"sticker"`
+	}{
+		OutgoingStickerPub: os.GetPub(),
+		Sticker:            fileID,
+	}
+
+	_, err := api.session.Post(fmt.Sprint(api.baseURI, "/SendSticker"), toSend, resp, resp)
 	if err != nil {
 		return nil, err
 	}
@@ -451,9 +481,15 @@ func (api *TelegramBotAPI) SendSticker(os *model.OutgoingSticker, file io.Reader
 // On success, the sent message is returned as a MessageResponse.
 func (api *TelegramBotAPI) ResendVideo(ov *model.OutgoingVideo, fileID string) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
-	querystring := url.Values(ov.GetQueryString())
-	querystring.Set("video", fileID)
-	err := rest.Get(resp, fmt.Sprint(api.baseURI, "/SendVideo"), querystring)
+	toSend := struct {
+		model.OutgoingVideoPub
+		Video string `json:"video"`
+	}{
+		OutgoingVideoPub: ov.GetPub(),
+		Video:            fileID,
+	}
+
+	_, err := api.session.Post(fmt.Sprint(api.baseURI, "/SendVideo"), toSend, resp, resp)
 	if err != nil {
 		return nil, err
 	}
@@ -501,8 +537,8 @@ func (api *TelegramBotAPI) SendVideo(ov *model.OutgoingVideo, file io.Reader, fi
 // On success, the sent message is returned as a MessageResponse.
 func (api *TelegramBotAPI) SendLocation(ol *model.OutgoingLocation) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
-	querystring := url.Values(ol.GetQueryString())
-	err := rest.Get(resp, fmt.Sprint(api.baseURI, "/SendLocation"), querystring)
+
+	_, err := api.session.Post(fmt.Sprint(api.baseURI, "/SendLocation"), ol.GetPub(), resp, resp)
 	if err != nil {
 		return nil, err
 	}
@@ -518,10 +554,17 @@ func (api *TelegramBotAPI) SendLocation(ol *model.OutgoingLocation) (*model.Mess
 // On success, a BaseResponse is returned.
 func (api *TelegramBotAPI) SendChatAction(chatID int, action model.ChatAction) (*model.BaseResponse, error) {
 	resp := &model.BaseResponse{}
-	querystring := url.Values{}
-	querystring.Set("chat_id", fmt.Sprint(chatID))
-	querystring.Set("action", string(action))
-	err := rest.Get(resp, fmt.Sprint(api.baseURI, "/SendChatAction"), querystring)
+	toSend := struct {
+		model.OutgoingBasePub
+		Action string `json:"action"`
+	}{
+		OutgoingBasePub: model.OutgoingBasePub{
+			ChatId: chatID,
+		},
+		Action: string(action),
+	}
+
+	_, err := api.session.Post(fmt.Sprint(api.baseURI, "/SendChatAction"), toSend, resp, resp)
 	if err != nil {
 		return nil, err
 	}
@@ -537,7 +580,8 @@ func (api *TelegramBotAPI) SendChatAction(chatID int, action model.ChatAction) (
 // On success, the photos are returned as a UserProfilePhotosResponse.
 func (api *TelegramBotAPI) GetProfilePhotos(op *model.OutgoingUserProfilePhotosRequest) (*model.UserProfilePhotosResponse, error) {
 	resp := &model.UserProfilePhotosResponse{}
-	err := rest.Get(resp, fmt.Sprint(api.baseURI, "/GetUserProfilePhotos"), url.Values(op.GetQueryString()))
+
+	_, err := api.session.Post(fmt.Sprint(api.baseURI, "/GetUserProfilePhotos"), op.GetPub(), resp, resp)
 	if err != nil {
 		return nil, err
 	}

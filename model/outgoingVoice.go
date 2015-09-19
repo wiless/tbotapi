@@ -5,6 +5,11 @@ import (
 	"net/url"
 )
 
+type OutgoingVoicePub struct {
+	OutgoingBasePub
+	Duration int `json:"duration,omitempty"`
+}
+
 type OutgoingVoice struct {
 	OutgoingBase
 	duration    int
@@ -33,4 +38,11 @@ func (ov *OutgoingVoice) GetQueryString() Querystring {
 	}
 
 	return Querystring(toReturn)
+}
+
+func (ov *OutgoingVoice) GetPub() OutgoingVoicePub {
+	return OutgoingVoicePub{
+		OutgoingBasePub: ov.GetPubBase(),
+		Duration:        ov.duration,
+	}
 }
