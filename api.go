@@ -79,11 +79,7 @@ func (api *TelegramBotAPI) updateLoop() {
 		}
 
 		if err != nil {
-			if err.Error() != "Could not convert response []uint8 to model.UpdateResponse." {
-				api.Errors <- err
-			} else {
-				time.Sleep(time.Duration(10) * time.Second)
-			}
+			api.Errors <- err
 		} else {
 			updates.Sort()
 			offset = putUpdatesInChannel(api.Updates, updates.Update)
@@ -111,9 +107,14 @@ func (api *TelegramBotAPI) getUpdates() (*model.UpdateResponse, error) {
 	resp := &model.UpdateResponse{}
 	querystring := url.Values{}
 	querystring.Set("timeout", fmt.Sprint(60))
-	_, err := api.session.Get(fmt.Sprint(api.baseURI, "/GetUpdates"), &querystring, resp, resp)
+	response, err := api.session.Get(fmt.Sprint(api.baseURI, "/GetUpdates"), &querystring, resp, resp)
 	if err != nil {
-		return nil, err
+		if response.Status() != 502 {
+			return nil, err
+		} else {
+			time.Sleep(time.Duration(5) * time.Second)
+			return api.getUpdates()
+		}
 	}
 	err = check(&resp.BaseResponse)
 	if err != nil {
@@ -127,9 +128,14 @@ func (api *TelegramBotAPI) getUpdatesByOffset(offset int) (*model.UpdateResponse
 	querystring := url.Values{}
 	querystring.Set("timeout", fmt.Sprint(60))
 	querystring.Set("offset", fmt.Sprint(offset))
-	_, err := api.session.Get(fmt.Sprint(api.baseURI, "/GetUpdates"), &querystring, resp, resp)
+	response, err := api.session.Get(fmt.Sprint(api.baseURI, "/GetUpdates"), &querystring, resp, resp)
 	if err != nil {
-		return nil, err
+		if response.Status() != 502 {
+			return nil, err
+		} else {
+			time.Sleep(time.Duration(5) * time.Second)
+			return api.getUpdatesByOffset(offset)
+		}
 	}
 	err = check(&resp.BaseResponse)
 	if err != nil {
