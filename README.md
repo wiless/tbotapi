@@ -18,6 +18,13 @@ should do it.
 
 See `cmd/example.go` for some simple bots.
 
+### API-stableness ###
+
+Is the API stable? **No**
+
+Why is the API not stable? Because Telegram changes its bot API frequently. I try to only add things, not remove them.
+So everything you did with this library before should also work after API changes.
+
 ### What do we use? ###
 
 We use
