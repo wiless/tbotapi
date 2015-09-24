@@ -1,7 +1,7 @@
 package model
 
 type Voice struct {
-	File
+	FileBase
 	Duration int    `json:"duration"`
 	MimeType string `json:"mime_type"`
 }

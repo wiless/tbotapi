@@ -1,7 +1,7 @@
 package model
 
 type Video struct {
-	File
+	FileBase
 	Width     int       `json:"width"`
 	Height    int       `json:"height"`
 	Duration  int       `json:"duration"`

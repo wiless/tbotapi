@@ -158,6 +158,24 @@ func (api *TelegramBotAPI) GetMe() (*model.UserResponse, error) {
 	return resp, nil
 }
 
+// GetFile returns a FileResponse containing a Path string needed to download a file.
+// You will have to construct the download link manually like
+// https://api.telegram.org/file/bot<token>/<file_path>, where <file_path> is taken from the response.
+func (api *TelegramBotAPI) GetFile(fileId string) (*model.FileResponse, error) {
+	resp := &model.FileResponse{}
+	querystring := &url.Values{}
+	querystring.Set("file_id", fileId)
+	_, err := api.session.Get(fmt.Sprint(api.baseURI, "/GetFile"), querystring, resp, resp)
+	if err != nil {
+		return nil, err
+	}
+	err = check(&resp.BaseResponse)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
 // SendMessage sends a text message to the chatID specified, with the given text.
 // For more options, use the SendMessageExtended function.
 // On success, the sent message is returned as a MessageResponse.
