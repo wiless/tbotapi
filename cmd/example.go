@@ -38,13 +38,19 @@ func main() {
 				}
 
 				// -> simple echo bot
-				msg, err := api.SendMessage(val.Message.Chat.Id, *val.Message.Text)
+				msg, err := api.SendMessage(model.NewRecipientFromChat(val.Message.Chat), *val.Message.Text)
+
+				//or
+				//msg, err := api.SendMessage(model.NewChatRecipient(val.Message.Chat.Id), *val.Message.Text)
 
 				// -> simple echo bot with disabled web page preview
-				//msg, err := api.SendMessageExtended(model.NewOutgoingMessage(val.Message.Chat.Id, val.Message.Text).SetDisableWebPagePreview(true))
+				//msg, err := api.SendMessageExtended(model.NewOutgoingMessage(model.NewChatRecipient(val.Message.Chat.Id), val.Message.Text).SetDisableWebPagePreview(true))
+
+				// or:
+				//msg, err := api.SendMessageExtended(model.NewOutgoingMessage(model.NewRecipientFromChat(val.Message.Chat), val.Message.Text).SetDisableWebPagePreview(true))
 
 				// -> simple echo bot via forwarding
-				//msg, err := api.ForwardMessage(val.Message.Chat.Id, val.Message.Chat.Id, val.Message.Id)
+				//msg, err = api.ForwardMessage(model.NewRecipientFromChat(val.Message.Chat), val.Message.Chat, val.Message.Id)
 
 				// -> bot that always sends an image as response
 				//	file, err := os.Open("F:/image.jpg")
@@ -52,7 +58,7 @@ func main() {
 				//		fmt.Printf("Err: %s\n", err)
 				//		continue
 				//	}
-				//	msg, err := api.SendPhoto(model.NewOutgoingPhoto(val.Message.Chat.Id), file, "image.jpg")
+				//	msg, err := api.SendPhoto(model.NewOutgoingPhoto(model.NewChatRecipient(val.Message.Chat.Id)), file, "image.jpg")
 
 				if err != nil {
 					fmt.Printf("Err: %s\n", err)
