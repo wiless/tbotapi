@@ -17,10 +17,10 @@ type OutgoingLocation struct {
 	longitude float32
 }
 
-func NewOutgoingLocation(chatId int, latitude, longitude float32) *OutgoingLocation {
+func NewOutgoingLocation(recipient Recipient, latitude, longitude float32) *OutgoingLocation {
 	return &OutgoingLocation{
 		OutgoingBase: OutgoingBase{
-			chatId: chatId,
+			recipient: recipient,
 		},
 		latitude:  latitude,
 		longitude: longitude,

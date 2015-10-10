@@ -12,10 +12,10 @@ type OutgoingDocument struct {
 	OutgoingBase
 }
 
-func NewOutgoingDocument(chatId int) *OutgoingDocument {
+func NewOutgoingDocument(recipient Recipient) *OutgoingDocument {
 	return &OutgoingDocument{
 		OutgoingBase: OutgoingBase{
-			chatId: chatId,
+			recipient: recipient,
 		},
 	}
 }

@@ -7,17 +7,17 @@ import (
 )
 
 type OutgoingBasePub struct {
-	ChatId           int    `json:"chat_id"`
-	ReplyToMessageId int    `json:"reply_to_message_id,omitempty"`
-	ReplyMarkup      string `json:"reply_markup,omitempty"`
+	Recipient        Recipient `json:"chat_id"`
+	ReplyToMessageId int       `json:"reply_to_message_id,omitempty"`
+	ReplyMarkup      string    `json:"reply_markup,omitempty"`
 }
 
 type OutgoingBase struct {
-	chatId              int    `json:"chat_id"`
-	replyToMessageId    int    `json:"reply_to_message_id,omitempty"`
-	replyMarkup         string `json:"reply_markup,omitempty"`
-	replyToMessageIdSet bool   `json:"-"`
-	replyMarkupSet      bool   `json:"-"`
+	recipient           Recipient `json:"chat_id"`
+	replyToMessageId    int       `json:"reply_to_message_id,omitempty"`
+	replyMarkup         string    `json:"reply_markup,omitempty"`
+	replyToMessageIdSet bool      `json:"-"`
+	replyMarkupSet      bool      `json:"-"`
 }
 
 func (op *OutgoingBase) SetReplyToMessageId(to int) {
@@ -77,7 +77,12 @@ func (op *OutgoingBase) SetForceReply(to ForceReply) {
 
 func (op *OutgoingBase) GetBaseQueryString() Querystring {
 	toReturn := url.Values{}
-	toReturn.Set("chat_id", fmt.Sprint(op.chatId))
+	if op.recipient.isChannel() {
+		//Channel
+		toReturn.Set("chat_id", fmt.Sprint(*op.recipient.ChannelId))
+	} else {
+		toReturn.Set("chat_id", fmt.Sprint(*op.recipient.ChatId))
+	}
 
 	if op.replyToMessageIdSet {
 		toReturn.Set("reply_to_message_id", fmt.Sprint(op.replyToMessageId))
@@ -92,7 +97,7 @@ func (op *OutgoingBase) GetBaseQueryString() Querystring {
 
 func (ob *OutgoingBase) GetPubBase() OutgoingBasePub {
 	return OutgoingBasePub{
-		ChatId:           ob.chatId,
+		Recipient:        ob.recipient,
 		ReplyMarkup:      ob.replyMarkup,
 		ReplyToMessageId: ob.replyToMessageId,
 	}

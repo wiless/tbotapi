@@ -20,10 +20,10 @@ type OutgoingMessage struct {
 
 type Querystring url.Values
 
-func NewOutgoingMessage(chatId int, text string) *OutgoingMessage {
+func NewOutgoingMessage(recipient Recipient, text string) *OutgoingMessage {
 	return &OutgoingMessage{
 		OutgoingBase: OutgoingBase{
-			chatId: chatId,
+			recipient: recipient,
 		},
 		text: text,
 	}

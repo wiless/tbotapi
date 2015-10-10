@@ -232,7 +232,7 @@ func (api *TelegramBotAPI) GetFile(fileId string) (*model.FileResponse, error) {
 // For more options, use the SendMessageExtended function.
 // On success, the sent message is returned as a MessageResponse.
 func (api *TelegramBotAPI) SendMessage(chatID int, text string) (*model.MessageResponse, error) {
-	return api.SendMessageExtended(model.NewOutgoingMessage(chatID, text))
+	return api.SendMessageExtended(model.NewOutgoingMessage(model.NewChatRecipient(chatID), text))
 }
 
 // SendMessageExtended sends a text message with additional options.
@@ -254,17 +254,17 @@ func (api *TelegramBotAPI) SendMessageExtended(om *model.OutgoingMessage) (*mode
 
 // ForwardMessage forwards a message with ID messageID from the fromChatID to the toChatID chat.
 // On success, the sent message is returned as a MessageResponse.
-func (api *TelegramBotAPI) ForwardMessage(toChatID, fromChatID, messageID int) (*model.MessageResponse, error) {
+func (api *TelegramBotAPI) ForwardMessage(recipient model.Recipient, origin model.Chat, messageID int) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
 	toSend := struct {
 		model.OutgoingBasePub
-		FromChatId int `json:"from_chat_id"`
-		MessageId  int `json:"message_id"`
+		FromChatId model.Recipient `json:"from_chat_id"`
+		MessageId  int             `json:"message_id"`
 	}{
 		OutgoingBasePub: model.OutgoingBasePub{
-			ChatId: toChatID,
+			Recipient: recipient,
 		},
-		FromChatId: fromChatID,
+		FromChatId: model.NewRecipientFromChat(origin),
 		MessageId:  messageID,
 	}
 
@@ -633,14 +633,14 @@ func (api *TelegramBotAPI) SendLocation(ol *model.OutgoingLocation) (*model.Mess
 // SendChatAction sends a chat action to the specified chatID.
 // Use the ChatAction constants to specify the action.
 // On success, a BaseResponse is returned.
-func (api *TelegramBotAPI) SendChatAction(chatID int, action model.ChatAction) (*model.BaseResponse, error) {
+func (api *TelegramBotAPI) SendChatAction(recipient model.Recipient, action model.ChatAction) (*model.BaseResponse, error) {
 	resp := &model.BaseResponse{}
 	toSend := struct {
 		model.OutgoingBasePub
 		Action string `json:"action"`
 	}{
 		OutgoingBasePub: model.OutgoingBasePub{
-			ChatId: chatID,
+			Recipient: recipient,
 		},
 		Action: string(action),
 	}

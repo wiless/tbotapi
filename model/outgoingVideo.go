@@ -19,10 +19,10 @@ type OutgoingVideo struct {
 	captionSet  bool
 }
 
-func NewOutgoingVideo(chatId int) *OutgoingVideo {
+func NewOutgoingVideo(recipient Recipient) *OutgoingVideo {
 	return &OutgoingVideo{
 		OutgoingBase: OutgoingBase{
-			chatId: chatId,
+			recipient: recipient,
 		},
 	}
 }

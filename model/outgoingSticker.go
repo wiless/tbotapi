@@ -12,10 +12,10 @@ type OutgoingSticker struct {
 	OutgoingBase
 }
 
-func NewOutgoingSticker(chatId int) *OutgoingSticker {
+func NewOutgoingSticker(recipient Recipient) *OutgoingSticker {
 	return &OutgoingSticker{
 		OutgoingBase: OutgoingBase{
-			chatId: chatId,
+			recipient: recipient,
 		},
 	}
 }

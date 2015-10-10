@@ -22,10 +22,10 @@ type OutgoingAudio struct {
 	titleSet     bool
 }
 
-func NewOutgoingAudio(chatId int) *OutgoingAudio {
+func NewOutgoingAudio(recipient Recipient) *OutgoingAudio {
 	return &OutgoingAudio{
 		OutgoingBase: OutgoingBase{
-			chatId: chatId,
+			recipient: recipient,
 		},
 	}
 }

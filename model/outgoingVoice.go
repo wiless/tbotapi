@@ -16,10 +16,10 @@ type OutgoingVoice struct {
 	durationSet bool
 }
 
-func NewOutgoingVoice(chatId int) *OutgoingVoice {
+func NewOutgoingVoice(recipient Recipient) *OutgoingVoice {
 	return &OutgoingVoice{
 		OutgoingBase: OutgoingBase{
-			chatId: chatId,
+			recipient: recipient,
 		},
 	}
 }

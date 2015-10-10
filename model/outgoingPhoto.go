@@ -15,10 +15,10 @@ type OutgoingPhoto struct {
 	captionSet bool
 }
 
-func NewOutgoingPhoto(chatId int) *OutgoingPhoto {
+func NewOutgoingPhoto(recipient Recipient) *OutgoingPhoto {
 	return &OutgoingPhoto{
 		OutgoingBase: OutgoingBase{
-			chatId: chatId,
+			recipient: recipient,
 		},
 	}
 }

@@ -58,7 +58,7 @@ func main() {
 					fmt.Printf("Err: %s\n", err)
 					continue
 				}
-				fmt.Printf("MessageID: %d, Text: %s, IsGroupChat:%t\n", msg.Message.Id, *msg.Message.Text, msg.Message.Chat.IsGroupChat)
+				fmt.Printf("MessageID: %d, Text: %s, IsGroupChat:%t\n", msg.Message.Id, *msg.Message.Text, msg.Message.Chat.IsGroupChat())
 			case val := <-api.Errors:
 				fmt.Printf("Err: %s\n", val)
 			}
