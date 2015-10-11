@@ -34,7 +34,7 @@ type client struct {
 
 func newClient(baseURI string) *client {
 	toReturn := &client{
-		c:         resty.New().SetHTTPMode().OnAfterResponse(parseResponseBody).OnAfterResponse(checkHTTPStatus).SetDebug(true),
+		c:         resty.New().SetHTTPMode().OnAfterResponse(parseResponseBody).OnAfterResponse(checkHTTPStatus),
 		endpoints: createEndpoints(baseURI),
 	}
 
