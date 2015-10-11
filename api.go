@@ -108,16 +108,15 @@ func putUpdatesInChannel(channel chan *model.Update, updates []model.Update) int
 
 func (api *TelegramBotAPI) getUpdates() (*model.UpdateResponse, error) {
 	resp := &model.UpdateResponse{}
-	response, err := api.c.getQuerystring(m_GetUpdates, resp, map[string]string{"timeout": fmt.Sprint(60)})
+	response, err := api.c.getQuerystring(getUpdates, resp, map[string]string{"timeout": fmt.Sprint(60)})
 
 	if err != nil {
 		if response.StatusCode() < 500 {
 			return nil, err
-		} else {
-			//Telegram server problems, retry later...
-			time.Sleep(time.Duration(5) * time.Second)
-			return api.getUpdates()
 		}
+		//Telegram server problems, retry later...
+		time.Sleep(time.Duration(5) * time.Second)
+		return api.getUpdates()
 	}
 	err = check(&resp.BaseResponse)
 	if err != nil {
@@ -128,7 +127,7 @@ func (api *TelegramBotAPI) getUpdates() (*model.UpdateResponse, error) {
 
 func (api *TelegramBotAPI) getUpdatesByOffset(offset int) (*model.UpdateResponse, error) {
 	resp := &model.UpdateResponse{}
-	response, err := api.c.getQuerystring(m_GetUpdates, resp, map[string]string{
+	response, err := api.c.getQuerystring(getUpdates, resp, map[string]string{
 		"timeout": fmt.Sprint(60),
 		"offset":  fmt.Sprint(offset),
 	})
@@ -136,11 +135,10 @@ func (api *TelegramBotAPI) getUpdatesByOffset(offset int) (*model.UpdateResponse
 	if err != nil {
 		if response.StatusCode() < 500 {
 			return nil, err
-		} else {
-			//Telegram server problems, retry later...
-			time.Sleep(time.Duration(5) * time.Second)
-			return api.getUpdatesByOffset(offset)
 		}
+		//Telegram server problems, retry later...
+		time.Sleep(time.Duration(5) * time.Second)
+		return api.getUpdatesByOffset(offset)
 	}
 	err = check(&resp.BaseResponse)
 	if err != nil {
@@ -152,7 +150,7 @@ func (api *TelegramBotAPI) getUpdatesByOffset(offset int) (*model.UpdateResponse
 // GetMe returns basic information about the bot in form of a UserResponse.
 func (api *TelegramBotAPI) GetMe() (*model.UserResponse, error) {
 	resp := &model.UserResponse{}
-	_, err := api.c.get(m_GetMe, resp)
+	_, err := api.c.get(getMe, resp)
 
 	if err != nil {
 		return nil, err
@@ -167,9 +165,9 @@ func (api *TelegramBotAPI) GetMe() (*model.UserResponse, error) {
 // GetFile returns a FileResponse containing a Path string needed to download a file.
 // You will have to construct the download link manually like
 // https://api.telegram.org/file/bot<token>/<file_path>, where <file_path> is taken from the response.
-func (api *TelegramBotAPI) GetFile(fileId string) (*model.FileResponse, error) {
+func (api *TelegramBotAPI) GetFile(fileID string) (*model.FileResponse, error) {
 	resp := &model.FileResponse{}
-	_, err := api.c.getQuerystring(m_GetFile, resp, map[string]string{"file_id": fileId})
+	_, err := api.c.getQuerystring(getFile, resp, map[string]string{"file_id": fileID})
 
 	if err != nil {
 		return nil, err
@@ -193,7 +191,7 @@ func (api *TelegramBotAPI) SendMessage(chatID int, text string) (*model.MessageR
 // On success, the sent message is returned as a MessageResponse.
 func (api *TelegramBotAPI) SendMessageExtended(om *model.OutgoingMessage) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
-	_, err := api.c.postJSON(m_SendMessage, resp, om.GetPub())
+	_, err := api.c.postJSON(sendMessage, resp, om.GetPub())
 
 	if err != nil {
 		return nil, err
@@ -209,7 +207,7 @@ func (api *TelegramBotAPI) SendMessageExtended(om *model.OutgoingMessage) (*mode
 // On success, the sent message is returned as a MessageResponse.
 func (api *TelegramBotAPI) ForwardMessage(of *model.OutgoingForward) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
-	_, err := api.c.postJSON(m_ForwardMessage, resp, of.GetPub())
+	_, err := api.c.postJSON(forwardMessage, resp, of.GetPub())
 
 	if err != nil {
 		return nil, err
@@ -233,7 +231,7 @@ func (api *TelegramBotAPI) ResendPhoto(op *model.OutgoingPhoto, fileID string) (
 		OutgoingPhotoPub: op.GetPub(),
 		Photo:            fileID,
 	}
-	_, err := api.c.postJSON(m_SendPhoto, resp, toSend)
+	_, err := api.c.postJSON(sendPhoto, resp, toSend)
 
 	if err != nil {
 		return nil, err
@@ -251,7 +249,7 @@ func (api *TelegramBotAPI) ResendPhoto(op *model.OutgoingPhoto, fileID string) (
 // On success, the sent message is returned as a MessageResponse.
 func (api *TelegramBotAPI) SendPhoto(op *model.OutgoingPhoto, filePath string) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
-	_, err := api.c.uploadFile(m_SendPhoto, resp, file{fieldName: "photo", path: filePath}, op)
+	_, err := api.c.uploadFile(sendPhoto, resp, file{fieldName: "photo", path: filePath}, op)
 
 	if err != nil {
 		return nil, err
@@ -275,7 +273,7 @@ func (api *TelegramBotAPI) ResendVoice(ov *model.OutgoingVoice, fileID string) (
 		OutgoingVoicePub: ov.GetPub(),
 		Audio:            fileID,
 	}
-	_, err := api.c.postJSON(m_SendVoice, resp, toSend)
+	_, err := api.c.postJSON(sendVoice, resp, toSend)
 
 	if err != nil {
 		return nil, err
@@ -294,7 +292,7 @@ func (api *TelegramBotAPI) ResendVoice(ov *model.OutgoingVoice, fileID string) (
 // On success, the sent message is returned as a MessageResponse.
 func (api *TelegramBotAPI) SendVoice(ov *model.OutgoingVoice, filePath string) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
-	_, err := api.c.uploadFile(m_SendVoice, resp, file{fieldName: "audio", path: filePath}, ov)
+	_, err := api.c.uploadFile(sendVoice, resp, file{fieldName: "audio", path: filePath}, ov)
 
 	if err != nil {
 		return nil, err
@@ -318,7 +316,7 @@ func (api *TelegramBotAPI) ResendAudio(oa *model.OutgoingAudio, fileID string) (
 		OutgoingAudioPub: oa.GetPub(),
 		Audio:            fileID,
 	}
-	_, err := api.c.postJSON(m_SendAudio, resp, toSend)
+	_, err := api.c.postJSON(sendAudio, resp, toSend)
 
 	if err != nil {
 		return nil, err
@@ -337,7 +335,7 @@ func (api *TelegramBotAPI) ResendAudio(oa *model.OutgoingAudio, fileID string) (
 // On success, the sent message is returned as a MessageResponse.
 func (api *TelegramBotAPI) SendAudio(oa *model.OutgoingAudio, filePath string) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
-	_, err := api.c.uploadFile(m_SendAudio, resp, file{fieldName: "audio", path: filePath}, oa)
+	_, err := api.c.uploadFile(sendAudio, resp, file{fieldName: "audio", path: filePath}, oa)
 
 	if err != nil {
 		return nil, err
@@ -361,7 +359,7 @@ func (api *TelegramBotAPI) ResendDocument(od *model.OutgoingDocument, fileID str
 		OutgoingDocumentPub: od.GetPub(),
 		Document:            fileID,
 	}
-	_, err := api.c.postJSON(m_SendDocument, resp, toSend)
+	_, err := api.c.postJSON(sendDocument, resp, toSend)
 
 	if err != nil {
 		return nil, err
@@ -379,7 +377,7 @@ func (api *TelegramBotAPI) ResendDocument(od *model.OutgoingDocument, fileID str
 // On success, the sent message is returned as a MessageResponse.
 func (api *TelegramBotAPI) SendDocument(od *model.OutgoingDocument, filePath string) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
-	_, err := api.c.uploadFile(m_SendDocument, resp, file{fieldName: "document", path: filePath}, od)
+	_, err := api.c.uploadFile(sendDocument, resp, file{fieldName: "document", path: filePath}, od)
 
 	if err != nil {
 		return nil, err
@@ -403,7 +401,7 @@ func (api *TelegramBotAPI) ResendSticker(os *model.OutgoingSticker, fileID strin
 		OutgoingStickerPub: os.GetPub(),
 		Sticker:            fileID,
 	}
-	_, err := api.c.postJSON(m_SendSticker, resp, toSend)
+	_, err := api.c.postJSON(sendSticker, resp, toSend)
 
 	if err != nil {
 		return nil, err
@@ -422,7 +420,7 @@ func (api *TelegramBotAPI) ResendSticker(os *model.OutgoingSticker, fileID strin
 // On success, the sent message is returned as a MessageResponse.
 func (api *TelegramBotAPI) SendSticker(os *model.OutgoingSticker, filePath string) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
-	_, err := api.c.uploadFile(m_SendSticker, resp, file{fieldName: "sticker", path: filePath}, os)
+	_, err := api.c.uploadFile(sendSticker, resp, file{fieldName: "sticker", path: filePath}, os)
 
 	if err != nil {
 		return nil, err
@@ -446,7 +444,7 @@ func (api *TelegramBotAPI) ResendVideo(ov *model.OutgoingVideo, fileID string) (
 		OutgoingVideoPub: ov.GetPub(),
 		Video:            fileID,
 	}
-	_, err := api.c.postJSON(m_SendVideo, resp, toSend)
+	_, err := api.c.postJSON(sendVideo, resp, toSend)
 
 	if err != nil {
 		return nil, err
@@ -465,7 +463,7 @@ func (api *TelegramBotAPI) ResendVideo(ov *model.OutgoingVideo, fileID string) (
 // On success, the sent message is returned as a MessageResponse.
 func (api *TelegramBotAPI) SendVideo(ov *model.OutgoingVideo, filePath string) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
-	_, err := api.c.uploadFile(m_SendVideo, resp, file{fieldName: "video", path: filePath}, ov)
+	_, err := api.c.uploadFile(sendVideo, resp, file{fieldName: "video", path: filePath}, ov)
 
 	if err != nil {
 		return nil, err
@@ -482,7 +480,7 @@ func (api *TelegramBotAPI) SendVideo(ov *model.OutgoingVideo, filePath string) (
 // On success, the sent message is returned as a MessageResponse.
 func (api *TelegramBotAPI) SendLocation(ol *model.OutgoingLocation) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
-	_, err := api.c.postJSON(m_SendLocation, resp, ol.GetPub())
+	_, err := api.c.postJSON(sendLocation, resp, ol.GetPub())
 
 	if err != nil {
 		return nil, err
@@ -508,7 +506,7 @@ func (api *TelegramBotAPI) SendChatAction(recipient model.Recipient, action mode
 		},
 		Action: string(action),
 	}
-	_, err := api.c.postJSON(m_SendChatAction, resp, toSend)
+	_, err := api.c.postJSON(sendChatAction, resp, toSend)
 
 	if err != nil {
 		return nil, err
@@ -525,7 +523,7 @@ func (api *TelegramBotAPI) SendChatAction(recipient model.Recipient, action mode
 // On success, the photos are returned as a UserProfilePhotosResponse.
 func (api *TelegramBotAPI) GetProfilePhotos(op *model.OutgoingUserProfilePhotosRequest) (*model.UserProfilePhotosResponse, error) {
 	resp := &model.UserProfilePhotosResponse{}
-	_, err := api.c.postJSON(m_GetUserProfilePhotos, resp, op.GetPub())
+	_, err := api.c.postJSON(getUserProfilePhotos, resp, op.GetPub())
 
 	if err != nil {
 		return nil, err
