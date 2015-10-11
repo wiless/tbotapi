@@ -4,55 +4,41 @@ import (
 	"fmt"
 )
 
-type OutgoingUserProfilePhotosRequestPub struct {
-	UserId int `json:"user_id"`
-	Offset int `json:"offset,omitempty"`
-	Limit  int `json:"limit,omitempty"`
-}
-
 type OutgoingUserProfilePhotosRequest struct {
-	userId    int
-	offset    int
-	limit     int
+	UserID    int `json:"user_id"`
+	Offset    int `json:"offset,omitempty"`
+	Limit     int `json:"limit,omitempty"`
 	offsetSet bool
 	limitSet  bool
 }
 
 func NewOutgoingUserProfilePhotosRequest(userId int) *OutgoingUserProfilePhotosRequest {
 	return &OutgoingUserProfilePhotosRequest{
-		userId: userId,
+		UserID: userId,
 	}
 }
 
 func (op *OutgoingUserProfilePhotosRequest) SetOffset(to int) {
-	op.offset = to
+	op.Offset = to
 	op.offsetSet = true
 }
 
 func (op *OutgoingUserProfilePhotosRequest) SetLimit(to int) {
-	op.limit = to
+	op.Limit = to
 	op.limitSet = true
 }
 
 func (op *OutgoingUserProfilePhotosRequest) GetQueryString() Querystring {
 	toReturn := map[string]string{}
-	toReturn["user_id"] = fmt.Sprint(op.userId)
+	toReturn["user_id"] = fmt.Sprint(op.UserID)
 
 	if op.offsetSet {
-		toReturn["offset"] = fmt.Sprint(op.offset)
+		toReturn["offset"] = fmt.Sprint(op.Offset)
 	}
 
 	if op.limitSet {
-		toReturn["limit"] = fmt.Sprint(op.limit)
+		toReturn["limit"] = fmt.Sprint(op.Limit)
 	}
 
 	return Querystring(toReturn)
-}
-
-func (op *OutgoingUserProfilePhotosRequest) GetPub() OutgoingUserProfilePhotosRequestPub {
-	return OutgoingUserProfilePhotosRequestPub{
-		UserId: op.userId,
-		Offset: op.offset,
-		Limit:  op.limit,
-	}
 }

@@ -191,7 +191,7 @@ func (api *TelegramBotAPI) SendMessage(chatID int, text string) (*model.MessageR
 // On success, the sent message is returned as a MessageResponse.
 func (api *TelegramBotAPI) SendMessageExtended(om *model.OutgoingMessage) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
-	_, err := api.c.postJSON(sendMessage, resp, om.GetPub())
+	_, err := api.c.postJSON(sendMessage, resp, om)
 
 	if err != nil {
 		return nil, err
@@ -207,7 +207,7 @@ func (api *TelegramBotAPI) SendMessageExtended(om *model.OutgoingMessage) (*mode
 // On success, the sent message is returned as a MessageResponse.
 func (api *TelegramBotAPI) ForwardMessage(of *model.OutgoingForward) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
-	_, err := api.c.postJSON(forwardMessage, resp, of.GetPub())
+	_, err := api.c.postJSON(forwardMessage, resp, of)
 
 	if err != nil {
 		return nil, err
@@ -225,11 +225,11 @@ func (api *TelegramBotAPI) ForwardMessage(of *model.OutgoingForward) (*model.Mes
 func (api *TelegramBotAPI) ResendPhoto(op *model.OutgoingPhoto, fileID string) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
 	toSend := struct {
-		model.OutgoingPhotoPub
+		model.OutgoingPhoto
 		Photo string `json:"photo"`
 	}{
-		OutgoingPhotoPub: op.GetPub(),
-		Photo:            fileID,
+		OutgoingPhoto: *op,
+		Photo:         fileID,
 	}
 	_, err := api.c.postJSON(sendPhoto, resp, toSend)
 
@@ -267,11 +267,11 @@ func (api *TelegramBotAPI) SendPhoto(op *model.OutgoingPhoto, filePath string) (
 func (api *TelegramBotAPI) ResendVoice(ov *model.OutgoingVoice, fileID string) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
 	toSend := struct {
-		model.OutgoingVoicePub
+		model.OutgoingVoice
 		Audio string `json:"audio"`
 	}{
-		OutgoingVoicePub: ov.GetPub(),
-		Audio:            fileID,
+		OutgoingVoice: *ov,
+		Audio:         fileID,
 	}
 	_, err := api.c.postJSON(sendVoice, resp, toSend)
 
@@ -310,11 +310,11 @@ func (api *TelegramBotAPI) SendVoice(ov *model.OutgoingVoice, filePath string) (
 func (api *TelegramBotAPI) ResendAudio(oa *model.OutgoingAudio, fileID string) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
 	toSend := struct {
-		model.OutgoingAudioPub
+		model.OutgoingAudio
 		Audio string `json:"audio"`
 	}{
-		OutgoingAudioPub: oa.GetPub(),
-		Audio:            fileID,
+		OutgoingAudio: *oa,
+		Audio:         fileID,
 	}
 	_, err := api.c.postJSON(sendAudio, resp, toSend)
 
@@ -353,11 +353,11 @@ func (api *TelegramBotAPI) SendAudio(oa *model.OutgoingAudio, filePath string) (
 func (api *TelegramBotAPI) ResendDocument(od *model.OutgoingDocument, fileID string) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
 	toSend := struct {
-		model.OutgoingDocumentPub
+		model.OutgoingDocument
 		Document string `json:"document"`
 	}{
-		OutgoingDocumentPub: od.GetPub(),
-		Document:            fileID,
+		OutgoingDocument: *od,
+		Document:         fileID,
 	}
 	_, err := api.c.postJSON(sendDocument, resp, toSend)
 
@@ -395,11 +395,11 @@ func (api *TelegramBotAPI) SendDocument(od *model.OutgoingDocument, filePath str
 func (api *TelegramBotAPI) ResendSticker(os *model.OutgoingSticker, fileID string) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
 	toSend := struct {
-		model.OutgoingStickerPub
+		model.OutgoingSticker
 		Sticker string `json:"sticker"`
 	}{
-		OutgoingStickerPub: os.GetPub(),
-		Sticker:            fileID,
+		OutgoingSticker: *os,
+		Sticker:         fileID,
 	}
 	_, err := api.c.postJSON(sendSticker, resp, toSend)
 
@@ -438,11 +438,11 @@ func (api *TelegramBotAPI) SendSticker(os *model.OutgoingSticker, filePath strin
 func (api *TelegramBotAPI) ResendVideo(ov *model.OutgoingVideo, fileID string) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
 	toSend := struct {
-		model.OutgoingVideoPub
+		model.OutgoingVideo
 		Video string `json:"video"`
 	}{
-		OutgoingVideoPub: ov.GetPub(),
-		Video:            fileID,
+		OutgoingVideo: *ov,
+		Video:         fileID,
 	}
 	_, err := api.c.postJSON(sendVideo, resp, toSend)
 
@@ -480,7 +480,7 @@ func (api *TelegramBotAPI) SendVideo(ov *model.OutgoingVideo, filePath string) (
 // On success, the sent message is returned as a MessageResponse.
 func (api *TelegramBotAPI) SendLocation(ol *model.OutgoingLocation) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
-	_, err := api.c.postJSON(sendLocation, resp, ol.GetPub())
+	_, err := api.c.postJSON(sendLocation, resp, ol)
 
 	if err != nil {
 		return nil, err
@@ -498,10 +498,10 @@ func (api *TelegramBotAPI) SendLocation(ol *model.OutgoingLocation) (*model.Mess
 func (api *TelegramBotAPI) SendChatAction(recipient model.Recipient, action model.ChatAction) (*model.BaseResponse, error) {
 	resp := &model.BaseResponse{}
 	toSend := struct {
-		model.OutgoingBasePub
+		model.OutgoingBase
 		Action string `json:"action"`
 	}{
-		OutgoingBasePub: model.OutgoingBasePub{
+		OutgoingBase: model.OutgoingBase{
 			Recipient: recipient,
 		},
 		Action: string(action),
@@ -523,7 +523,7 @@ func (api *TelegramBotAPI) SendChatAction(recipient model.Recipient, action mode
 // On success, the photos are returned as a UserProfilePhotosResponse.
 func (api *TelegramBotAPI) GetProfilePhotos(op *model.OutgoingUserProfilePhotosRequest) (*model.UserProfilePhotosResponse, error) {
 	resp := &model.UserProfilePhotosResponse{}
-	_, err := api.c.postJSON(getUserProfilePhotos, resp, op.GetPub())
+	_, err := api.c.postJSON(getUserProfilePhotos, resp, op)
 
 	if err != nil {
 		return nil, err

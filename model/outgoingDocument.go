@@ -1,9 +1,5 @@
 package model
 
-type OutgoingDocumentPub struct {
-	OutgoingBasePub
-}
-
 type OutgoingDocument struct {
 	OutgoingBase
 }
@@ -11,17 +7,11 @@ type OutgoingDocument struct {
 func NewOutgoingDocument(recipient Recipient) *OutgoingDocument {
 	return &OutgoingDocument{
 		OutgoingBase: OutgoingBase{
-			recipient: recipient,
+			Recipient: recipient,
 		},
 	}
 }
 
 func (od *OutgoingDocument) GetQueryString() Querystring {
 	return od.GetBaseQueryString()
-}
-
-func (od *OutgoingDocument) GetPub() OutgoingDocumentPub {
-	return OutgoingDocumentPub{
-		OutgoingBasePub: od.GetPubBase(),
-	}
 }

@@ -4,41 +4,27 @@ import (
 	"fmt"
 )
 
-type OutgoingLocationPub struct {
-	OutgoingBasePub
-	Latitude  float32 `json:"latitude"`
-	Longitude float32 `json:"longitude"`
-}
-
 type OutgoingLocation struct {
 	OutgoingBase
-	latitude  float32
-	longitude float32
+	Latitude  float32 `json:"latitude"`
+	Longitude float32 `json:"longitude"`
 }
 
 func NewOutgoingLocation(recipient Recipient, latitude, longitude float32) *OutgoingLocation {
 	return &OutgoingLocation{
 		OutgoingBase: OutgoingBase{
-			recipient: recipient,
+			Recipient: recipient,
 		},
-		latitude:  latitude,
-		longitude: longitude,
+		Latitude:  latitude,
+		Longitude: longitude,
 	}
 }
 
 func (ol *OutgoingLocation) GetQueryString() Querystring {
 	toReturn := map[string]string(ol.GetBaseQueryString())
 
-	toReturn["latitude"] = fmt.Sprint(ol.latitude)
-	toReturn["longitude"] = fmt.Sprint(ol.longitude)
+	toReturn["latitude"] = fmt.Sprint(ol.Latitude)
+	toReturn["longitude"] = fmt.Sprint(ol.Longitude)
 
 	return Querystring(toReturn)
-}
-
-func (ol *OutgoingLocation) GetPub() OutgoingLocationPub {
-	return OutgoingLocationPub{
-		OutgoingBasePub: ol.GetPubBase(),
-		Latitude:        ol.latitude,
-		Longitude:       ol.longitude,
-	}
 }

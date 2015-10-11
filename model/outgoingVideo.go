@@ -4,36 +4,30 @@ import (
 	"fmt"
 )
 
-type OutgoingVideoPub struct {
-	OutgoingBasePub
-	Duration int    `json:"duration,omitempty"`
-	Caption  string `json:"caption,omitempty"`
-}
-
 type OutgoingVideo struct {
 	OutgoingBase
-	duration    int
+	Duration    int    `json:"duration,omitempty"`
+	Caption     string `json:"caption,omitempty"`
 	durationSet bool
-	caption     string
 	captionSet  bool
 }
 
 func NewOutgoingVideo(recipient Recipient) *OutgoingVideo {
 	return &OutgoingVideo{
 		OutgoingBase: OutgoingBase{
-			recipient: recipient,
+			Recipient: recipient,
 		},
 	}
 }
 
 func (ov *OutgoingVideo) SetCaption(to string) *OutgoingVideo {
-	ov.caption = to
+	ov.Caption = to
 	ov.captionSet = true
 	return ov
 }
 
 func (ov *OutgoingVideo) SetDuration(to int) *OutgoingVideo {
-	ov.duration = to
+	ov.Duration = to
 	ov.durationSet = true
 	return ov
 }
@@ -42,20 +36,12 @@ func (ov *OutgoingVideo) GetQueryString() Querystring {
 	toReturn := map[string]string(ov.GetBaseQueryString())
 
 	if ov.captionSet {
-		toReturn["caption"] = ov.caption
+		toReturn["caption"] = ov.Caption
 	}
 
 	if ov.durationSet {
-		toReturn["duration"] = fmt.Sprint(ov.duration)
+		toReturn["duration"] = fmt.Sprint(ov.Duration)
 	}
 
 	return Querystring(toReturn)
-}
-
-func (ov *OutgoingVideo) GetPub() OutgoingVideoPub {
-	return OutgoingVideoPub{
-		OutgoingBasePub: ov.GetPubBase(),
-		Duration:        ov.duration,
-		Caption:         ov.caption,
-	}
 }

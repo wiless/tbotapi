@@ -1,9 +1,5 @@
 package model
 
-type OutgoingStickerPub struct {
-	OutgoingBasePub
-}
-
 type OutgoingSticker struct {
 	OutgoingBase
 }
@@ -11,17 +7,11 @@ type OutgoingSticker struct {
 func NewOutgoingSticker(recipient Recipient) *OutgoingSticker {
 	return &OutgoingSticker{
 		OutgoingBase: OutgoingBase{
-			recipient: recipient,
+			Recipient: recipient,
 		},
 	}
 }
 
 func (os *OutgoingSticker) GetQueryString() Querystring {
 	return os.GetBaseQueryString()
-}
-
-func (os *OutgoingSticker) GetPub() OutgoingStickerPub {
-	return OutgoingStickerPub{
-		OutgoingBasePub: os.GetPubBase(),
-	}
 }

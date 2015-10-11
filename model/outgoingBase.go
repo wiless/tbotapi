@@ -5,22 +5,16 @@ import (
 	"fmt"
 )
 
-type OutgoingBasePub struct {
-	Recipient        Recipient   `json:"chat_id"`
-	ReplyToMessageId int         `json:"reply_to_message_id,omitempty"`
-	ReplyMarkup      ReplyMarkup `json:"reply_markup,omitempty"`
-}
-
 type OutgoingBase struct {
-	recipient           Recipient
-	replyToMessageId    int
-	replyMarkup         ReplyMarkup
+	Recipient           Recipient   `json:"chat_id"`
+	ReplyToMessageID    int         `json:"reply_to_message_id,omitempty"`
+	ReplyMarkup         ReplyMarkup `json:"reply_markup,omitempty"`
 	replyToMessageIdSet bool
 	replyMarkupSet      bool
 }
 
 func (op *OutgoingBase) SetReplyToMessageId(to int) {
-	op.replyToMessageId = to
+	op.ReplyToMessageID = to
 	op.replyToMessageIdSet = true
 }
 
@@ -29,7 +23,7 @@ func (op *OutgoingBase) SetReplyKeyboardMarkup(to ReplyKeyboardMarkup) {
 		panic("Outgoing: Only one of ReplyKeyboardMarkup, ReplyKeyboardHide or ForceReply can be set")
 	}
 
-	op.replyMarkup = ReplyMarkup(to)
+	op.ReplyMarkup = ReplyMarkup(to)
 }
 
 func (op *OutgoingBase) SetReplyKeyboardHide(to ReplyKeyboardHide) {
@@ -41,7 +35,7 @@ func (op *OutgoingBase) SetReplyKeyboardHide(to ReplyKeyboardHide) {
 		panic("Outgoing: Only one of ReplyKeyboardMarkup, ReplyKeyboardHide or ForceReply can be set")
 	}
 
-	op.replyMarkup = ReplyMarkup(to)
+	op.ReplyMarkup = ReplyMarkup(to)
 }
 
 func (op *OutgoingBase) SetForceReply(to ForceReply) {
@@ -53,24 +47,24 @@ func (op *OutgoingBase) SetForceReply(to ForceReply) {
 		panic("Outgoing: Only one of ReplyKeyboardMarkup, ReplyKeyboardHide or ForceReply can be set")
 	}
 
-	op.replyMarkup = ReplyMarkup(to)
+	op.ReplyMarkup = ReplyMarkup(to)
 }
 
 func (op *OutgoingBase) GetBaseQueryString() Querystring {
 	toReturn := map[string]string{}
-	if op.recipient.isChannel() {
+	if op.Recipient.isChannel() {
 		//Channel
-		toReturn["chat_id"] = fmt.Sprint(*op.recipient.ChannelID)
+		toReturn["chat_id"] = fmt.Sprint(*op.Recipient.ChannelID)
 	} else {
-		toReturn["chat_id"] = fmt.Sprint(*op.recipient.ChatID)
+		toReturn["chat_id"] = fmt.Sprint(*op.Recipient.ChatID)
 	}
 
 	if op.replyToMessageIdSet {
-		toReturn["reply_to_message_id"] = fmt.Sprint(op.replyToMessageId)
+		toReturn["reply_to_message_id"] = fmt.Sprint(op.ReplyToMessageID)
 	}
 
 	if op.replyMarkupSet {
-		b, err := json.Marshal(op.replyMarkup)
+		b, err := json.Marshal(op.ReplyMarkup)
 		if err != nil {
 			panic(err)
 		}
@@ -78,12 +72,4 @@ func (op *OutgoingBase) GetBaseQueryString() Querystring {
 	}
 
 	return Querystring(toReturn)
-}
-
-func (ob *OutgoingBase) GetPubBase() OutgoingBasePub {
-	return OutgoingBasePub{
-		Recipient:        ob.recipient,
-		ReplyMarkup:      ob.replyMarkup,
-		ReplyToMessageId: ob.replyToMessageId,
-	}
 }
