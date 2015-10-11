@@ -1,5 +1,6 @@
 package model
 
+// ReplyMarkup is s marker interface for ReplyMarkups
 type ReplyMarkup interface {
 	replyMarkup()
 }
