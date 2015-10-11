@@ -78,9 +78,9 @@ func (op *OutgoingBase) GetBaseQueryString() Querystring {
 	toReturn := map[string]string{}
 	if op.recipient.isChannel() {
 		//Channel
-		toReturn["chat_id"] = fmt.Sprint(*op.recipient.ChannelId)
+		toReturn["chat_id"] = fmt.Sprint(*op.recipient.ChannelID)
 	} else {
-		toReturn["chat_id"] = fmt.Sprint(*op.recipient.ChatId)
+		toReturn["chat_id"] = fmt.Sprint(*op.recipient.ChatID)
 	}
 
 	if op.replyToMessageIdSet {

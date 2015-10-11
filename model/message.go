@@ -1,10 +1,12 @@
 package model
 
+// MessageResponse represents the response sent by the API on successful messages sent
 type MessageResponse struct {
 	BaseResponse
 	Message Message `json:"result"`
 }
 
+// Message represents a message
 type Message struct {
 	noReplyMessage
 	ReplyToMessage *noReplyMessage `json:"reply_to_message"`
@@ -24,43 +26,43 @@ func (m *Message) IsReply() bool {
 // Note that, for all these types, messages can still be replies or forwarded.
 func (m *Message) Type() MessageType {
 	if m.Text != nil {
-		return TEXT
+		return Text
 	} else if m.Audio != nil {
-		return AUDIO
+		return Audio
 	} else if m.Document != nil {
-		return DOCUMENT
+		return Document
 	} else if m.Photo != nil {
-		return PHOTO
+		return Photo
 	} else if m.Sticker != nil {
-		return STICKER
+		return Sticker
 	} else if m.Video != nil {
-		return VIDEO
+		return Video
 	} else if m.Voice != nil {
-		return VOICE
+		return Voice
 	} else if m.Contact != nil {
-		return CONTACT
+		return Contact
 	} else if m.Location != nil {
-		return LOCATION
+		return Location
 	} else if m.NewChatParticipant != nil {
-		return NEW_CHAT_PARTICIPANT
+		return NewChatParticipant
 	} else if m.LeftChatParticipant != nil {
-		return LEFT_CHAT_PARTICIPANT
+		return LeftChatParticipant
 	} else if m.NewChatTitle != nil {
-		return NEW_CHAT_TITLE
+		return NewChatTitle
 	} else if m.NewChatPhoto != nil {
-		return NEW_CHAT_PHOTO
+		return NewChatPhoto
 	} else if m.DeleteChatPhoto != nil {
-		return DELETE_CHAT_PHOTO
+		return DeletedChatPohoto
 	} else if m.GroupChatCreated != nil {
-		return GROUP_CHAT_CREATED
+		return GroupChatCreated
 	}
 
-	return UNKNOWN
+	return Unknown
 }
 
 type noReplyMessage struct {
 	Chat                Chat         `json:"chat"`                  // information about the chat
-	Id                  int          `json:"message_id"`            // message id
+	ID                  int          `json:"message_id"`            // message id
 	From                User         `json:"from"`                  // sender
 	Date                int          `json:"date"`                  // timestamp
 	ForwardFrom         *User        `json:"forward_from"`          // forwarded from who

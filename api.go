@@ -38,7 +38,7 @@ func New(apiKey string) (*TelegramBotAPI, error) {
 	if err != nil {
 		return nil, err
 	}
-	toReturn.ID = user.User.Id
+	toReturn.ID = user.User.ID
 	toReturn.Name = user.User.FirstName
 	toReturn.Username = user.User.Username
 
@@ -99,7 +99,7 @@ func (api *TelegramBotAPI) updateLoop() {
 func putUpdatesInChannel(channel chan *model.Update, updates []model.Update) int {
 	highestOffset := -1
 	for _, update := range updates {
-		highestOffset = update.Id
+		highestOffset = update.ID
 		channel <- &update
 	}
 

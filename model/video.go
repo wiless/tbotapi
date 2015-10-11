@@ -1,5 +1,6 @@
 package model
 
+// Video represents a video file
 type Video struct {
 	FileBase
 	Width     int       `json:"width"`

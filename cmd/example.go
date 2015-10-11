@@ -32,7 +32,7 @@ func main() {
 				return
 			case val := <-api.Updates:
 				typ := val.Message.Type()
-				if typ != model.TEXT {
+				if typ != model.Text {
 					//ignore non-text messages for now
 					continue
 				}
@@ -59,7 +59,7 @@ func main() {
 					fmt.Printf("Err: %s\n", err)
 					continue
 				}
-				fmt.Printf("MessageID: %d, Text: %s, IsGroupChat:%t\n", msg.Message.Id, *msg.Message.Text, msg.Message.Chat.IsGroupChat())
+				fmt.Printf("MessageID: %d, Text: %s, IsGroupChat:%t\n", msg.Message.ID, *msg.Message.Text, msg.Message.Chat.IsGroupChat())
 			case val := <-api.Errors:
 				fmt.Printf("Err: %s\n", val)
 			}

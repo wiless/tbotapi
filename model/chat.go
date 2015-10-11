@@ -1,7 +1,8 @@
 package model
 
+// Chat contains information about the chat a message originated from
 type Chat struct {
-	Id        int     `json:"id"`         // Unique identifier for this chat
+	ID        int     `json:"id"`         // Unique identifier for this chat
 	Type      string  `json:"type"`       // Type of chat, can be either "private", "group" or "channel". Check Is(PrivateChat|GroupChat|Channel)() methods
 	Title     *string `json:"title"`      // Title for channels and group chats
 	Username  *string `json:"username"`   // Username for private chats and channels if available

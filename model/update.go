@@ -2,22 +2,26 @@ package model
 
 import "sort"
 
+// UpdateResponse represents the response sent by the API for a GetUpdates request
 type UpdateResponse struct {
 	BaseResponse
 	Update []Update `json:"result"`
 }
 
-type ById []Update
+// ByID is a wrapper to sort an []Update by ID
+type ByID []Update
 
-func (a ById) Len() int           { return len(a) }
-func (a ById) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a ById) Less(i, j int) bool { return a[i].Id < a[j].Id }
+func (a ByID) Len() int           { return len(a) }
+func (a ByID) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a ByID) Less(i, j int) bool { return a[i].ID < a[j].ID }
 
+// Sort sorts all the updates contained in an UpdateResponse by their ID
 func (resp *UpdateResponse) Sort() {
-	sort.Sort(ById(resp.Update))
+	sort.Sort(ByID(resp.Update))
 }
 
+// Update represents an incoming update
 type Update struct {
-	Id      int     `json:"update_id"`
+	ID      int     `json:"update_id"`
 	Message Message `json:"message"`
 }

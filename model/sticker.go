@@ -1,5 +1,6 @@
 package model
 
+// Sticker represents a sticker
 type Sticker struct {
 	FileBase
 	Width     int       `json:"width"`
