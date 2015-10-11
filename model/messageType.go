@@ -5,15 +5,15 @@ type MessageType int
 
 // Message types
 const (
-	Text     MessageType = iota // text messages
-	Audio                       // audio messages
-	Document                    // files
-	Photo                       // photos
-	Sticker                     // stickers
-	Video                       // videos
-	Voice                       // voice messages
-	Contact                     // contact information
-	Location                    // locations
+	TextType     MessageType = iota // text messages
+	AudioType                       // audio messages
+	DocumentType                    // files
+	PhotoType                       // photos
+	StickerType                     // stickers
+	VideoType                       // videos
+	VoiceType                       // voice messages
+	ContactType                     // contact information
+	LocationType                    // locations
 
 	chatActionsBegin
 	NewChatParticipant  // joined chat participants
@@ -28,15 +28,15 @@ const (
 )
 
 var types = map[MessageType]string{
-	Text:     "Text",
-	Audio:    "Audio",
-	Document: "Document",
-	Photo:    "Photo",
-	Sticker:  "Sticker",
-	Video:    "Video",
-	Voice:    "Voice",
-	Contact:  "Contact",
-	Location: "Location",
+	TextType:     "Text",
+	AudioType:    "Audio",
+	DocumentType: "Document",
+	PhotoType:    "Photo",
+	StickerType:  "Sticker",
+	VideoType:    "Video",
+	VoiceType:    "Voice",
+	ContactType:  "Contact",
+	LocationType: "Location",
 
 	NewChatParticipant:  "NewChatParticipant",
 	LeftChatParticipant: "LeftChatParticipant",

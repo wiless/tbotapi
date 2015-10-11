@@ -32,7 +32,7 @@ func main() {
 				return
 			case val := <-api.Updates:
 				typ := val.Message.Type()
-				if typ != model.Text {
+				if typ != model.TextType {
 					//ignore non-text messages for now
 					continue
 				}

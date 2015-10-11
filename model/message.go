@@ -26,23 +26,23 @@ func (m *Message) IsReply() bool {
 // Note that, for all these types, messages can still be replies or forwarded.
 func (m *Message) Type() MessageType {
 	if m.Text != nil {
-		return Text
+		return TextType
 	} else if m.Audio != nil {
-		return Audio
+		return AudioType
 	} else if m.Document != nil {
-		return Document
+		return DocumentType
 	} else if m.Photo != nil {
-		return Photo
+		return PhotoType
 	} else if m.Sticker != nil {
-		return Sticker
+		return StickerType
 	} else if m.Video != nil {
-		return Video
+		return VideoType
 	} else if m.Voice != nil {
-		return Voice
+		return VoiceType
 	} else if m.Contact != nil {
-		return Contact
+		return ContactType
 	} else if m.Location != nil {
-		return Location
+		return LocationType
 	} else if m.NewChatParticipant != nil {
 		return NewChatParticipant
 	} else if m.LeftChatParticipant != nil {
