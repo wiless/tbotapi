@@ -2,7 +2,6 @@ package model
 
 import (
 	"fmt"
-	"net/url"
 )
 
 type OutgoingUserProfilePhotosRequestPub struct {
@@ -36,15 +35,15 @@ func (op *OutgoingUserProfilePhotosRequest) SetLimit(to int) {
 }
 
 func (op *OutgoingUserProfilePhotosRequest) GetQueryString() Querystring {
-	toReturn := url.Values{}
-	toReturn.Set("user_id", fmt.Sprint(op.userId))
+	toReturn := map[string]string{}
+	toReturn["user_id"] = fmt.Sprint(op.userId)
 
 	if op.offsetSet {
-		toReturn.Set("offset", fmt.Sprint(op.offset))
+		toReturn["offset"] = fmt.Sprint(op.offset)
 	}
 
 	if op.limitSet {
-		toReturn.Set("limit", fmt.Sprint(op.limit))
+		toReturn["limit"] = fmt.Sprint(op.limit)
 	}
 
 	return Querystring(toReturn)

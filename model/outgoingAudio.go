@@ -2,7 +2,6 @@ package model
 
 import (
 	"fmt"
-	"net/url"
 )
 
 type OutgoingAudioPub struct {
@@ -49,18 +48,18 @@ func (oa *OutgoingAudio) SetTitle(to string) *OutgoingAudio {
 }
 
 func (oa *OutgoingAudio) GetQueryString() Querystring {
-	toReturn := url.Values(oa.GetBaseQueryString())
+	toReturn := map[string]string(oa.GetBaseQueryString())
 
 	if oa.durationSet {
-		toReturn.Set("duration", fmt.Sprint(oa.duration))
+		toReturn["duration"] = fmt.Sprint(oa.duration)
 	}
 
 	if oa.performerSet {
-		toReturn.Set("performer", oa.performer)
+		toReturn["performer"] = oa.performer
 	}
 
 	if oa.titleSet {
-		toReturn.Set("title", oa.title)
+		toReturn["title"] = oa.title
 	}
 
 	return Querystring(toReturn)

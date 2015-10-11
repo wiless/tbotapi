@@ -1,9 +1,5 @@
 package model
 
-import (
-	"net/url"
-)
-
 type OutgoingStickerPub struct {
 	OutgoingBasePub
 }
@@ -21,9 +17,7 @@ func NewOutgoingSticker(recipient Recipient) *OutgoingSticker {
 }
 
 func (os *OutgoingSticker) GetQueryString() Querystring {
-	toReturn := url.Values(os.GetBaseQueryString())
-
-	return Querystring(toReturn)
+	return os.GetBaseQueryString()
 }
 
 func (os *OutgoingSticker) GetPub() OutgoingStickerPub {

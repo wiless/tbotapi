@@ -1,9 +1,5 @@
 package model
 
-import (
-	"net/url"
-)
-
 type OutgoingPhotoPub struct {
 	OutgoingBasePub
 	Caption string `json:"caption"`
@@ -30,10 +26,10 @@ func (op *OutgoingPhoto) SetCaption(to string) *OutgoingPhoto {
 }
 
 func (op *OutgoingPhoto) GetQueryString() Querystring {
-	toReturn := url.Values(op.GetBaseQueryString())
+	toReturn := map[string]string(op.GetBaseQueryString())
 
 	if op.captionSet {
-		toReturn.Set("caption", op.caption)
+		toReturn["caption"] = op.caption
 	}
 
 	return Querystring(toReturn)

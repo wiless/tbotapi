@@ -2,7 +2,6 @@ package model
 
 import (
 	"fmt"
-	"net/url"
 )
 
 type OutgoingVoicePub struct {
@@ -31,10 +30,10 @@ func (ov *OutgoingVoice) SetDuration(to int) *OutgoingVoice {
 }
 
 func (ov *OutgoingVoice) GetQueryString() Querystring {
-	toReturn := url.Values(ov.GetBaseQueryString())
+	toReturn := map[string]string(ov.GetBaseQueryString())
 
 	if ov.durationSet {
-		toReturn.Set("duration", fmt.Sprint(ov.duration))
+		toReturn["duration"] = fmt.Sprint(ov.duration)
 	}
 
 	return Querystring(toReturn)

@@ -3,7 +3,6 @@ package model
 import (
 	"encoding/json"
 	"fmt"
-	"net/url"
 )
 
 type OutgoingBasePub struct {
@@ -76,20 +75,20 @@ func (op *OutgoingBase) SetForceReply(to ForceReply) {
 }
 
 func (op *OutgoingBase) GetBaseQueryString() Querystring {
-	toReturn := url.Values{}
+	toReturn := map[string]string{}
 	if op.recipient.isChannel() {
 		//Channel
-		toReturn.Set("chat_id", fmt.Sprint(*op.recipient.ChannelId))
+		toReturn["chat_id"] = fmt.Sprint(*op.recipient.ChannelId)
 	} else {
-		toReturn.Set("chat_id", fmt.Sprint(*op.recipient.ChatId))
+		toReturn["chat_id"] = fmt.Sprint(*op.recipient.ChatId)
 	}
 
 	if op.replyToMessageIdSet {
-		toReturn.Set("reply_to_message_id", fmt.Sprint(op.replyToMessageId))
+		toReturn["reply_to_message_id"] = fmt.Sprint(op.replyToMessageId)
 	}
 
 	if op.replyMarkupSet {
-		toReturn.Set("reply_markup", op.replyMarkup)
+		toReturn["reply_markup"] = op.replyMarkup
 	}
 
 	return Querystring(toReturn)

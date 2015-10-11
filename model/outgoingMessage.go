@@ -1,9 +1,5 @@
 package model
 
-import (
-	"net/url"
-)
-
 type OutgoingMessagePub struct {
 	OutgoingBasePub
 	Text                  string `json:"text"`
@@ -18,7 +14,7 @@ type OutgoingMessage struct {
 	isMarkdown            bool
 }
 
-type Querystring url.Values
+type Querystring map[string]string
 
 func NewOutgoingMessage(recipient Recipient, text string) *OutgoingMessage {
 	return &OutgoingMessage{

@@ -2,7 +2,6 @@ package model
 
 import (
 	"fmt"
-	"net/url"
 )
 
 type OutgoingLocationPub struct {
@@ -28,10 +27,10 @@ func NewOutgoingLocation(recipient Recipient, latitude, longitude float32) *Outg
 }
 
 func (ol *OutgoingLocation) GetQueryString() Querystring {
-	toReturn := url.Values(ol.GetBaseQueryString())
+	toReturn := map[string]string(ol.GetBaseQueryString())
 
-	toReturn.Set("latitude", fmt.Sprint(ol.latitude))
-	toReturn.Set("longitude", fmt.Sprint(ol.longitude))
+	toReturn["latitude"] = fmt.Sprint(ol.latitude)
+	toReturn["longitude"] = fmt.Sprint(ol.longitude)
 
 	return Querystring(toReturn)
 }

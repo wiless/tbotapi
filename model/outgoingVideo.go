@@ -2,7 +2,6 @@ package model
 
 import (
 	"fmt"
-	"net/url"
 )
 
 type OutgoingVideoPub struct {
@@ -40,14 +39,14 @@ func (ov *OutgoingVideo) SetDuration(to int) *OutgoingVideo {
 }
 
 func (ov *OutgoingVideo) GetQueryString() Querystring {
-	toReturn := url.Values(ov.GetBaseQueryString())
+	toReturn := map[string]string(ov.GetBaseQueryString())
 
 	if ov.captionSet {
-		toReturn.Set("caption", ov.caption)
+		toReturn["caption"] = ov.caption
 	}
 
 	if ov.durationSet {
-		toReturn.Set("duration", fmt.Sprint(ov.duration))
+		toReturn["duration"] = fmt.Sprint(ov.duration)
 	}
 
 	return Querystring(toReturn)

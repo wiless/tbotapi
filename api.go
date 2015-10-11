@@ -3,32 +3,8 @@ package tbotapi
 import (
 	"bitbucket.org/mrd0ll4r/tbotapi/model"
 	"fmt"
-	"github.com/jmcvetta/napping"
-	"io"
-	"menteslibres.net/gosexy/rest"
-	"net/url"
 	"sync"
 	"time"
-)
-
-type method string
-
-const (
-	m_GetMe                = method("GetMe")
-	m_SendMessage          = method("SendMessage")
-	m_ForwardMessage       = method("ForwardMessage")
-	m_SendPhoto            = method("SendPhoto")
-	m_SendAudio            = method("SendAudio")
-	m_SendDocument         = method("SendDocument")
-	m_SendSticker          = method("SendSticker")
-	m_SendVideo            = method("SendVideo")
-	m_SendVoice            = method("SendVoice")
-	m_SendLocation         = method("SendLocation")
-	m_SendChatAction       = method("SendChatAction")
-	m_GetUserProfilePhotos = method("GetUserProfilePhotos")
-	m_GetUpdates           = method("GetUpdates")
-	m_SetWebhook           = method("SetWebhook")
-	m_GetFile              = method("GetFile")
 )
 
 // A TelegramBotAPI is an API Client for one Telegram bot.
@@ -41,8 +17,8 @@ type TelegramBotAPI struct {
 	Errors   chan error         // a channel providing errors that occur during the retrieval of updates
 	baseURIs map[method]string
 	closed   chan struct{}
+	c        *client
 	wg       sync.WaitGroup
-	session  napping.Session
 }
 
 const apiBaseURI string = "https://api.telegram.org/bot%s"
@@ -56,7 +32,7 @@ func New(apiKey string) (*TelegramBotAPI, error) {
 		Errors:   make(chan error),
 		baseURIs: createEndpoints(fmt.Sprintf(apiBaseURI, apiKey)),
 		closed:   make(chan struct{}),
-		session:  napping.Session{},
+		c:        newClient(fmt.Sprintf(apiBaseURI, apiKey)),
 	}
 	user, err := toReturn.GetMe()
 	if err != nil {
@@ -71,33 +47,10 @@ func New(apiKey string) (*TelegramBotAPI, error) {
 
 	return &toReturn, nil
 }
-
-func createEndpoints(baseURI string) map[method]string {
-	toReturn := map[method]string{}
-
-	toReturn[m_GetMe] = fmt.Sprint(baseURI, "/", string(m_GetMe))
-	toReturn[m_SendMessage] = fmt.Sprint(baseURI, "/", string(m_SendMessage))
-	toReturn[m_ForwardMessage] = fmt.Sprint(baseURI, "/", string(m_ForwardMessage))
-	toReturn[m_SendPhoto] = fmt.Sprint(baseURI, "/", string(m_SendPhoto))
-	toReturn[m_SendAudio] = fmt.Sprint(baseURI, "/", string(m_SendAudio))
-	toReturn[m_SendDocument] = fmt.Sprint(baseURI, "/", string(m_SendDocument))
-	toReturn[m_SendSticker] = fmt.Sprint(baseURI, "/", string(m_SendSticker))
-	toReturn[m_SendVideo] = fmt.Sprint(baseURI, "/", string(m_SendVideo))
-	toReturn[m_SendVoice] = fmt.Sprint(baseURI, "/", string(m_SendVoice))
-	toReturn[m_SendLocation] = fmt.Sprint(baseURI, "/", string(m_SendLocation))
-	toReturn[m_SendChatAction] = fmt.Sprint(baseURI, "/", string(m_SendChatAction))
-	toReturn[m_GetUserProfilePhotos] = fmt.Sprint(baseURI, "/", string(m_GetUserProfilePhotos))
-	toReturn[m_GetUpdates] = fmt.Sprint(baseURI, "/", string(m_GetUpdates))
-	toReturn[m_SetWebhook] = fmt.Sprint(baseURI, "/", string(m_SetWebhook))
-	toReturn[m_GetFile] = fmt.Sprint(baseURI, "/", string(m_GetFile))
-
-	return toReturn
-}
-
 func (api *TelegramBotAPI) getEndpoint(method method) string {
 	endpoint, ok := api.baseURIs[method]
 	if !ok {
-		panic(fmt.Errorf("tbotapi: internal: Endpoint for method %s not found", method))
+		panic(fmt.Errorf("tbotapi: internal: Endpoint for method %s not found", string(method)))
 	}
 	return endpoint
 }
@@ -155,11 +108,10 @@ func putUpdatesInChannel(channel chan *model.Update, updates []model.Update) int
 
 func (api *TelegramBotAPI) getUpdates() (*model.UpdateResponse, error) {
 	resp := &model.UpdateResponse{}
-	querystring := url.Values{}
-	querystring.Set("timeout", fmt.Sprint(60))
-	response, err := api.session.Get(api.getEndpoint(m_GetUpdates), &querystring, resp, resp)
+	response, err := api.c.getQuerystring(m_GetUpdates, resp, map[string]string{"timeout": fmt.Sprint(60)})
+
 	if err != nil {
-		if response.Status() < 500 {
+		if response.StatusCode() < 500 {
 			return nil, err
 		} else {
 			//Telegram server problems, retry later...
@@ -176,12 +128,13 @@ func (api *TelegramBotAPI) getUpdates() (*model.UpdateResponse, error) {
 
 func (api *TelegramBotAPI) getUpdatesByOffset(offset int) (*model.UpdateResponse, error) {
 	resp := &model.UpdateResponse{}
-	querystring := url.Values{}
-	querystring.Set("timeout", fmt.Sprint(60))
-	querystring.Set("offset", fmt.Sprint(offset))
-	response, err := api.session.Get(api.getEndpoint(m_GetUpdates), &querystring, resp, resp)
+	response, err := api.c.getQuerystring(m_GetUpdates, resp, map[string]string{
+		"timeout": fmt.Sprint(60),
+		"offset":  fmt.Sprint(offset),
+	})
+
 	if err != nil {
-		if response.Status() < 500 {
+		if response.StatusCode() < 500 {
 			return nil, err
 		} else {
 			//Telegram server problems, retry later...
@@ -199,7 +152,8 @@ func (api *TelegramBotAPI) getUpdatesByOffset(offset int) (*model.UpdateResponse
 // GetMe returns basic information about the bot in form of a UserResponse.
 func (api *TelegramBotAPI) GetMe() (*model.UserResponse, error) {
 	resp := &model.UserResponse{}
-	_, err := api.session.Get(api.getEndpoint(m_GetMe), nil, resp, resp)
+	_, err := api.c.get(m_GetMe, resp)
+
 	if err != nil {
 		return nil, err
 	}
@@ -215,9 +169,8 @@ func (api *TelegramBotAPI) GetMe() (*model.UserResponse, error) {
 // https://api.telegram.org/file/bot<token>/<file_path>, where <file_path> is taken from the response.
 func (api *TelegramBotAPI) GetFile(fileId string) (*model.FileResponse, error) {
 	resp := &model.FileResponse{}
-	querystring := &url.Values{}
-	querystring.Set("file_id", fileId)
-	_, err := api.session.Get(api.getEndpoint(m_GetFile), querystring, resp, resp)
+	_, err := api.c.getQuerystring(m_GetFile, resp, map[string]string{"file_id": fileId})
+
 	if err != nil {
 		return nil, err
 	}
@@ -240,8 +193,8 @@ func (api *TelegramBotAPI) SendMessage(chatID int, text string) (*model.MessageR
 // On success, the sent message is returned as a MessageResponse.
 func (api *TelegramBotAPI) SendMessageExtended(om *model.OutgoingMessage) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
+	_, err := api.c.postJSON(m_SendMessage, resp, om.GetPub())
 
-	_, err := api.session.Post(api.getEndpoint(m_SendMessage), om.GetPub(), resp, resp)
 	if err != nil {
 		return nil, err
 	}
@@ -254,21 +207,10 @@ func (api *TelegramBotAPI) SendMessageExtended(om *model.OutgoingMessage) (*mode
 
 // ForwardMessage forwards a message with ID messageID from the fromChatID to the toChatID chat.
 // On success, the sent message is returned as a MessageResponse.
-func (api *TelegramBotAPI) ForwardMessage(recipient model.Recipient, origin model.Chat, messageID int) (*model.MessageResponse, error) {
+func (api *TelegramBotAPI) ForwardMessage(of *model.OutgoingForward) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
-	toSend := struct {
-		model.OutgoingBasePub
-		FromChatId model.Recipient `json:"from_chat_id"`
-		MessageId  int             `json:"message_id"`
-	}{
-		OutgoingBasePub: model.OutgoingBasePub{
-			Recipient: recipient,
-		},
-		FromChatId: model.NewRecipientFromChat(origin),
-		MessageId:  messageID,
-	}
+	_, err := api.c.postJSON(m_ForwardMessage, resp, of.GetPub())
 
-	_, err := api.session.Post(api.getEndpoint(m_ForwardMessage), toSend, resp, resp)
 	if err != nil {
 		return nil, err
 	}
@@ -291,8 +233,8 @@ func (api *TelegramBotAPI) ResendPhoto(op *model.OutgoingPhoto, fileID string) (
 		OutgoingPhotoPub: op.GetPub(),
 		Photo:            fileID,
 	}
+	_, err := api.c.postJSON(m_SendPhoto, resp, toSend)
 
-	_, err := api.session.Post(api.getEndpoint(m_SendPhoto), toSend, resp, resp)
 	if err != nil {
 		return nil, err
 	}
@@ -304,26 +246,13 @@ func (api *TelegramBotAPI) ResendPhoto(op *model.OutgoingPhoto, fileID string) (
 }
 
 // SendPhoto sends a photo message with a photo that is not yet on the Telegram servers.
-// Use NewOutgoingPhoto to construct the outgoing photo message, specify an io.Reader and a fileName for the file.
+// Use NewOutgoingPhoto to construct the outgoing photo message and specify the path to the file.
 // Note, that the Telegram API will check the filename for its extension and will reject non-image files.
 // On success, the sent message is returned as a MessageResponse.
-func (api *TelegramBotAPI) SendPhoto(op *model.OutgoingPhoto, file io.Reader, fileName string) (*model.MessageResponse, error) {
+func (api *TelegramBotAPI) SendPhoto(op *model.OutgoingPhoto, filePath string) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
-	files := rest.FileMap{
-		"photo": []rest.File{
-			{
-				Name:   fileName,
-				Reader: file,
-			},
-		},
-	}
+	_, err := api.c.uploadFile(m_SendPhoto, resp, file{fieldName: "photo", path: filePath}, op)
 
-	message, err := rest.NewMultipartMessage(url.Values(op.GetQueryString()), files)
-	if err != nil {
-		return nil, err
-	}
-
-	err = rest.PostMultipart(resp, api.getEndpoint(m_SendPhoto), message)
 	if err != nil {
 		return nil, err
 	}
@@ -346,8 +275,8 @@ func (api *TelegramBotAPI) ResendVoice(ov *model.OutgoingVoice, fileID string) (
 		OutgoingVoicePub: ov.GetPub(),
 		Audio:            fileID,
 	}
+	_, err := api.c.postJSON(m_SendVoice, resp, toSend)
 
-	_, err := api.session.Post(api.getEndpoint(m_SendVoice), toSend, resp, resp)
 	if err != nil {
 		return nil, err
 	}
@@ -359,27 +288,14 @@ func (api *TelegramBotAPI) ResendVoice(ov *model.OutgoingVoice, fileID string) (
 }
 
 // SendVoice sends a voice message with the contents not already on the Telegram servers.
-// Use NewOutgoingVoice to construct the voice message, specify an io.Reader and a fileName.
+// Use NewOutgoingVoice to construct the voice message and specify the path to the file.
 // Note that the Telegram servers check the extension of the file name and will reject non-audio files.
 // Check the current API documentation for the file types accepted.
 // On success, the sent message is returned as a MessageResponse.
-func (api *TelegramBotAPI) SendVoice(ov *model.OutgoingVoice, file io.Reader, fileName string) (*model.MessageResponse, error) {
+func (api *TelegramBotAPI) SendVoice(ov *model.OutgoingVoice, filePath string) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
-	files := rest.FileMap{
-		"audio": []rest.File{
-			{
-				Name:   fileName,
-				Reader: file,
-			},
-		},
-	}
+	_, err := api.c.uploadFile(m_SendVoice, resp, file{fieldName: "audio", path: filePath}, ov)
 
-	message, err := rest.NewMultipartMessage(url.Values(ov.GetQueryString()), files)
-	if err != nil {
-		return nil, err
-	}
-
-	err = rest.PostMultipart(resp, api.getEndpoint(m_SendVoice), message)
 	if err != nil {
 		return nil, err
 	}
@@ -402,8 +318,8 @@ func (api *TelegramBotAPI) ResendAudio(oa *model.OutgoingAudio, fileID string) (
 		OutgoingAudioPub: oa.GetPub(),
 		Audio:            fileID,
 	}
+	_, err := api.c.postJSON(m_SendAudio, resp, toSend)
 
-	_, err := api.session.Post(api.getEndpoint(m_SendAudio), toSend, resp, resp)
 	if err != nil {
 		return nil, err
 	}
@@ -415,27 +331,14 @@ func (api *TelegramBotAPI) ResendAudio(oa *model.OutgoingAudio, fileID string) (
 }
 
 // SendAudio sends an audio message with the contents not already on the Telegram servers.
-// Use NewOutgoingAudio to construct the audio message, specify an io.Reader and a fileName.
+// Use NewOutgoingAudio to construct the audio message and specify the path to the file.
 // Note that the Telegram servers check the extension of the file name and will reject non-audio files.
 // Check the current API documentation for the file types accepted.
 // On success, the sent message is returned as a MessageResponse.
-func (api *TelegramBotAPI) SendAudio(oa *model.OutgoingAudio, file io.Reader, fileName string) (*model.MessageResponse, error) {
+func (api *TelegramBotAPI) SendAudio(oa *model.OutgoingAudio, filePath string) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
-	files := rest.FileMap{
-		"audio": []rest.File{
-			{
-				Name:   fileName,
-				Reader: file,
-			},
-		},
-	}
+	_, err := api.c.uploadFile(m_SendAudio, resp, file{fieldName: "audio", path: filePath}, oa)
 
-	message, err := rest.NewMultipartMessage(url.Values(oa.GetQueryString()), files)
-	if err != nil {
-		return nil, err
-	}
-
-	err = rest.PostMultipart(resp, api.getEndpoint(m_SendAudio), message)
 	if err != nil {
 		return nil, err
 	}
@@ -458,8 +361,8 @@ func (api *TelegramBotAPI) ResendDocument(od *model.OutgoingDocument, fileID str
 		OutgoingDocumentPub: od.GetPub(),
 		Document:            fileID,
 	}
+	_, err := api.c.postJSON(m_SendDocument, resp, toSend)
 
-	_, err := api.session.Post(api.getEndpoint(m_SendDocument), toSend, resp, resp)
 	if err != nil {
 		return nil, err
 	}
@@ -471,26 +374,13 @@ func (api *TelegramBotAPI) ResendDocument(od *model.OutgoingDocument, fileID str
 }
 
 // SendDocument sends a general file that is not already on the Telegram servers.
-// Use NewOutgoingDocument to construct the message, specify an io.Reader and a fileName.
+// Use NewOutgoingDocument to construct the message and specify the path to the file.
 // For current limitations on what a bot can send, check the bot API documentation.
 // On success, the sent message is returned as a MessageResponse.
-func (api *TelegramBotAPI) SendDocument(od *model.OutgoingDocument, file io.Reader, fileName string) (*model.MessageResponse, error) {
+func (api *TelegramBotAPI) SendDocument(od *model.OutgoingDocument, filePath string) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
-	files := rest.FileMap{
-		"document": []rest.File{
-			{
-				Name:   fileName,
-				Reader: file,
-			},
-		},
-	}
+	_, err := api.c.uploadFile(m_SendDocument, resp, file{fieldName: "document", path: filePath}, od)
 
-	message, err := rest.NewMultipartMessage(url.Values(od.GetQueryString()), files)
-	if err != nil {
-		return nil, err
-	}
-
-	err = rest.PostMultipart(resp, api.getEndpoint(m_SendDocument), message)
 	if err != nil {
 		return nil, err
 	}
@@ -513,8 +403,8 @@ func (api *TelegramBotAPI) ResendSticker(os *model.OutgoingSticker, fileID strin
 		OutgoingStickerPub: os.GetPub(),
 		Sticker:            fileID,
 	}
+	_, err := api.c.postJSON(m_SendSticker, resp, toSend)
 
-	_, err := api.session.Post(api.getEndpoint(m_SendSticker), toSend, resp, resp)
 	if err != nil {
 		return nil, err
 	}
@@ -525,28 +415,15 @@ func (api *TelegramBotAPI) ResendSticker(os *model.OutgoingSticker, fileID strin
 	return resp, nil
 }
 
-// SendSticker sends a sticker that is not already on the Telegram servesr.
-// Use NewOutgoingSticker to construct the message, specify an io.Reader and a fileName.
+// SendSticker sends a sticker that is not already on the Telegram server.
+// Use NewOutgoingSticker to construct the message and specify the path to the file.
 // Note that the Telegram servers may check the fileName for its extension.
 // For current limitations on what a bot can send, check the API documentation.
 // On success, the sent message is returned as a MessageResponse.
-func (api *TelegramBotAPI) SendSticker(os *model.OutgoingSticker, file io.Reader, fileName string) (*model.MessageResponse, error) {
+func (api *TelegramBotAPI) SendSticker(os *model.OutgoingSticker, filePath string) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
-	files := rest.FileMap{
-		"sticker": []rest.File{
-			{
-				Name:   fileName,
-				Reader: file,
-			},
-		},
-	}
+	_, err := api.c.uploadFile(m_SendSticker, resp, file{fieldName: "sticker", path: filePath}, os)
 
-	message, err := rest.NewMultipartMessage(url.Values(os.GetQueryString()), files)
-	if err != nil {
-		return nil, err
-	}
-
-	err = rest.PostMultipart(resp, api.getEndpoint(m_SendSticker), message)
 	if err != nil {
 		return nil, err
 	}
@@ -569,8 +446,8 @@ func (api *TelegramBotAPI) ResendVideo(ov *model.OutgoingVideo, fileID string) (
 		OutgoingVideoPub: ov.GetPub(),
 		Video:            fileID,
 	}
+	_, err := api.c.postJSON(m_SendVideo, resp, toSend)
 
-	_, err := api.session.Post(api.getEndpoint(m_SendVideo), toSend, resp, resp)
 	if err != nil {
 		return nil, err
 	}
@@ -582,27 +459,14 @@ func (api *TelegramBotAPI) ResendVideo(ov *model.OutgoingVideo, fileID string) (
 }
 
 // SendVideo sends a video that is not already on the Telegram servers.
-// Use OutgoingVideo to construct the message, specify an io.Reader and a fileName.
+// Use OutgoingVideo to construct the message and specify the path to the file.
 // Note that the Telegram servers may check the fileName for its extension.
 // For current limitations on what bots can send, please check the API documentation.
 // On success, the sent message is returned as a MessageResponse.
-func (api *TelegramBotAPI) SendVideo(ov *model.OutgoingVideo, file io.Reader, fileName string) (*model.MessageResponse, error) {
+func (api *TelegramBotAPI) SendVideo(ov *model.OutgoingVideo, filePath string) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
-	files := rest.FileMap{
-		"video": []rest.File{
-			{
-				Name:   fileName,
-				Reader: file,
-			},
-		},
-	}
+	_, err := api.c.uploadFile(m_SendVideo, resp, file{fieldName: "video", path: filePath}, ov)
 
-	message, err := rest.NewMultipartMessage(url.Values(ov.GetQueryString()), files)
-	if err != nil {
-		return nil, err
-	}
-
-	err = rest.PostMultipart(resp, api.getEndpoint(m_SendVideo), message)
 	if err != nil {
 		return nil, err
 	}
@@ -618,8 +482,8 @@ func (api *TelegramBotAPI) SendVideo(ov *model.OutgoingVideo, file io.Reader, fi
 // On success, the sent message is returned as a MessageResponse.
 func (api *TelegramBotAPI) SendLocation(ol *model.OutgoingLocation) (*model.MessageResponse, error) {
 	resp := &model.MessageResponse{}
+	_, err := api.c.postJSON(m_SendLocation, resp, ol.GetPub())
 
-	_, err := api.session.Post(api.getEndpoint(m_SendLocation), ol.GetPub(), resp, resp)
 	if err != nil {
 		return nil, err
 	}
@@ -644,8 +508,8 @@ func (api *TelegramBotAPI) SendChatAction(recipient model.Recipient, action mode
 		},
 		Action: string(action),
 	}
+	_, err := api.c.postJSON(m_SendChatAction, resp, toSend)
 
-	_, err := api.session.Post(api.getEndpoint(m_SendChatAction), toSend, resp, resp)
 	if err != nil {
 		return nil, err
 	}
@@ -661,8 +525,8 @@ func (api *TelegramBotAPI) SendChatAction(recipient model.Recipient, action mode
 // On success, the photos are returned as a UserProfilePhotosResponse.
 func (api *TelegramBotAPI) GetProfilePhotos(op *model.OutgoingUserProfilePhotosRequest) (*model.UserProfilePhotosResponse, error) {
 	resp := &model.UserProfilePhotosResponse{}
+	_, err := api.c.postJSON(m_GetUserProfilePhotos, resp, op.GetPub())
 
-	_, err := api.session.Post(api.getEndpoint(m_GetUserProfilePhotos), op.GetPub(), resp, resp)
 	if err != nil {
 		return nil, err
 	}

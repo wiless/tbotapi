@@ -1,9 +1,5 @@
 package model
 
-import (
-	"net/url"
-)
-
 type OutgoingDocumentPub struct {
 	OutgoingBasePub
 }
@@ -21,9 +17,7 @@ func NewOutgoingDocument(recipient Recipient) *OutgoingDocument {
 }
 
 func (od *OutgoingDocument) GetQueryString() Querystring {
-	toReturn := url.Values(od.GetBaseQueryString())
-
-	return Querystring(toReturn)
+	return od.GetBaseQueryString()
 }
 
 func (od *OutgoingDocument) GetPub() OutgoingDocumentPub {
