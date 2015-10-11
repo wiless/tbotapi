@@ -6,10 +6,8 @@ import (
 
 type OutgoingVideo struct {
 	OutgoingBase
-	Duration    int    `json:"duration,omitempty"`
-	Caption     string `json:"caption,omitempty"`
-	durationSet bool
-	captionSet  bool
+	Duration int    `json:"duration,omitempty"`
+	Caption  string `json:"caption,omitempty"`
 }
 
 func NewOutgoingVideo(recipient Recipient) *OutgoingVideo {
@@ -22,24 +20,22 @@ func NewOutgoingVideo(recipient Recipient) *OutgoingVideo {
 
 func (ov *OutgoingVideo) SetCaption(to string) *OutgoingVideo {
 	ov.Caption = to
-	ov.captionSet = true
 	return ov
 }
 
 func (ov *OutgoingVideo) SetDuration(to int) *OutgoingVideo {
 	ov.Duration = to
-	ov.durationSet = true
 	return ov
 }
 
 func (ov *OutgoingVideo) GetQueryString() Querystring {
 	toReturn := map[string]string(ov.GetBaseQueryString())
 
-	if ov.captionSet {
+	if ov.Caption != "" {
 		toReturn["caption"] = ov.Caption
 	}
 
-	if ov.durationSet {
+	if ov.Duration != 0 {
 		toReturn["duration"] = fmt.Sprint(ov.Duration)
 	}
 

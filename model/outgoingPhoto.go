@@ -2,8 +2,7 @@ package model
 
 type OutgoingPhoto struct {
 	OutgoingBase
-	Caption    string `json:"caption,omitempty"`
-	captionSet bool
+	Caption string `json:"caption,omitempty"`
 }
 
 func NewOutgoingPhoto(recipient Recipient) *OutgoingPhoto {
@@ -16,14 +15,13 @@ func NewOutgoingPhoto(recipient Recipient) *OutgoingPhoto {
 
 func (op *OutgoingPhoto) SetCaption(to string) *OutgoingPhoto {
 	op.Caption = to
-	op.captionSet = true
 	return op
 }
 
 func (op *OutgoingPhoto) GetQueryString() Querystring {
 	toReturn := map[string]string(op.GetBaseQueryString())
 
-	if op.captionSet {
+	if op.Caption != "" {
 		toReturn["caption"] = op.Caption
 	}
 
