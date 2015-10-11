@@ -29,7 +29,7 @@ So everything you did with this library before should also work after API change
 
 We use
 
-* `menteslibres.net/gosexy/rest` for REST calls
+* `github.com/go-resty/resty` for REST calls
 
 ### Contribution guidelines ###
 
@@ -40,6 +40,10 @@ If you want to contribute code, just write me on Telegram (see below) or notify 
 * Writing tests
 * Code review
 * Write nice Go code
+
+### Things that need to be done ###
+
+* Clean up the model package, especially the outgoing types - we need a better way of doing all that.
 
 ### Who do I talk to? ###
 
