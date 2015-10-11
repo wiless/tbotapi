@@ -12,11 +12,11 @@ type OutgoingBasePub struct {
 }
 
 type OutgoingBase struct {
-	recipient           Recipient `json:"chat_id"`
-	replyToMessageId    int       `json:"reply_to_message_id,omitempty"`
-	replyMarkup         string    `json:"reply_markup,omitempty"`
-	replyToMessageIdSet bool      `json:"-"`
-	replyMarkupSet      bool      `json:"-"`
+	recipient           Recipient
+	replyToMessageId    int
+	replyMarkup         string
+	replyToMessageIdSet bool
+	replyMarkupSet      bool
 }
 
 func (op *OutgoingBase) SetReplyToMessageId(to int) {
