@@ -111,12 +111,15 @@ func (api *TelegramBotAPI) getUpdates() (*model.UpdateResponse, error) {
 	response, err := api.c.getQuerystring(getUpdates, resp, map[string]string{"timeout": fmt.Sprint(60)})
 
 	if err != nil {
-		if response.StatusCode() < 500 {
-			return nil, err
+		if response != nil {
+			if response.StatusCode() < 500 {
+				return nil, err
+			}
+			//Telegram server problems, retry later...
+			time.Sleep(time.Duration(5) * time.Second)
+			return api.getUpdates()
 		}
-		//Telegram server problems, retry later...
-		time.Sleep(time.Duration(5) * time.Second)
-		return api.getUpdates()
+		return nil, err
 	}
 	err = check(&resp.BaseResponse)
 	if err != nil {
@@ -133,12 +136,15 @@ func (api *TelegramBotAPI) getUpdatesByOffset(offset int) (*model.UpdateResponse
 	})
 
 	if err != nil {
-		if response.StatusCode() < 500 {
-			return nil, err
+		if response != nil {
+			if response.StatusCode() < 500 {
+				return nil, err
+			}
+			//Telegram server problems, retry later...
+			time.Sleep(time.Duration(5) * time.Second)
+			return api.getUpdatesByOffset(offset)
 		}
-		//Telegram server problems, retry later...
-		time.Sleep(time.Duration(5) * time.Second)
-		return api.getUpdatesByOffset(offset)
+		return nil, err
 	}
 	err = check(&resp.BaseResponse)
 	if err != nil {
