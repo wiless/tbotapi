@@ -1,5 +1,9 @@
 package model
 
+import (
+	"fmt"
+)
+
 // Chat contains information about the chat a message originated from
 type Chat struct {
 	ID        int     `json:"id"`         // Unique identifier for this chat
@@ -23,4 +27,33 @@ func (c Chat) IsGroupChat() bool {
 // IsChannel checks if the chat is a channel
 func (c Chat) IsChannel() bool {
 	return c.Type == "channel"
+}
+
+func (c Chat) String() string {
+	toReturn := fmt.Sprint(c.ID)
+	if c.IsPrivateChat() {
+		toReturn += " (P) "
+	} else if c.IsGroupChat() {
+		toReturn += " (G) "
+	} else {
+		toReturn += " (C) "
+	}
+
+	if c.Title != nil {
+		toReturn += "\"" + *c.Title + "\" "
+	}
+
+	if c.FirstName != nil {
+		toReturn += *c.FirstName + " "
+	}
+
+	if c.LastName != nil {
+		toReturn += *c.LastName + " "
+	}
+
+	if c.Username != nil {
+		toReturn += "(@" + *c.Username + ")"
+	}
+
+	return toReturn
 }
