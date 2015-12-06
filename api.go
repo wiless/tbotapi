@@ -99,9 +99,8 @@ func (api *TelegramBotAPI) updateLoop() {
 func putUpdatesInChannel(channel chan *model.Update, updates []model.Update) int {
 	highestOffset := -1
 	for _, update := range updates {
-		u := update
-		highestOffset = u.ID
-		channel <- &u
+		highestOffset = update.ID
+		channel <- &update
 	}
 
 	return highestOffset
