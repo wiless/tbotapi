@@ -40,7 +40,7 @@ func New(apiKey string) (*TelegramBotAPI, error) {
 	}
 	toReturn.ID = user.User.ID
 	toReturn.Name = user.User.FirstName
-	toReturn.Username = user.User.Username
+	toReturn.Username = *user.User.Username
 
 	toReturn.wg.Add(1)
 	go toReturn.updateLoop()
