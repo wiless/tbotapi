@@ -64,7 +64,7 @@ func parseResponseBody(c *resty.Client, res *resty.Response) (err error) {
 		// Considered as Result
 		if res.StatusCode() > 199 && res.StatusCode() < 500 {
 			if res.Request.Result != nil {
-				err = json.Unmarshal(res.Body, res.Request.Result)
+				err = json.Unmarshal(res.Body(), res.Request.Result)
 			}
 		}
 	}
