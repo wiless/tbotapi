@@ -1,6 +1,9 @@
-package model
+package tbotapi
 
 import "fmt"
+
+// Querystring is a type to represent querystring-applicable data
+type Querystring map[string]string
 
 // Recipient represents the recipient of a message
 type Recipient struct {

@@ -1,15 +1,11 @@
 package tbotapi
 
-import (
-	"bitbucket.org/mrd0ll4r/tbotapi/model"
-)
-
 type encodable interface {
-	GetQueryString() model.Querystring
+	GetQueryString() Querystring
 }
 
 type emptyEncodable struct{}
 
-func (emptyEncodable) GetQueryString() model.Querystring {
-	return model.Querystring(map[string]string{})
+func (emptyEncodable) GetQueryString() Querystring {
+	return Querystring(map[string]string{})
 }
