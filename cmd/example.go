@@ -30,7 +30,13 @@ func main() {
 			case <-closed:
 				wg.Done()
 				return
-			case val := <-api.Updates:
+			case update := <-api.Updates:
+				if update.Error() != nil {
+					fmt.Printf("Update error: %s\n", update.Error())
+					continue
+				}
+
+				val := update.Update()
 				typ := val.Message.Type()
 				if typ != model.TextType {
 					//ignore non-text messages for now
@@ -60,9 +66,8 @@ func main() {
 					continue
 				}
 				fmt.Printf("MessageID: %d, Text: %s, IsGroupChat:%t\n", msg.Message.ID, *msg.Message.Text, msg.Message.Chat.IsGroupChat())
-			case val := <-api.Errors:
-				fmt.Printf("Err: %s\n", val)
 			}
+
 		}
 	}()
 

@@ -10,15 +10,27 @@ import (
 // A TelegramBotAPI is an API Client for one Telegram bot.
 // Create a new client by calling the New() function.
 type TelegramBotAPI struct {
-	ID       int                // the bots ID
-	Name     string             // the bots Name as seen by users
-	Username string             // the bots username
-	Updates  chan *model.Update // a channel providing updates this bot receives
-	Errors   chan error         // a channel providing errors that occur during the retrieval of updates
+	ID       int         // the bots ID
+	Name     string      // the bots Name as seen by users
+	Username string      // the bots username
+	Updates  chan Update // a channel providing updates this bot receives
 	baseURIs map[method]string
 	closed   chan struct{}
 	c        *client
 	wg       sync.WaitGroup
+}
+
+type Update struct {
+	update model.Update
+	err    error
+}
+
+func (u *Update) Update() model.Update {
+	return u.update
+}
+
+func (u *Update) Error() error {
+	return u.err
 }
 
 const apiBaseURI string = "https://api.telegram.org/bot%s"
@@ -28,8 +40,7 @@ const apiBaseURI string = "https://api.telegram.org/bot%s"
 // Additionally, an update loop is started, pumping updates into the Updates channel.
 func New(apiKey string) (*TelegramBotAPI, error) {
 	toReturn := TelegramBotAPI{
-		Updates:  make(chan *model.Update),
-		Errors:   make(chan error),
+		Updates:  make(chan Update),
 		baseURIs: createEndpoints(fmt.Sprintf(apiBaseURI, apiKey)),
 		closed:   make(chan struct{}),
 		c:        newClient(fmt.Sprintf(apiBaseURI, apiKey)),
@@ -71,7 +82,7 @@ func (api *TelegramBotAPI) Close() {
 
 func (api *TelegramBotAPI) updateLoop() {
 	updates, err := api.getUpdates()
-	var offset int
+	offset := -1
 
 	for {
 		select {
@@ -82,10 +93,13 @@ func (api *TelegramBotAPI) updateLoop() {
 		}
 
 		if err != nil {
-			api.Errors <- err
+			api.Updates <- Update{err: err}
 		} else {
 			updates.Sort()
-			offset = putUpdatesInChannel(api.Updates, updates.Update)
+			for _, update := range updates.Update {
+				api.Updates <- Update{update: update}
+				offset = update.ID
+			}
 		}
 
 		if offset == -1 {
@@ -94,16 +108,6 @@ func (api *TelegramBotAPI) updateLoop() {
 			updates, err = api.getUpdatesByOffset(offset + 1)
 		}
 	}
-}
-
-func putUpdatesInChannel(channel chan *model.Update, updates []model.Update) int {
-	highestOffset := -1
-	for _, update := range updates {
-		highestOffset = update.ID
-		channel <- &update
-	}
-
-	return highestOffset
 }
 
 func (api *TelegramBotAPI) getUpdates() (*model.UpdateResponse, error) {
