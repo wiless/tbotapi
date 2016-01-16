@@ -453,23 +453,6 @@ func (api *TelegramBotAPI) SendVideo(ov *OutgoingVideo, filePath string) (*Messa
 	return resp, nil
 }
 
-// SendLocation sends a location.
-// Use NewOutgoingLocation to construct the message to send.
-// On success, the sent message is returned as a MessageResponse.
-func (api *TelegramBotAPI) SendLocation(ol *OutgoingLocation) (*MessageResponse, error) {
-	resp := &MessageResponse{}
-	_, err := api.c.postJSON(sendLocation, resp, ol)
-
-	if err != nil {
-		return nil, err
-	}
-	err = check(&resp.BaseResponse)
-	if err != nil {
-		return nil, err
-	}
-	return resp, nil
-}
-
 // SendChatAction sends a chat action to the specified chatID.
 // Use the ChatAction constants to specify the action.
 // On success, a BaseResponse is returned.
@@ -527,7 +510,8 @@ func (api *TelegramBotAPI) send(s sendable) (resp *MessageResponse, err error) {
 	switch s := s.(type) {
 	case *OutgoingMessage:
 		_, err = api.c.postJSON(sendMessage, resp, s)
-		//resp, err = api.SendMessageExtended(s)
+	case *OutgoingLocation:
+		_, err = api.c.postJSON(sendLocation, resp, s)
 	default:
 		panic(fmt.Sprintf("tbotapi: internal: unexpected type for send(): %T", s))
 	}
