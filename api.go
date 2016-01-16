@@ -20,15 +20,19 @@ type TelegramBotAPI struct {
 	wg       sync.WaitGroup
 }
 
+// BotUpdate represents an update the bot received.
+// Always check if an error occurred before using the update.
 type BotUpdate struct {
 	update Update
 	err    error
 }
 
+// Update returns the contained update
 func (u *BotUpdate) Update() Update {
 	return u.update
 }
 
+// Error returns != nil, if an error occurred during retrieval of the update
 func (u *BotUpdate) Error() error {
 	return u.err
 }
@@ -190,6 +194,7 @@ func check(br *baseResponse) error {
 	return fmt.Errorf("tbotapi: API error: %d - %s", br.ErrorCode, br.Description)
 }
 
+// ErrNoFileSpecified is returned in case neither a file path nor a fileID were specified
 var ErrNoFileSpecified = errors.New("tbotapi: Neither a fileID nor a filePath were specified")
 
 func (api *TelegramBotAPI) send(s sendable) (resp *MessageResponse, err error) {

@@ -84,7 +84,7 @@ func main() {
 						}
 					}
 
-					_, err := api.NewInlineQueryAnswer(val.InlineQuery.ID, results).Send()
+					err := api.NewInlineQueryAnswer(val.InlineQuery.ID, results).Send()
 					if err != nil {
 						fmt.Printf("Err: %s\n", err)
 					}

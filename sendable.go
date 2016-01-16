@@ -87,31 +87,33 @@ func (op *OutgoingUserProfilePhotosRequest) Send() (*UserProfilePhotosResponse, 
 }
 
 // Send sends the chat action.
-// On success, a BaseResponse is returned.
-func (oc *OutgoingChatAction) Send() (*baseResponse, error) {
+// On success, nil is returned
+func (oc *OutgoingChatAction) Send() error {
 	resp := &baseResponse{}
 	_, err := oc.api.c.postJSON(sendChatAction, resp, oc)
 
 	if err != nil {
-		return nil, err
+		return err
 	}
 	err = check(resp)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return resp, nil
+	return nil
 }
 
-func (ia *InlineQueryAnswer) Send() (*baseResponse, error) {
+// Send sends the inline query answer.
+// On success, nil is returned
+func (ia *InlineQueryAnswer) Send() error {
 	resp := &baseResponse{}
 	_, err := ia.api.c.postJSON(answerInlineQuery, resp, ia)
 
 	if err != nil {
-		return nil, err
+		return err
 	}
 	err = check(resp)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return resp, nil
+	return nil
 }

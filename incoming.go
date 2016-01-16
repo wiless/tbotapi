@@ -300,15 +300,15 @@ type updateResponse struct {
 }
 
 // ByID is a wrapper to sort an []Update by ID
-type byId []Update
+type byID []Update
 
-func (a byId) Len() int           { return len(a) }
-func (a byId) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a byId) Less(i, j int) bool { return a[i].ID < a[j].ID }
+func (a byID) Len() int           { return len(a) }
+func (a byID) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a byID) Less(i, j int) bool { return a[i].ID < a[j].ID }
 
 // Sort sorts all the updates contained in an UpdateResponse by their ID
 func (resp *updateResponse) sort() {
-	sort.Sort(byId(resp.Update))
+	sort.Sort(byID(resp.Update))
 }
 
 // Update represents an incoming update
@@ -318,6 +318,7 @@ type Update struct {
 	InlineQuery *InlineQuery `json:"inline_query"`
 }
 
+// Type returns the type of the update
 func (u *Update) Type() UpdateType {
 	if u.Message != nil {
 		return MessageUpdate
@@ -327,8 +328,10 @@ func (u *Update) Type() UpdateType {
 	return UnknownUpdate
 }
 
+// UpdateType represents an update type
 type UpdateType int
 
+// Update types
 const (
 	MessageUpdate     UpdateType = iota // message update
 	InlineQueryUpdate                   // inline query

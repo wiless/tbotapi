@@ -355,6 +355,7 @@ const (
 	ModeDefault  = ParseMode("")         // parse as text
 )
 
+// OutgoingChatAction represents an outgoing chat action
 type OutgoingChatAction struct {
 	outgoingBase
 	Action ChatAction `json:"action"`
@@ -462,14 +463,14 @@ type InlineQueryResultPhoto struct {
 }
 
 // NewInlineQueryResultPhoto returns a new InlineQueryResultPhoto with all mandatory fields set
-func NewInlineQueryResultPhoto(id, photoUrl, thumbUrl string) *InlineQueryResultPhoto {
+func NewInlineQueryResultPhoto(id, photoURL, thumbURL string) *InlineQueryResultPhoto {
 	return &InlineQueryResultPhoto{
 		InlineQueryResultBase: InlineQueryResultBase{
 			Type: PhotoResult,
 			ID:   id,
 		},
-		PhotoURL: photoUrl,
-		ThumbURL: thumbUrl,
+		PhotoURL: photoURL,
+		ThumbURL: thumbURL,
 	}
 }
 
@@ -485,14 +486,14 @@ type InlineQueryResultGif struct {
 }
 
 // NewInlineQueryResultGif returns a new InlineQueryResultGif with all mandatory fields set
-func NewInlineQueryResultGif(id, gifUrl, thumbUrl string) *InlineQueryResultGif {
+func NewInlineQueryResultGif(id, gifURL, thumbURL string) *InlineQueryResultGif {
 	return &InlineQueryResultGif{
 		InlineQueryResultBase: InlineQueryResultBase{
 			Type: GifResult,
 			ID:   id,
 		},
-		GifURL:   gifUrl,
-		ThumbURL: thumbUrl,
+		GifURL:   gifURL,
+		ThumbURL: thumbURL,
 	}
 }
 
@@ -508,14 +509,14 @@ type InlineQueryResultMpeg4Gif struct {
 }
 
 // NewInlineQueryResultMpeg4Gif returns a new InlineQueryResultMpeg4Gif with all mandatory fields set
-func NewInlineQueryResultMpeg4Gif(id, mpeg4Url, thumbUrl string) *InlineQueryResultMpeg4Gif {
+func NewInlineQueryResultMpeg4Gif(id, mpeg4URL, thumbURL string) *InlineQueryResultMpeg4Gif {
 	return &InlineQueryResultMpeg4Gif{
 		InlineQueryResultBase: InlineQueryResultBase{
 			Type: PhotoResult,
 			ID:   id,
 		},
-		Mpeg4URL: mpeg4Url,
-		ThumbURL: thumbUrl,
+		Mpeg4URL: mpeg4URL,
+		ThumbURL: thumbURL,
 	}
 }
 
@@ -528,6 +529,7 @@ const (
 	MIMEVideoMP4 = MIMEType("video/mp4")
 )
 
+// InlineQueryResultVideo represents a link to a video player/file
 type InlineQueryResultVideo struct {
 	InlineQueryResultBase
 	VideoURL      string   `json:"video_url"`                // valid URL for the video player/file
@@ -543,7 +545,7 @@ type InlineQueryResultVideo struct {
 }
 
 // NewInlineQueryResultVideo returns a new InlineQueryResultVideo with all mandatory fields set
-func NewInlineQueryResultVideo(id, videoURL, thumbUrl, title, text string, mimeType MIMEType) *InlineQueryResultVideo {
+func NewInlineQueryResultVideo(id, videoURL, thumbURL, title, text string, mimeType MIMEType) *InlineQueryResultVideo {
 	return &InlineQueryResultVideo{
 		InlineQueryResultBase: InlineQueryResultBase{
 			Type: PhotoResult,
@@ -551,7 +553,7 @@ func NewInlineQueryResultVideo(id, videoURL, thumbUrl, title, text string, mimeT
 		},
 		VideoURL: videoURL,
 		MIMEType: mimeType,
-		ThumbURL: thumbUrl,
+		ThumbURL: thumbURL,
 		Title:    title,
 		Text:     text,
 	}
