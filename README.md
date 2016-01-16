@@ -25,6 +25,8 @@ Is the API stable? **No**
 Why is the API not stable? Because Telegram changes its bot API frequently. I try to only add things, not remove them.
 So everything you did with this library before should also work after API changes.
 
+**Exception**: I did one major overhaul so far, where I removed the model package and unified most sending methods.
+
 ### What do we use? ###
 
 We use
@@ -43,7 +45,7 @@ If you want to contribute code, just write me on Telegram (see below) or notify 
 
 ### Things that need to be done ###
 
-* Clean up the model package, especially the outgoing types - we need a better way of doing all that.
+* Implement the January 4 and January 14 updates
 
 ### Who do I talk to? ###
 
