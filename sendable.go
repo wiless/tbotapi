@@ -4,16 +4,19 @@ type sendable interface {
 	Send() (*MessageResponse, error)
 }
 
+// Send sends the message.
+// On success, the sent message is returned as a MessageResponse.
 func (om *OutgoingMessage) Send() (*MessageResponse, error) {
 	return om.api.send(om)
 }
 
+// Send sends the location.
+// On success, the sent message is returned as a MessageResponse.
 func (ol *OutgoingLocation) Send() (*MessageResponse, error) {
 	return ol.api.send(ol)
 }
 
-// Send sends a video.
-// Use NewOutgoingVideo(Resend) to construct the video message and specify the file.
+// Send sends the video.
 // Note that the Telegram servers may check the fileName for its extension.
 // For current limitations on what bots can send, please check the API documentation.
 // On success, the sent message is returned as a MessageResponse.
@@ -21,8 +24,7 @@ func (ov *OutgoingVideo) Send() (*MessageResponse, error) {
 	return ov.api.send(ov)
 }
 
-// Send sends a photo.
-// Use NewOutgoingPhoto(Resend) to construct the photo message and specify the file.
+// Send sends the photo.
 // Note that the Telegram servers may check the fileName for its extension.
 // For current limitations on what bots can send, please check the API documentation.
 // On success, the sent message is returned as a MessageResponse.
