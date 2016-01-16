@@ -221,16 +221,10 @@ func (os *OutgoingSticker) queryString() Querystring {
 
 // OutgoingUserProfilePhotosRequest represents a request for a users profile photos
 type OutgoingUserProfilePhotosRequest struct {
+	api    *TelegramBotAPI
 	UserID int `json:"user_id"`
 	Offset int `json:"offset,omitempty"`
 	Limit  int `json:"limit,omitempty"`
-}
-
-// NewOutgoingUserProfilePhotosRequest creates a new request for a users profile photos
-func NewOutgoingUserProfilePhotosRequest(userID int) *OutgoingUserProfilePhotosRequest {
-	return &OutgoingUserProfilePhotosRequest{
-		UserID: userID,
-	}
 }
 
 // SetOffset sets an offset for the request (optional)
@@ -359,6 +353,11 @@ const (
 	ModeMarkdown = ParseMode("Markdown") // Parse as Markdown
 	ModeDefault  = ParseMode("")         //Parse as text
 )
+
+type OutgoingChatAction struct {
+	OutgoingBase
+	Action ChatAction `json:"action"`
+}
 
 // ChatAction represents an action to be shown to clients, indicating activity of the bot
 type ChatAction string

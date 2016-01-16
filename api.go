@@ -182,49 +182,6 @@ func (api *TelegramBotAPI) GetFile(fileID string) (*FileResponse, error) {
 	return resp, nil
 }
 
-// SendChatAction sends a chat action to the specified chatID.
-// Use the ChatAction constants to specify the action.
-// On success, a BaseResponse is returned.
-func (api *TelegramBotAPI) SendChatAction(recipient Recipient, action ChatAction) (*BaseResponse, error) {
-	resp := &BaseResponse{}
-	toSend := struct {
-		OutgoingBase
-		Action string `json:"action"`
-	}{
-		OutgoingBase: OutgoingBase{
-			Recipient: recipient,
-		},
-		Action: string(action),
-	}
-	_, err := api.c.postJSON(sendChatAction, resp, toSend)
-
-	if err != nil {
-		return nil, err
-	}
-	err = check(resp)
-	if err != nil {
-		return nil, err
-	}
-	return resp, nil
-}
-
-// GetProfilePhotos gets a users profile pictures.
-// Use NewOutgoingUserProfilePhotosRequest to create the request.
-// On success, the photos are returned as a UserProfilePhotosResponse.
-func (api *TelegramBotAPI) GetProfilePhotos(op *OutgoingUserProfilePhotosRequest) (*UserProfilePhotosResponse, error) {
-	resp := &UserProfilePhotosResponse{}
-	_, err := api.c.postJSON(getUserProfilePhotos, resp, op)
-
-	if err != nil {
-		return nil, err
-	}
-	err = check(&resp.BaseResponse)
-	if err != nil {
-		return nil, err
-	}
-	return resp, nil
-}
-
 func check(br *BaseResponse) error {
 	if br.Ok {
 		return nil

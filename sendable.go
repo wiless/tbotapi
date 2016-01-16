@@ -69,3 +69,35 @@ func (ov *OutgoingVoice) Send() (*MessageResponse, error) {
 func (od *OutgoingDocument) Send() (*MessageResponse, error) {
 	return od.api.send(od)
 }
+
+// Send sends the request.
+// On success, the photos are returned as a UserProfilePhotosResponse.
+func (op *OutgoingUserProfilePhotosRequest) Send() (*UserProfilePhotosResponse, error) {
+	resp := &UserProfilePhotosResponse{}
+	_, err := op.api.c.postJSON(getUserProfilePhotos, resp, op)
+
+	if err != nil {
+		return nil, err
+	}
+	err = check(&resp.BaseResponse)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+// Send sends the chat action.
+// On success, a BaseResponse is returned.
+func (oc *OutgoingChatAction) Send() (*BaseResponse, error) {
+	resp := &BaseResponse{}
+	_, err := oc.api.c.postJSON(sendChatAction, resp, oc)
+
+	if err != nil {
+		return nil, err
+	}
+	err = check(resp)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}

@@ -167,3 +167,21 @@ func (api *TelegramBotAPI) NewOutgoingForward(recipient Recipient, origin Chat, 
 		MessageID:  messageID,
 	}
 }
+
+func (api *TelegramBotAPI) NewOutgoingChatAction(recipient Recipient, action ChatAction) *OutgoingChatAction {
+	return &OutgoingChatAction{
+		OutgoingBase: OutgoingBase{
+			api:       api,
+			Recipient: recipient,
+		},
+		Action: action,
+	}
+}
+
+// NewOutgoingUserProfilePhotosRequest creates a new request for a users profile photos
+func (api *TelegramBotAPI) NewOutgoingUserProfilePhotosRequest(userID int) *OutgoingUserProfilePhotosRequest {
+	return &OutgoingUserProfilePhotosRequest{
+		api:    api,
+		UserID: userID,
+	}
+}
