@@ -367,11 +367,11 @@ type User struct {
 
 func (u User) String() string {
 	if u.LastName != nil && u.Username != nil {
-		return fmt.Sprintf("%d/%s %s (@%s)", u.ID, u.FirstName, u.LastName, u.Username)
+		return fmt.Sprintf("%d/%s %s (@%s)", u.ID, u.FirstName, *u.LastName, *u.Username)
 	} else if u.LastName != nil {
-		return fmt.Sprintf("%d/%s %s", u.ID, u.FirstName, u.LastName)
+		return fmt.Sprintf("%d/%s %s", u.ID, u.FirstName, *u.LastName)
 	} else if u.Username != nil {
-		return fmt.Sprintf("%d/%s (@%s)", u.ID, u.FirstName, u.Username)
+		return fmt.Sprintf("%d/%s (@%s)", u.ID, u.FirstName, *u.Username)
 	}
 	return fmt.Sprintf("%d/%s", u.ID, u.FirstName)
 }
