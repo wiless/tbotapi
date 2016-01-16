@@ -4,7 +4,7 @@ import "fmt"
 import "encoding/json"
 
 // OutgoingBase contains fields shared by most of the outgoing messages
-type OutgoingBase struct {
+type outgoingBase struct {
 	api                 *TelegramBotAPI
 	Recipient           Recipient   `json:"chat_id"`
 	ReplyToMessageID    int         `json:"reply_to_message_id,omitempty"`
@@ -14,7 +14,7 @@ type OutgoingBase struct {
 }
 
 // SetReplyToMessageID sets the ID for the message to reply to (optional)
-func (op *OutgoingBase) SetReplyToMessageID(to int) {
+func (op *outgoingBase) SetReplyToMessageID(to int) {
 	op.ReplyToMessageID = to
 	op.replyToMessageIDSet = true
 }
@@ -22,7 +22,7 @@ func (op *OutgoingBase) SetReplyToMessageID(to int) {
 // SetReplyKeyboardMarkup sets the ReplyKeyboardMarkup (optional)
 // Note that only one of ReplyKeyboardMarkup, ReplyKeyboardHide or ForceReply can be set.
 // Attempting to set any of the other two or re-setting this will cause a panic.
-func (op *OutgoingBase) SetReplyKeyboardMarkup(to ReplyKeyboardMarkup) {
+func (op *outgoingBase) SetReplyKeyboardMarkup(to ReplyKeyboardMarkup) {
 	if op.replyMarkupSet {
 		panic("Outgoing: Only one of ReplyKeyboardMarkup, ReplyKeyboardHide or ForceReply can be set")
 	}
@@ -33,7 +33,7 @@ func (op *OutgoingBase) SetReplyKeyboardMarkup(to ReplyKeyboardMarkup) {
 // SetReplyKeyboardHide sets the ReplyKeyboardHide (optional)
 // Note that only one of ReplyKeyboardMarkup, ReplyKeyboardHide or ForceReply can be set.
 // Attempting to set any of the other two or re-setting this will cause a panic.
-func (op *OutgoingBase) SetReplyKeyboardHide(to ReplyKeyboardHide) {
+func (op *outgoingBase) SetReplyKeyboardHide(to ReplyKeyboardHide) {
 	if !to.HideKeyboard {
 		return
 	}
@@ -48,7 +48,7 @@ func (op *OutgoingBase) SetReplyKeyboardHide(to ReplyKeyboardHide) {
 // SetForceReply sets ForceReply for this message (optional)
 // Note that only one of ReplyKeyboardMarkup, ReplyKeyboardHide or ForceReply can be set.
 // Attempting to set any of the other two or re-setting this will cause a panic.
-func (op *OutgoingBase) SetForceReply(to ForceReply) {
+func (op *outgoingBase) SetForceReply(to ForceReply) {
 	if !to.ForceReply {
 		return
 	}
@@ -61,7 +61,7 @@ func (op *OutgoingBase) SetForceReply(to ForceReply) {
 }
 
 // GetBaseQueryString gets a Querystring representing this message
-func (op *OutgoingBase) GetBaseQueryString() querystring {
+func (op *outgoingBase) getBaseQueryString() querystring {
 	toReturn := map[string]string{}
 	if op.Recipient.isChannel() {
 		//Channel
@@ -87,7 +87,7 @@ func (op *OutgoingBase) GetBaseQueryString() querystring {
 
 // OutgoingAudio represents an outgoing audio file
 type OutgoingAudio struct {
-	OutgoingBase
+	outgoingBase
 	filePath  string
 	fileID    string
 	Duration  int    `json:"duration,omitempty"`
@@ -115,7 +115,7 @@ func (oa *OutgoingAudio) SetTitle(to string) *OutgoingAudio {
 
 // querystring implements querystringer to represent the audio file
 func (oa *OutgoingAudio) querystring() querystring {
-	toReturn := map[string]string(oa.GetBaseQueryString())
+	toReturn := map[string]string(oa.getBaseQueryString())
 
 	if oa.Duration != 0 {
 		toReturn["duration"] = fmt.Sprint(oa.Duration)
@@ -134,33 +134,33 @@ func (oa *OutgoingAudio) querystring() querystring {
 
 // OutgoingDocument represents an outgoing file
 type OutgoingDocument struct {
-	OutgoingBase
+	outgoingBase
 	filePath string
 	fileID   string
 }
 
 // querystring implements querystringer to represent the outgoing file
 func (od *OutgoingDocument) querystring() querystring {
-	return od.GetBaseQueryString()
+	return od.getBaseQueryString()
 }
 
 // OutgoingForward represents an outgoing, forwarded message
 type OutgoingForward struct {
-	OutgoingBase
+	outgoingBase
 	FromChatID Recipient `json:"from_chat_id"`
 	MessageID  int       `json:"message_id"`
 }
 
 // OutgoingLocation represents an outgoing location on a map
 type OutgoingLocation struct {
-	OutgoingBase
+	outgoingBase
 	Latitude  float32 `json:"latitude"`
 	Longitude float32 `json:"longitude"`
 }
 
 // OutgoingMessage represents an outgoing message
 type OutgoingMessage struct {
-	OutgoingBase
+	outgoingBase
 	Text                  string    `json:"text"`
 	DisableWebPagePreview bool      `json:"disable_web_page_preview,omitempty"`
 	ParseMode             ParseMode `json:"parse_mode,omitempty"`
@@ -184,7 +184,7 @@ func (om *OutgoingMessage) SetDisableWebPagePreview(to bool) *OutgoingMessage {
 
 // OutgoingPhoto represents an outgoing photo
 type OutgoingPhoto struct {
-	OutgoingBase
+	outgoingBase
 	filePath string
 	fileID   string
 	Caption  string `json:"caption,omitempty"`
@@ -198,7 +198,7 @@ func (op *OutgoingPhoto) SetCaption(to string) *OutgoingPhoto {
 
 // querystring implements querystringer to represent the photo
 func (op *OutgoingPhoto) querystring() querystring {
-	toReturn := map[string]string(op.GetBaseQueryString())
+	toReturn := map[string]string(op.getBaseQueryString())
 
 	if op.Caption != "" {
 		toReturn["caption"] = op.Caption
@@ -209,14 +209,14 @@ func (op *OutgoingPhoto) querystring() querystring {
 
 // OutgoingSticker represents an outgoing sticker message
 type OutgoingSticker struct {
-	OutgoingBase
+	outgoingBase
 	filePath string
 	fileID   string
 }
 
 // querystring implements querystringer to represent the sticker message
 func (os *OutgoingSticker) querystring() querystring {
-	return os.GetBaseQueryString()
+	return os.getBaseQueryString()
 }
 
 // OutgoingUserProfilePhotosRequest represents a request for a users profile photos
@@ -257,7 +257,7 @@ func (op *OutgoingUserProfilePhotosRequest) querystring() querystring {
 
 // OutgoingVideo represents an outgoing video file
 type OutgoingVideo struct {
-	OutgoingBase
+	outgoingBase
 	fileID   string
 	filePath string
 	Duration int    `json:"duration,omitempty"`
@@ -278,7 +278,7 @@ func (ov *OutgoingVideo) SetDuration(to int) *OutgoingVideo {
 
 // querystring implements querystringer to represent the outgoing video file
 func (ov *OutgoingVideo) querystring() querystring {
-	toReturn := map[string]string(ov.GetBaseQueryString())
+	toReturn := map[string]string(ov.getBaseQueryString())
 
 	if ov.Caption != "" {
 		toReturn["caption"] = ov.Caption
@@ -293,7 +293,7 @@ func (ov *OutgoingVideo) querystring() querystring {
 
 // OutgoingVoice represents an outgoing voice note
 type OutgoingVoice struct {
-	OutgoingBase
+	outgoingBase
 	filePath string
 	fileID   string
 	Duration int `json:"duration,omitempty"`
@@ -307,7 +307,7 @@ func (ov *OutgoingVoice) SetDuration(to int) *OutgoingVoice {
 
 // querystring implements querystringer to represent the outgoing voice note
 func (ov *OutgoingVoice) querystring() querystring {
-	toReturn := map[string]string(ov.GetBaseQueryString())
+	toReturn := map[string]string(ov.getBaseQueryString())
 
 	if ov.Duration != 0 {
 		toReturn["duration"] = fmt.Sprint(ov.Duration)
@@ -355,7 +355,7 @@ const (
 )
 
 type OutgoingChatAction struct {
-	OutgoingBase
+	outgoingBase
 	Action ChatAction `json:"action"`
 }
 

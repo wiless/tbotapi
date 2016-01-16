@@ -4,7 +4,7 @@ import "fmt"
 import "sort"
 
 // BaseResponse contains the basic fields contained in every API response
-type BaseResponse struct {
+type baseResponse struct {
 	Ok          bool   `json:"ok"`
 	Description string `json:"description"`
 	ErrorCode   int    `json:"error_code"`
@@ -101,7 +101,7 @@ type File struct {
 
 // FileResponse represents the response sent by the API when requesting a file for download
 type FileResponse struct {
-	BaseResponse
+	baseResponse
 	File File `json:"result"`
 }
 
@@ -113,7 +113,7 @@ type Location struct {
 
 // MessageResponse represents the response sent by the API on successful messages sent
 type MessageResponse struct {
-	BaseResponse
+	baseResponse
 	Message Message `json:"result"`
 }
 
@@ -273,21 +273,21 @@ type Sticker struct {
 }
 
 // UpdateResponse represents the response sent by the API for a GetUpdates request
-type UpdateResponse struct {
-	BaseResponse
+type updateResponse struct {
+	baseResponse
 	Update []Update `json:"result"`
 }
 
 // ByID is a wrapper to sort an []Update by ID
-type ByID []Update
+type byId []Update
 
-func (a ByID) Len() int           { return len(a) }
-func (a ByID) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a ByID) Less(i, j int) bool { return a[i].ID < a[j].ID }
+func (a byId) Len() int           { return len(a) }
+func (a byId) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a byId) Less(i, j int) bool { return a[i].ID < a[j].ID }
 
 // Sort sorts all the updates contained in an UpdateResponse by their ID
-func (resp *UpdateResponse) Sort() {
-	sort.Sort(ByID(resp.Update))
+func (resp *updateResponse) sort() {
+	sort.Sort(byId(resp.Update))
 }
 
 // Update represents an incoming update
@@ -298,7 +298,7 @@ type Update struct {
 
 // UserResponse represents the response sent by the API on a GetMe request
 type UserResponse struct {
-	BaseResponse
+	baseResponse
 	User User `json:"result"`
 }
 
@@ -323,7 +323,7 @@ func (u User) String() string {
 
 // UserProfilePhotosResponse represents the response sent by the API on a GetUserProfilePhotos request
 type UserProfilePhotosResponse struct {
-	BaseResponse
+	baseResponse
 	UserProfilePhotos UserProfilePhotos `json:"result"`
 }
 

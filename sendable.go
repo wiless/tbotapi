@@ -79,7 +79,7 @@ func (op *OutgoingUserProfilePhotosRequest) Send() (*UserProfilePhotosResponse, 
 	if err != nil {
 		return nil, err
 	}
-	err = check(&resp.BaseResponse)
+	err = check(&resp.baseResponse)
 	if err != nil {
 		return nil, err
 	}
@@ -88,8 +88,8 @@ func (op *OutgoingUserProfilePhotosRequest) Send() (*UserProfilePhotosResponse, 
 
 // Send sends the chat action.
 // On success, a BaseResponse is returned.
-func (oc *OutgoingChatAction) Send() (*BaseResponse, error) {
-	resp := &BaseResponse{}
+func (oc *OutgoingChatAction) Send() (*baseResponse, error) {
+	resp := &baseResponse{}
 	_, err := oc.api.c.postJSON(sendChatAction, resp, oc)
 
 	if err != nil {

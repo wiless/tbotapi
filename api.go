@@ -10,26 +10,26 @@ import (
 // A TelegramBotAPI is an API Client for one Telegram bot.
 // Create a new client by calling the New() function.
 type TelegramBotAPI struct {
-	ID       int                 // the bots ID
-	Name     string              // the bots Name as seen by users
-	Username string              // the bots username
-	Updates  chan InternalUpdate // a channel providing updates this bot receives
+	ID       int            // the bots ID
+	Name     string         // the bots Name as seen by users
+	Username string         // the bots username
+	Updates  chan BotUpdate // a channel providing updates this bot receives
 	baseURIs map[method]string
 	closed   chan struct{}
 	c        *client
 	wg       sync.WaitGroup
 }
 
-type InternalUpdate struct {
+type BotUpdate struct {
 	update Update
 	err    error
 }
 
-func (u *InternalUpdate) Update() Update {
+func (u *BotUpdate) Update() Update {
 	return u.update
 }
 
-func (u *InternalUpdate) Error() error {
+func (u *BotUpdate) Error() error {
 	return u.err
 }
 
@@ -40,7 +40,7 @@ const apiBaseURI string = "https://api.telegram.org/bot%s"
 // Additionally, an update loop is started, pumping updates into the Updates channel.
 func New(apiKey string) (*TelegramBotAPI, error) {
 	toReturn := TelegramBotAPI{
-		Updates:  make(chan InternalUpdate),
+		Updates:  make(chan BotUpdate),
 		baseURIs: createEndpoints(fmt.Sprintf(apiBaseURI, apiKey)),
 		closed:   make(chan struct{}),
 		c:        newClient(fmt.Sprintf(apiBaseURI, apiKey)),
@@ -86,11 +86,11 @@ func (api *TelegramBotAPI) updateLoop() {
 		}
 
 		if err != nil {
-			api.Updates <- InternalUpdate{err: err}
+			api.Updates <- BotUpdate{err: err}
 		} else {
-			updates.Sort()
+			updates.sort()
 			for _, update := range updates.Update {
-				api.Updates <- InternalUpdate{update: update}
+				api.Updates <- BotUpdate{update: update}
 				offset = update.ID
 			}
 		}
@@ -103,8 +103,8 @@ func (api *TelegramBotAPI) updateLoop() {
 	}
 }
 
-func (api *TelegramBotAPI) getUpdates() (*UpdateResponse, error) {
-	resp := &UpdateResponse{}
+func (api *TelegramBotAPI) getUpdates() (*updateResponse, error) {
+	resp := &updateResponse{}
 	response, err := api.c.getQuerystring(getUpdates, resp, map[string]string{"timeout": fmt.Sprint(60)})
 
 	if err != nil {
@@ -118,15 +118,15 @@ func (api *TelegramBotAPI) getUpdates() (*UpdateResponse, error) {
 		}
 		return nil, err
 	}
-	err = check(&resp.BaseResponse)
+	err = check(&resp.baseResponse)
 	if err != nil {
 		return nil, err
 	}
 	return resp, nil
 }
 
-func (api *TelegramBotAPI) getUpdatesByOffset(offset int) (*UpdateResponse, error) {
-	resp := &UpdateResponse{}
+func (api *TelegramBotAPI) getUpdatesByOffset(offset int) (*updateResponse, error) {
+	resp := &updateResponse{}
 	response, err := api.c.getQuerystring(getUpdates, resp, map[string]string{
 		"timeout": fmt.Sprint(60),
 		"offset":  fmt.Sprint(offset),
@@ -143,7 +143,7 @@ func (api *TelegramBotAPI) getUpdatesByOffset(offset int) (*UpdateResponse, erro
 		}
 		return nil, err
 	}
-	err = check(&resp.BaseResponse)
+	err = check(&resp.baseResponse)
 	if err != nil {
 		return nil, err
 	}
@@ -158,7 +158,7 @@ func (api *TelegramBotAPI) GetMe() (*UserResponse, error) {
 	if err != nil {
 		return nil, err
 	}
-	err = check(&resp.BaseResponse)
+	err = check(&resp.baseResponse)
 	if err != nil {
 		return nil, err
 	}
@@ -175,14 +175,14 @@ func (api *TelegramBotAPI) GetFile(fileID string) (*FileResponse, error) {
 	if err != nil {
 		return nil, err
 	}
-	err = check(&resp.BaseResponse)
+	err = check(&resp.baseResponse)
 	if err != nil {
 		return nil, err
 	}
 	return resp, nil
 }
 
-func check(br *BaseResponse) error {
+func check(br *baseResponse) error {
 	if br.Ok {
 		return nil
 	}
@@ -299,7 +299,7 @@ func (api *TelegramBotAPI) send(s sendable) (resp *MessageResponse, err error) {
 	if err != nil {
 		return nil, err
 	}
-	err = check(&resp.BaseResponse)
+	err = check(&resp.baseResponse)
 	if err != nil {
 		return nil, err
 	}

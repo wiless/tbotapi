@@ -3,7 +3,7 @@ package tbotapi
 // NewOutgoingMessage creates a new outgoing message
 func (api *TelegramBotAPI) NewOutgoingMessage(recipient Recipient, text string) *OutgoingMessage {
 	return &OutgoingMessage{
-		OutgoingBase: OutgoingBase{
+		outgoingBase: outgoingBase{
 			api:       api,
 			Recipient: recipient,
 		},
@@ -15,7 +15,7 @@ func (api *TelegramBotAPI) NewOutgoingMessage(recipient Recipient, text string) 
 // NewOutgoingLocation creates a new outgoing location
 func (api *TelegramBotAPI) NewOutgoingLocation(recipient Recipient, latitude, longitude float32) *OutgoingLocation {
 	return &OutgoingLocation{
-		OutgoingBase: OutgoingBase{
+		outgoingBase: outgoingBase{
 			api:       api,
 			Recipient: recipient,
 		},
@@ -27,7 +27,7 @@ func (api *TelegramBotAPI) NewOutgoingLocation(recipient Recipient, latitude, lo
 // NewOutgoingVideo creates a new outgoing video file
 func (api *TelegramBotAPI) NewOutgoingVideo(recipient Recipient, filePath string) *OutgoingVideo {
 	return &OutgoingVideo{
-		OutgoingBase: OutgoingBase{
+		outgoingBase: outgoingBase{
 			api:       api,
 			Recipient: recipient,
 		},
@@ -38,7 +38,7 @@ func (api *TelegramBotAPI) NewOutgoingVideo(recipient Recipient, filePath string
 // NewOutgoingVideo creates a new outgoing video file
 func (api *TelegramBotAPI) NewOutgoingVideoResend(recipient Recipient, fileID string) *OutgoingVideo {
 	return &OutgoingVideo{
-		OutgoingBase: OutgoingBase{
+		outgoingBase: outgoingBase{
 			api:       api,
 			Recipient: recipient,
 		},
@@ -49,7 +49,7 @@ func (api *TelegramBotAPI) NewOutgoingVideoResend(recipient Recipient, fileID st
 // NewOutgoingPhoto creates a new outgoing photo
 func (api *TelegramBotAPI) NewOutgoingPhoto(recipient Recipient, filePath string) *OutgoingPhoto {
 	return &OutgoingPhoto{
-		OutgoingBase: OutgoingBase{
+		outgoingBase: outgoingBase{
 			api:       api,
 			Recipient: recipient,
 		},
@@ -60,7 +60,7 @@ func (api *TelegramBotAPI) NewOutgoingPhoto(recipient Recipient, filePath string
 // NewOutgoingPhoto creates a new outgoing photo
 func (api *TelegramBotAPI) NewOutgoingPhotoResend(recipient Recipient, fileID string) *OutgoingPhoto {
 	return &OutgoingPhoto{
-		OutgoingBase: OutgoingBase{
+		outgoingBase: outgoingBase{
 			api:       api,
 			Recipient: recipient,
 		},
@@ -71,7 +71,7 @@ func (api *TelegramBotAPI) NewOutgoingPhotoResend(recipient Recipient, fileID st
 // NewOutgoingSticker creates a new outgoing sticker message
 func (api *TelegramBotAPI) NewOutgoingSticker(recipient Recipient, filePath string) *OutgoingSticker {
 	return &OutgoingSticker{
-		OutgoingBase: OutgoingBase{
+		outgoingBase: outgoingBase{
 			api:       api,
 			Recipient: recipient,
 		},
@@ -82,7 +82,7 @@ func (api *TelegramBotAPI) NewOutgoingSticker(recipient Recipient, filePath stri
 // NewOutgoingSticker creates a new outgoing sticker message
 func (api *TelegramBotAPI) NewOutgoingStickerResend(recipient Recipient, fileID string) *OutgoingSticker {
 	return &OutgoingSticker{
-		OutgoingBase: OutgoingBase{
+		outgoingBase: outgoingBase{
 			api:       api,
 			Recipient: recipient,
 		},
@@ -93,7 +93,7 @@ func (api *TelegramBotAPI) NewOutgoingStickerResend(recipient Recipient, fileID 
 // NewOutgoingVoice creates a new outgoing voice note
 func (api *TelegramBotAPI) NewOutgoingVoice(recipient Recipient, filePath string) *OutgoingVoice {
 	return &OutgoingVoice{
-		OutgoingBase: OutgoingBase{
+		outgoingBase: outgoingBase{
 			api:       api,
 			Recipient: recipient,
 		},
@@ -104,7 +104,7 @@ func (api *TelegramBotAPI) NewOutgoingVoice(recipient Recipient, filePath string
 // NewOutgoingVoice creates a new outgoing voice note
 func (api *TelegramBotAPI) NewOutgoingVoiceResend(recipient Recipient, fileID string) *OutgoingVoice {
 	return &OutgoingVoice{
-		OutgoingBase: OutgoingBase{
+		outgoingBase: outgoingBase{
 			api:       api,
 			Recipient: recipient,
 		},
@@ -115,7 +115,7 @@ func (api *TelegramBotAPI) NewOutgoingVoiceResend(recipient Recipient, fileID st
 // NewOutgoingAudio creates a new outgoing audio file
 func (api *TelegramBotAPI) NewOutgoingAudio(recipient Recipient, filePath string) *OutgoingAudio {
 	return &OutgoingAudio{
-		OutgoingBase: OutgoingBase{
+		outgoingBase: outgoingBase{
 			api:       api,
 			Recipient: recipient,
 		},
@@ -126,7 +126,7 @@ func (api *TelegramBotAPI) NewOutgoingAudio(recipient Recipient, filePath string
 // NewOutgoingAudio creates a new outgoing audio file
 func (api *TelegramBotAPI) NewOutgoingAudioResend(recipient Recipient, fileID string) *OutgoingAudio {
 	return &OutgoingAudio{
-		OutgoingBase: OutgoingBase{
+		outgoingBase: outgoingBase{
 			api:       api,
 			Recipient: recipient,
 		},
@@ -137,7 +137,7 @@ func (api *TelegramBotAPI) NewOutgoingAudioResend(recipient Recipient, fileID st
 // NewOutgoingDocument creates a new outgoing file
 func (api *TelegramBotAPI) NewOutgoingDocument(recipient Recipient, filePath string) *OutgoingDocument {
 	return &OutgoingDocument{
-		OutgoingBase: OutgoingBase{
+		outgoingBase: outgoingBase{
 			api:       api,
 			Recipient: recipient,
 		},
@@ -148,7 +148,7 @@ func (api *TelegramBotAPI) NewOutgoingDocument(recipient Recipient, filePath str
 // NewOutgoingDocument creates a new outgoing file
 func (api *TelegramBotAPI) NewOutgoingDocumentResend(recipient Recipient, fileID string) *OutgoingDocument {
 	return &OutgoingDocument{
-		OutgoingBase: OutgoingBase{
+		outgoingBase: outgoingBase{
 			api:       api,
 			Recipient: recipient,
 		},
@@ -159,7 +159,7 @@ func (api *TelegramBotAPI) NewOutgoingDocumentResend(recipient Recipient, fileID
 // NewOutgoingForward creates a new outgoing, forwarded message
 func (api *TelegramBotAPI) NewOutgoingForward(recipient Recipient, origin Chat, messageID int) *OutgoingForward {
 	return &OutgoingForward{
-		OutgoingBase: OutgoingBase{
+		outgoingBase: outgoingBase{
 			api:       api,
 			Recipient: recipient,
 		},
@@ -170,7 +170,7 @@ func (api *TelegramBotAPI) NewOutgoingForward(recipient Recipient, origin Chat, 
 
 func (api *TelegramBotAPI) NewOutgoingChatAction(recipient Recipient, action ChatAction) *OutgoingChatAction {
 	return &OutgoingChatAction{
-		OutgoingBase: OutgoingBase{
+		outgoingBase: outgoingBase{
 			api:       api,
 			Recipient: recipient,
 		},
