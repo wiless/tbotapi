@@ -316,7 +316,8 @@ func (ov *OutgoingVoice) querystring() querystring {
 	return querystring(toReturn)
 }
 
-// ReplyMarkup is s marker interface for ReplyMarkups
+// ReplyMarkup is s marker interface for ReplyMarkups.
+// It is implemented by ReplyKeyboard(Hide|Markup) and ForceReply.
 type ReplyMarkup interface {
 	replyMarkup()
 }
@@ -350,8 +351,8 @@ type ParseMode string
 
 //ParseModes
 const (
-	ModeMarkdown = ParseMode("Markdown") // Parse as Markdown
-	ModeDefault  = ParseMode("")         //Parse as text
+	ModeMarkdown = ParseMode("Markdown") // parse as Markdown
+	ModeDefault  = ParseMode("")         // parse as text
 )
 
 type OutgoingChatAction struct {
@@ -373,3 +374,185 @@ const (
 	ChatActionUploadDocument            = "upload_document"
 	ChatActionFindLocation              = "find_location"
 )
+
+// InlineQueryAnswer represents a response to an inline query.
+// For limitations, check the API documentation.
+type InlineQueryAnswer struct {
+	api        *TelegramBotAPI
+	QueryID    string              `json:"inline_query_id"`       // unique identifier for the answered query
+	Results    []InlineQueryResult `json:"results"`               // results for the query
+	CacheTime  int                 `json:"cache_time,omitempty"`  // the maximum amount of time in seconds that the result of the query may be cached
+	Personal   bool                `json:"is_personal,omitempty"` // if set to true, results will be cached for that user onl
+	NextOffset string              `json:"next_offset,omitempty"` // the offset that a client should send in the next query with the same text to receive more results
+}
+
+// InlineQueryResultType represents a type of an inline query result
+type InlineQueryResultType string
+
+// Inline query result type constants
+const (
+	ArticleResult  = InlineQueryResultType("article")
+	PhotoResult    = InlineQueryResultType("photo")
+	GifResult      = InlineQueryResultType("gif")
+	Mpeg4GifResult = InlineQueryResultType("mpeg4_gif")
+	VideoResult    = InlineQueryResultType("video")
+)
+
+// InlineQueryResultBase is the base for all InlineQueryResults
+type InlineQueryResultBase struct {
+	Type                  InlineQueryResultType `json:"type"`                               // type of the result
+	ID                    string                `json:"id"`                                 // unique identifier for this result, 1-64 bytes
+	ParseMode             ParseMode             `json:"parse_mode,omitempty"`               // indicates how to parse client-side (optional)
+	DisableWebPagePreview bool                  `json:"disable_web_page_preview,omitempty"` // disables link previews (optional)
+}
+
+// InlineQueryResult is a marker interface for query results.
+// It is implemented by pointers to InlineQueryResult(Article|Photo|Gif|Mpeg4Gif|Video).
+type InlineQueryResult interface {
+	result()
+}
+
+func (*InlineQueryResultArticle) result()  {}
+func (*InlineQueryResultPhoto) result()    {}
+func (*InlineQueryResultGif) result()      {}
+func (*InlineQueryResultMpeg4Gif) result() {}
+func (*InlineQueryResultVideo) result()    {}
+
+// InlineQueryResultArticle represents a link to an article or web page
+type InlineQueryResultArticle struct {
+	InlineQueryResultBase
+	Title       string `json:"title"`                  // title of the result
+	Text        string `json:"message_text"`           // text of the message to be sent
+	URL         string `json:"url,omitempty"`          // URL of the result (optional)
+	HideURL     bool   `json:"hide_url,omitempty"`     // whether to hide the URL in the message (optional)
+	Description string `json:"description,omitempty"`  // short description of the result (optional)
+	ThumbURL    string `json:"thumb_url,omitempty"`    // URL of the thumbnail for the result (optional)
+	ThumbWidth  int    `json:"thumb_width,omitempty"`  // thumbnail width (optional)
+	ThumbHeight int    `json:"thumb_height,omitempty"` // thumbnail height (optional)
+}
+
+// NewInlineQueryResultArticle returns a new InlineQueryResultArticle with all mandatory fields set
+func NewInlineQueryResultArticle(id, title, text string) *InlineQueryResultArticle {
+	return &InlineQueryResultArticle{
+		InlineQueryResultBase: InlineQueryResultBase{
+			Type: ArticleResult,
+			ID:   id,
+		},
+		Title: title,
+		Text:  text,
+	}
+}
+
+// InlineQueryResultFileOptionals contains optional fields that all inline query file-like results support.
+type InlineQueryResultFileOptionals struct {
+	Caption string `json:"caption,omitempty"`      // caption of the file to be sent, for limitations check the API documentation (optional)
+	Text    string `json:"message_text,omitempty"` // text of a message to be sent instead of the file, for limitations check the API documentation (optional)
+}
+
+// InlineQueryResultPhoto represents a link to a photo
+type InlineQueryResultPhoto struct {
+	InlineQueryResultBase
+	PhotoURL    string `json:"photo_url"`              // valid URL of the photo
+	ThumbURL    string `json:"thumb_url"`              // URL of the thumbnail for the photo
+	PhotoWidth  int    `json:"photo_width,omitempty"`  // width of the photo (optional)
+	PhotoHeight int    `json:"photo_height,omitempty"` // height of the photo (optional)
+	Title       string `json:"title,omitempty"`        // title for the result (optional)
+	Description string `json:"description,omitempty"`  // description of the result (optional)
+	InlineQueryResultFileOptionals
+}
+
+// NewInlineQueryResultPhoto returns a new InlineQueryResultPhoto with all mandatory fields set
+func NewInlineQueryResultPhoto(id, photoUrl, thumbUrl string) *InlineQueryResultPhoto {
+	return &InlineQueryResultPhoto{
+		InlineQueryResultBase: InlineQueryResultBase{
+			Type: PhotoResult,
+			ID:   id,
+		},
+		PhotoURL: photoUrl,
+		ThumbURL: thumbUrl,
+	}
+}
+
+// InlineQueryResultGif represents a link to an animated GIF file
+type InlineQueryResultGif struct {
+	InlineQueryResultBase
+	GifURL    string `json:"gif_url"`              // valid URL for the GIF file
+	ThumbURL  string `json:"thumb_url"`            // URL of the static thumbnail for the result
+	GifWidth  int    `json:"gif_width,omitempty"`  // width of the GIF (optional)
+	GifHeight int    `json:"gif_height,omitempty"` // height of the GIF (optional)
+	Title     string `json:"title,omitempty"`      // title for the result (optional)
+	InlineQueryResultFileOptionals
+}
+
+// NewInlineQueryResultGif returns a new InlineQueryResultGif with all mandatory fields set
+func NewInlineQueryResultGif(id, gifUrl, thumbUrl string) *InlineQueryResultGif {
+	return &InlineQueryResultGif{
+		InlineQueryResultBase: InlineQueryResultBase{
+			Type: GifResult,
+			ID:   id,
+		},
+		GifURL:   gifUrl,
+		ThumbURL: thumbUrl,
+	}
+}
+
+// InlineQueryResultMpeg4Gif represents a link to a video animation (without sound)
+type InlineQueryResultMpeg4Gif struct {
+	InlineQueryResultBase
+	Mpeg4URL    string `json:"mpeg4_url"`              // valid URL for the MP4 file
+	ThumbURL    string `json:"thumb_url"`              // URL of the static thumbnail for the result
+	Mpeg4Width  int    `json:"mpeg4_width,omitempty"`  // video width (optional)
+	Mpeg4Height int    `json:"mpeg4_height,omitempty"` // video height (optional)
+	Title       string `json:"title,omitempty"`        // title for the result (optional)
+	InlineQueryResultFileOptionals
+}
+
+// NewInlineQueryResultMpeg4Gif returns a new InlineQueryResultMpeg4Gif with all mandatory fields set
+func NewInlineQueryResultMpeg4Gif(id, mpeg4Url, thumbUrl string) *InlineQueryResultMpeg4Gif {
+	return &InlineQueryResultMpeg4Gif{
+		InlineQueryResultBase: InlineQueryResultBase{
+			Type: PhotoResult,
+			ID:   id,
+		},
+		Mpeg4URL: mpeg4Url,
+		ThumbURL: thumbUrl,
+	}
+}
+
+// MIMEType represents a MIME type
+type MIMEType string
+
+// MIME type constants for an InlineQueryResultVideo
+const (
+	MIMETextHTML = MIMEType("text/html")
+	MIMEVideoMP4 = MIMEType("video/mp4")
+)
+
+type InlineQueryResultVideo struct {
+	InlineQueryResultBase
+	VideoURL      string   `json:"video_url"`                // valid URL for the video player/file
+	MIMEType      MIMEType `json:"mime_type"`                // MIME type of the content of the URL
+	ThumbURL      string   `json:"thumb_url"`                // URL of the static thumbnail
+	Title         string   `json:"title"`                    // title for the result
+	Text          string   `json:"message_text"`             // text of the message to be sent with the video, for limitations check the API documentation
+	VideoWidth    int      `json:"video_width,omitempty"`    // video width (optional)
+	VideoHeight   int      `json:"video_height,omitempty"`   // video height (optional)
+	VideoDuration int      `json:"video_duration,omitempty"` // video duration in seconds (optional)
+	Description   string   `json:"description"`              // short description of the result (optional)
+	InlineQueryResultFileOptionals
+}
+
+// NewInlineQueryResultVideo returns a new InlineQueryResultVideo with all mandatory fields set
+func NewInlineQueryResultVideo(id, videoURL, thumbUrl, title, text string, mimeType MIMEType) *InlineQueryResultVideo {
+	return &InlineQueryResultVideo{
+		InlineQueryResultBase: InlineQueryResultBase{
+			Type: PhotoResult,
+			ID:   id,
+		},
+		VideoURL: videoURL,
+		MIMEType: mimeType,
+		ThumbURL: thumbUrl,
+		Title:    title,
+		Text:     text,
+	}
+}

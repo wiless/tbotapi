@@ -185,3 +185,11 @@ func (api *TelegramBotAPI) NewOutgoingUserProfilePhotosRequest(userID int) *Outg
 		UserID: userID,
 	}
 }
+
+func (api *TelegramBotAPI) NewInlineQueryAnswer(queryID string, results []InlineQueryResult) *InlineQueryAnswer {
+	return &InlineQueryAnswer{
+		api:     api,
+		QueryID: queryID,
+		Results: results,
+	}
+}

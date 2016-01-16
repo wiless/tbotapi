@@ -142,23 +142,23 @@ func (m *Message) IsReply() bool {
 // Note that, for all these types, messages can still be replies or forwarded.
 func (m *Message) Type() MessageType {
 	if m.Text != nil {
-		return TextType
+		return TextMessage
 	} else if m.Audio != nil {
-		return AudioType
+		return AudioMessage
 	} else if m.Document != nil {
-		return DocumentType
+		return DocumentMessage
 	} else if m.Photo != nil {
-		return PhotoType
+		return PhotoMessage
 	} else if m.Sticker != nil {
-		return StickerType
+		return StickerMessage
 	} else if m.Video != nil {
-		return VideoType
+		return VideoMessage
 	} else if m.Voice != nil {
-		return VoiceType
+		return VoiceMessage
 	} else if m.Contact != nil {
-		return ContactType
+		return ContactMessage
 	} else if m.Location != nil {
-		return LocationType
+		return LocationMessage
 	} else if m.NewChatParticipant != nil {
 		return NewChatParticipant
 	} else if m.LeftChatParticipant != nil {
@@ -168,7 +168,7 @@ func (m *Message) Type() MessageType {
 	} else if m.NewChatPhoto != nil {
 		return NewChatPhoto
 	} else if m.DeleteChatPhoto {
-		return DeletedChatPohoto
+		return DeletedChatPhoto
 	} else if m.GroupChatCreated {
 		return GroupChatCreated
 	} else if m.SupergroupChatCreated {
@@ -181,7 +181,7 @@ func (m *Message) Type() MessageType {
 		return MigrationFromGroup
 	}
 
-	return Unknown
+	return UnknownMessage
 }
 
 type noReplyMessage struct {
@@ -218,22 +218,22 @@ type MessageType int
 
 // Message types
 const (
-	TextType     MessageType = iota // text messages
-	AudioType                       // audio messages
-	DocumentType                    // files
-	PhotoType                       // photos
-	StickerType                     // stickers
-	VideoType                       // videos
-	VoiceType                       // voice messages
-	ContactType                     // contact information
-	LocationType                    // locations
+	TextMessage     MessageType = iota // text messages
+	AudioMessage                       // audio messages
+	DocumentMessage                    // files
+	PhotoMessage                       // photos
+	StickerMessage                     // stickers
+	VideoMessage                       // videos
+	VoiceMessage                       // voice messages
+	ContactMessage                     // contact information
+	LocationMessage                    // locations
 
 	chatActionsBegin
 	NewChatParticipant    // joined chat participants
 	LeftChatParticipant   // left chat participants
 	NewChatTitle          // chat title changes
 	NewChatPhoto          // new chat photos
-	DeletedChatPohoto     // deleted chat photos
+	DeletedChatPhoto      // deleted chat photos
 	GroupChatCreated      // creation of a group chat
 	SupergroupChatCreated // creation of a supergroup chat
 	ChannelChatCreated    // createion of a channel
@@ -241,28 +241,28 @@ const (
 	MigrationFromGroup    // migration from group (to supergroup)
 	chatActionsEnd
 
-	Unknown // unknown (probably new due to API changes)
+	UnknownMessage // unknown (probably new due to API changes)
 )
 
-var types = map[MessageType]string{
-	TextType:     "Text",
-	AudioType:    "Audio",
-	DocumentType: "Document",
-	PhotoType:    "Photo",
-	StickerType:  "Sticker",
-	VideoType:    "Video",
-	VoiceType:    "Voice",
-	ContactType:  "Contact",
-	LocationType: "Location",
+var messageTypes = map[MessageType]string{
+	TextMessage:     "Text",
+	AudioMessage:    "Audio",
+	DocumentMessage: "Document",
+	PhotoMessage:    "Photo",
+	StickerMessage:  "Sticker",
+	VideoMessage:    "Video",
+	VoiceMessage:    "Voice",
+	ContactMessage:  "Contact",
+	LocationMessage: "Location",
 
 	NewChatParticipant:  "NewChatParticipant",
 	LeftChatParticipant: "LeftChatParticipant",
 	NewChatTitle:        "NewChatTitle",
 	NewChatPhoto:        "NewChatPhoto",
-	DeletedChatPohoto:   "DeletedChatPhoto",
+	DeletedChatPhoto:    "DeletedChatPhoto",
 	GroupChatCreated:    "GroupChatCreated",
 
-	Unknown: "UNKNOWN",
+	UnknownMessage: "Unknown",
 }
 
 // IsChatAction checks if the MessageType is about changes in group chats
@@ -271,9 +271,9 @@ func (mt MessageType) IsChatAction() bool {
 }
 
 func (mt MessageType) String() string {
-	val, ok := types[mt]
+	val, ok := messageTypes[mt]
 	if !ok {
-		return types[Unknown]
+		return messageTypes[UnknownMessage]
 	}
 	return val
 }
@@ -313,8 +313,42 @@ func (resp *updateResponse) sort() {
 
 // Update represents an incoming update
 type Update struct {
-	ID      int     `json:"update_id"`
-	Message Message `json:"message"`
+	ID          int          `json:"update_id"`
+	Message     *Message     `json:"message"`
+	InlineQuery *InlineQuery `json:"inline_query"`
+}
+
+func (u *Update) Type() UpdateType {
+	if u.Message != nil {
+		return MessageUpdate
+	} else if u.InlineQuery != nil {
+		return InlineQueryUpdate
+	}
+	return UnknownUpdate
+}
+
+type UpdateType int
+
+const (
+	MessageUpdate     UpdateType = iota // message update
+	InlineQueryUpdate                   // inline query
+
+	UnknownUpdate // unkown, probably due to API changes
+)
+
+var updateTypes = map[UpdateType]string{
+	MessageUpdate:     "Message",
+	InlineQueryUpdate: "InlineQuery",
+
+	UnknownUpdate: "Unknown",
+}
+
+func (t UpdateType) String() string {
+	val, ok := updateTypes[t]
+	if !ok {
+		return updateTypes[UnknownUpdate]
+	}
+	return val
 }
 
 // UserResponse represents the response sent by the API on a GetMe request
@@ -370,4 +404,12 @@ type Voice struct {
 	FileBase
 	Duration int    `json:"duration"`
 	MimeType string `json:"mime_type"`
+}
+
+// InlineQuery represents an incoming inline query
+type InlineQuery struct {
+	ID     string `json:"id"`     // unique identifier for this query
+	From   User   `json:"from"`   // sender
+	Query  string `json:"query"`  // text of the query
+	Offset string `json:"offset"` // offset of the results to be returned, can be controlled by the bot
 }

@@ -101,3 +101,17 @@ func (oc *OutgoingChatAction) Send() (*baseResponse, error) {
 	}
 	return resp, nil
 }
+
+func (ia *InlineQueryAnswer) Send() (*baseResponse, error) {
+	resp := &baseResponse{}
+	_, err := ia.api.c.postJSON(answerInlineQuery, resp, ia)
+
+	if err != nil {
+		return nil, err
+	}
+	err = check(resp)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}

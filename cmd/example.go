@@ -6,6 +6,7 @@ import (
 	"log"
 	"sync"
 	"time"
+	"unicode"
 )
 
 func main() {
@@ -36,35 +37,60 @@ func main() {
 				}
 
 				val := update.Update()
-				typ := val.Message.Type()
-				if typ != tbotapi.TextType {
-					//ignore non-text messages for now
-					continue
+				switch val.Type() {
+				case tbotapi.MessageUpdate:
+					typ := val.Message.Type()
+					if typ != tbotapi.TextMessage {
+						//ignore non-text messages for now
+						continue
+					}
+
+					// -> simple echo bot
+					msg, err := api.NewOutgoingMessage(tbotapi.NewRecipientFromChat(val.Message.Chat), *val.Message.Text).Send()
+
+					//or
+					//msg, err := api.NewOutgoingMessage(tbotapi.NewChatRecipient(val.Message.Chat.ID), *val.Message.Text).Send()
+
+					// -> simple echo bot with disabled web page preview
+					//msg, err := api.NewOutgoingMessage(tbotapi.NewChatRecipient(val.Message.Chat.ID), val.Message.Text).SetDisableWebPagePreview(true).Send()
+
+					// or:
+					//msg, err := api.NewOutgoingMessage(tbotapi.NewRecipientFromChat(val.Message.Chat), val.Message.Text).SetDisableWebPagePreview(true).Send()
+
+					// -> simple echo bot via forwarding
+					//msg, err = api.NewOutgoingForward(tbotapi.NewRecipientFromChat(val.Message.Chat), val.Message.Chat, val.Message.ID).Send()
+
+					// -> bot that always sends an image as response
+					//msg, err := api.NewOutgoingPhoto(tbotapi.NewChatRecipient(val.Message.Chat.ID), "/path/to/your/image.jpg").Send()
+
+					if err != nil {
+						fmt.Printf("Err: %s\n", err)
+						continue
+					}
+					fmt.Printf("MessageID: %d, Text: %s, IsGroupChat:%t\n", msg.Message.ID, *msg.Message.Text, msg.Message.Chat.IsGroupChat())
+
+				case tbotapi.InlineQueryUpdate:
+					fmt.Println("Received inline query: ", val.InlineQuery.Query)
+					var results []tbotapi.InlineQueryResult
+
+					for i, s := range val.InlineQuery.Query {
+						if len(results) >= 50 {
+							//no more than 50 results, API doesn't like.
+							break
+						}
+						if !unicode.IsSpace(s) {
+							// don't set mandatory fields to whitespace
+							results = append(results, tbotapi.NewInlineQueryResultArticle(fmt.Sprint(i), string(s), string(s)))
+						}
+					}
+
+					_, err := api.NewInlineQueryAnswer(val.InlineQuery.ID, results).Send()
+					if err != nil {
+						fmt.Printf("Err: %s\n", err)
+					}
+				default:
+					fmt.Printf("Unknown Update type.")
 				}
-
-				// -> simple echo bot
-				msg, err := api.NewOutgoingMessage(tbotapi.NewRecipientFromChat(val.Message.Chat), *val.Message.Text).Send()
-
-				//or
-				//msg, err := api.NewOutgoingMessage(tbotapi.NewChatRecipient(val.Message.Chat.ID), *val.Message.Text).Send()
-
-				// -> simple echo bot with disabled web page preview
-				//msg, err := api.NewOutgoingMessage(tbotapi.NewChatRecipient(val.Message.Chat.ID), val.Message.Text).SetDisableWebPagePreview(true).Send()
-
-				// or:
-				//msg, err := api.NewOutgoingMessage(tbotapi.NewRecipientFromChat(val.Message.Chat), val.Message.Text).SetDisableWebPagePreview(true).Send()
-
-				// -> simple echo bot via forwarding
-				//msg, err = api.NewOutgoingForward(tbotapi.NewRecipientFromChat(val.Message.Chat), val.Message.Chat, val.Message.ID).Send()
-
-				// -> bot that always sends an image as response
-				//msg, err := api.NewOutgoingPhoto(tbotapi.NewChatRecipient(val.Message.Chat.ID), "/path/to/your/image.jpg").Send()
-
-				if err != nil {
-					fmt.Printf("Err: %s\n", err)
-					continue
-				}
-				fmt.Printf("MessageID: %d, Text: %s, IsGroupChat:%t\n", msg.Message.ID, *msg.Message.Text, msg.Message.Chat.IsGroupChat())
 			}
 
 		}

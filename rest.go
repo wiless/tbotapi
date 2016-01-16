@@ -25,6 +25,7 @@ const (
 	getUpdates           = method("GetUpdates")
 	setWebhook           = method("SetWebhook")
 	getFile              = method("GetFile")
+	answerInlineQuery    = method("AnswerInlineQuery")
 )
 
 type client struct {
@@ -37,6 +38,8 @@ func newClient(baseURI string) *client {
 		c:         resty.New().SetHTTPMode().OnAfterResponse(parseResponseBody).OnAfterResponse(checkHTTPStatus),
 		endpoints: createEndpoints(baseURI),
 	}
+
+	//toReturn.c.SetDebug(true)
 
 	return toReturn
 }
@@ -105,6 +108,7 @@ func createEndpoints(baseURI string) map[method]string {
 	toReturn[getUpdates] = fmt.Sprint(baseURI, "/", string(getUpdates))
 	toReturn[setWebhook] = fmt.Sprint(baseURI, "/", string(setWebhook))
 	toReturn[getFile] = fmt.Sprint(baseURI, "/", string(getFile))
+	toReturn[answerInlineQuery] = fmt.Sprint(baseURI, "/", string(answerInlineQuery))
 
 	return toReturn
 }
