@@ -5,6 +5,7 @@ import "encoding/json"
 
 // OutgoingBase contains fields shared by most of the outgoing messages
 type OutgoingBase struct {
+	api                 *TelegramBotAPI
 	Recipient           Recipient   `json:"chat_id"`
 	ReplyToMessageID    int         `json:"reply_to_message_id,omitempty"`
 	ReplyMarkup         ReplyMarkup `json:"reply_markup,omitempty"`
@@ -209,17 +210,6 @@ type OutgoingMessage struct {
 	Text                  string    `json:"text"`
 	DisableWebPagePreview bool      `json:"disable_web_page_preview,omitempty"`
 	ParseMode             ParseMode `json:"parse_mode,omitempty"`
-}
-
-// NewOutgoingMessage creates a new outgoing message
-func NewOutgoingMessage(recipient Recipient, text string) *OutgoingMessage {
-	return &OutgoingMessage{
-		OutgoingBase: OutgoingBase{
-			Recipient: recipient,
-		},
-		Text:      text,
-		ParseMode: ModeDefault,
-	}
 }
 
 // SetMarkdown sets or resets whether the message should be parsed as markdown (optional)

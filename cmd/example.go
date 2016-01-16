@@ -43,16 +43,16 @@ func main() {
 				}
 
 				// -> simple echo bot
-				msg, err := api.SendMessage(tbotapi.NewRecipientFromChat(val.Message.Chat), *val.Message.Text)
+				msg, err := api.NewOutgoingMessage(tbotapi.NewRecipientFromChat(val.Message.Chat), *val.Message.Text).Send()
 
 				//or
-				//msg, err := api.SendMessage(tbotapi.NewChatRecipient(val.Message.Chat.Id), *val.Message.Text)
+				//msg, err := api.NewOutgoingMessage(tbotapi.NewChatRecipient(val.Message.Chat.ID), *val.Message.Text).Send()
 
 				// -> simple echo bot with disabled web page preview
-				//msg, err := api.SendMessageExtended(tbotapi.NewOutgoingMessage(tbotapi.NewChatRecipient(val.Message.Chat.Id), val.Message.Text).SetDisableWebPagePreview(true))
+				//msg, err := api.NewOutgoingMessage(tbotapi.NewChatRecipient(val.Message.Chat.ID), val.Message.Text).SetDisableWebPagePreview(true).Send()
 
 				// or:
-				//msg, err := api.SendMessageExtended(tbotapi.NewOutgoingMessage(tbotapi.NewRecipientFromChat(val.Message.Chat), val.Message.Text).SetDisableWebPagePreview(true))
+				//msg, err := api.NewOutgoingMessage(tbotapi.NewRecipientFromChat(val.Message.Chat), val.Message.Text).SetDisableWebPagePreview(true).Send()
 
 				// -> simple echo bot via forwarding
 				//msg, err = api.ForwardMessage(tbotapi.NewOutgoingForward(tbotapi.NewRecipientFromChat(val.Message.Chat), val.Message.Chat, val.Message.Id))

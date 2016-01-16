@@ -181,30 +181,6 @@ func (api *TelegramBotAPI) GetFile(fileID string) (*FileResponse, error) {
 	return resp, nil
 }
 
-// SendMessage sends a text message to the chatID specified, with the given text.
-// For more options, use the SendMessageExtended function.
-// On success, the sent message is returned as a MessageResponse.
-func (api *TelegramBotAPI) SendMessage(chatID int, text string) (*MessageResponse, error) {
-	return api.SendMessageExtended(NewOutgoingMessage(NewChatRecipient(chatID), text))
-}
-
-// SendMessageExtended sends a text message with additional options.
-// Use NewOutgoingMessage to construct the outgoing message.
-// On success, the sent message is returned as a MessageResponse.
-func (api *TelegramBotAPI) SendMessageExtended(om *OutgoingMessage) (*MessageResponse, error) {
-	resp := &MessageResponse{}
-	_, err := api.c.postJSON(sendMessage, resp, om)
-
-	if err != nil {
-		return nil, err
-	}
-	err = check(&resp.BaseResponse)
-	if err != nil {
-		return nil, err
-	}
-	return resp, nil
-}
-
 // ForwardMessage forwards a message with ID messageID from the fromChatID to the toChatID chat.
 // On success, the sent message is returned as a MessageResponse.
 func (api *TelegramBotAPI) ForwardMessage(of *OutgoingForward) (*MessageResponse, error) {
@@ -543,4 +519,25 @@ func check(br *BaseResponse) error {
 	}
 
 	return fmt.Errorf("tbotapi: API error: %d - %s", br.ErrorCode, br.Description)
+}
+
+func (api *TelegramBotAPI) send(s sendable) (resp *MessageResponse, err error) {
+	resp = &MessageResponse{}
+
+	switch s := s.(type) {
+	case *OutgoingMessage:
+		_, err = api.c.postJSON(sendMessage, resp, s)
+		//resp, err = api.SendMessageExtended(s)
+	default:
+		panic(fmt.Sprintf("tbotapi: internal: unexpected type for send(): %T", s))
+	}
+
+	if err != nil {
+		return nil, err
+	}
+	err = check(&resp.BaseResponse)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
 }
