@@ -37,6 +37,11 @@ func (c Chat) IsGroupChat() bool {
 	return c.Type == "group"
 }
 
+// IsSupergroup checks if the chat is a supergroup chat
+func (c Chat) IsSupergroup() bool {
+	return c.Type == "supergroup"
+}
+
 // IsChannel checks if the chat is a channel
 func (c Chat) IsChannel() bool {
 	return c.Type == "channel"
@@ -162,38 +167,50 @@ func (m *Message) Type() MessageType {
 		return NewChatTitle
 	} else if m.NewChatPhoto != nil {
 		return NewChatPhoto
-	} else if m.DeleteChatPhoto != nil {
+	} else if m.DeleteChatPhoto {
 		return DeletedChatPohoto
-	} else if m.GroupChatCreated != nil {
+	} else if m.GroupChatCreated {
 		return GroupChatCreated
+	} else if m.SupergroupChatCreated {
+		return SupergroupChatCreated
+	} else if m.ChannelChatCreated {
+		return ChannelChatCreated
+	} else if m.MigrateToChatID != nil {
+		return MigrationToSupergroup
+	} else if m.MigrateFromChatID != nil {
+		return MigrationFromGroup
 	}
 
 	return Unknown
 }
 
 type noReplyMessage struct {
-	Chat                Chat         `json:"chat"`                  // information about the chat
-	ID                  int          `json:"message_id"`            // message id
-	From                User         `json:"from"`                  // sender
-	Date                int          `json:"date"`                  // timestamp
-	ForwardFrom         *User        `json:"forward_from"`          // forwarded from who
-	ForwardDate         *int         `json:"forward_date"`          // forwarded from when
-	Text                *string      `json:"text"`                  // the actual text content
-	Caption             *string      `json:"caption"`               // caption for photo or video messages
-	Audio               *Audio       `json:"audio"`                 // information about audio contents
-	Document            *Document    `json:"document"`              // information about file contents
-	Photo               *[]PhotoSize `json:"photo"`                 // information about photo contents
-	Sticker             *Sticker     `json:"sticker"`               // information about sticker contents
-	Video               *Video       `json:"video"`                 // information about video contents
-	Voice               *Voice       `json:"voice"`                 // information about voice message contents
-	Contact             *Contact     `json:"contact"`               // information about contact contents
-	Location            *Location    `json:"location"`              // information about location contents
-	NewChatParticipant  *User        `json:"new_chat_participant"`  // information about a new chat participant
-	LeftChatParticipant *User        `json:"left_chat_participant"` // information about a chat participant who left
-	NewChatTitle        *string      `json:"new_chat_title"`        // information about changes in the group name
-	NewChatPhoto        *[]PhotoSize `json:"new_chat_photo"`        // information about a new chat photo
-	DeleteChatPhoto     *bool        `json:"delete_chat_photo"`     // information about a deleted chat photo
-	GroupChatCreated    *bool        `json:"group_chat_created"`    // information about a created group chat
+	Chat                  Chat         `json:"chat"`                    // information about the chat
+	ID                    int          `json:"message_id"`              // message id
+	From                  User         `json:"from"`                    // sender
+	Date                  int          `json:"date"`                    // timestamp
+	ForwardFrom           *User        `json:"forward_from"`            // forwarded from who
+	ForwardDate           *int         `json:"forward_date"`            // forwarded from when
+	Text                  *string      `json:"text"`                    // the actual text content
+	Caption               *string      `json:"caption"`                 // caption for photo or video messages
+	Audio                 *Audio       `json:"audio"`                   // information about audio contents
+	Document              *Document    `json:"document"`                // information about file contents
+	Photo                 *[]PhotoSize `json:"photo"`                   // information about photo contents
+	Sticker               *Sticker     `json:"sticker"`                 // information about sticker contents
+	Video                 *Video       `json:"video"`                   // information about video contents
+	Voice                 *Voice       `json:"voice"`                   // information about voice message contents
+	Contact               *Contact     `json:"contact"`                 // information about contact contents
+	Location              *Location    `json:"location"`                // information about location contents
+	NewChatParticipant    *User        `json:"new_chat_participant"`    // information about a new chat participant
+	LeftChatParticipant   *User        `json:"left_chat_participant"`   // information about a chat participant who left
+	NewChatTitle          *string      `json:"new_chat_title"`          // information about changes in the group name
+	NewChatPhoto          *[]PhotoSize `json:"new_chat_photo"`          // information about a new chat photo
+	DeleteChatPhoto       bool         `json:"delete_chat_photo"`       // information about a deleted chat photo
+	GroupChatCreated      bool         `json:"group_chat_created"`      // information about a created group chat
+	SupergroupChatCreated bool         `json:"supergroup_chat_created"` // information about a created supergroup chat
+	ChannelChatCreated    bool         `json:"channel_chat_created"`    // information about a created channel
+	MigrateToChatID       *int         `json:"migrate_to_chat_id"`      // indicates the chat ID the group chat was migrated to (is now a supergroup)
+	MigrateFromChatID     *int         `json:"migrate_from_chat_id"`    // indicates the chat ID the now supergroup chat was migrated from
 }
 
 // MessageType is the type of a message
@@ -212,12 +229,16 @@ const (
 	LocationType                    // locations
 
 	chatActionsBegin
-	NewChatParticipant  // joined chat participants
-	LeftChatParticipant // left chat participants
-	NewChatTitle        // chat title changes
-	NewChatPhoto        // new chat photos
-	DeletedChatPohoto   // deleted chat photos
-	GroupChatCreated    // creation of a group chat
+	NewChatParticipant    // joined chat participants
+	LeftChatParticipant   // left chat participants
+	NewChatTitle          // chat title changes
+	NewChatPhoto          // new chat photos
+	DeletedChatPohoto     // deleted chat photos
+	GroupChatCreated      // creation of a group chat
+	SupergroupChatCreated // creation of a supergroup chat
+	ChannelChatCreated    // createion of a channel
+	MigrationToSupergroup // migration to supergroup
+	MigrationFromGroup    // migration from group (to supergroup)
 	chatActionsEnd
 
 	Unknown // unknown (probably new due to API changes)
