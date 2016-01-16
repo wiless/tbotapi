@@ -1,6 +1,7 @@
 package tbotapi
 
 import (
+	"errors"
 	"fmt"
 	"sync"
 	"time"
@@ -197,48 +198,6 @@ func (api *TelegramBotAPI) ForwardMessage(of *OutgoingForward) (*MessageResponse
 	return resp, nil
 }
 
-// ResendPhoto resends a photo that is already on the Telegram servers by fileID.
-// Use NewOutgoingPhoto to construct the outgoing photo message.
-// On success, the sent message is returned as a MessageResponse.
-func (api *TelegramBotAPI) ResendPhoto(op *OutgoingPhoto, fileID string) (*MessageResponse, error) {
-	resp := &MessageResponse{}
-	toSend := struct {
-		OutgoingPhoto
-		Photo string `json:"photo"`
-	}{
-		OutgoingPhoto: *op,
-		Photo:         fileID,
-	}
-	_, err := api.c.postJSON(sendPhoto, resp, toSend)
-
-	if err != nil {
-		return nil, err
-	}
-	err = check(&resp.BaseResponse)
-	if err != nil {
-		return nil, err
-	}
-	return resp, nil
-}
-
-// SendPhoto sends a photo message with a photo that is not yet on the Telegram servers.
-// Use NewOutgoingPhoto to construct the outgoing photo message and specify the path to the file.
-// Note, that the Telegram API will check the filename for its extension and will reject non-image files.
-// On success, the sent message is returned as a MessageResponse.
-func (api *TelegramBotAPI) SendPhoto(op *OutgoingPhoto, filePath string) (*MessageResponse, error) {
-	resp := &MessageResponse{}
-	_, err := api.c.uploadFile(sendPhoto, resp, file{fieldName: "photo", path: filePath}, op)
-
-	if err != nil {
-		return nil, err
-	}
-	err = check(&resp.BaseResponse)
-	if err != nil {
-		return nil, err
-	}
-	return resp, nil
-}
-
 // ResendVoice resends a voice message that is already on the Telegram servers by fileID.
 // Use NewOutgoingVoice to construct the voice message.
 // On success, the sent message is returned as a MessageResponse.
@@ -410,49 +369,6 @@ func (api *TelegramBotAPI) SendSticker(os *OutgoingSticker, filePath string) (*M
 	return resp, nil
 }
 
-// ResendVideo resends a video that is already on the Telegram servers by fileID.
-// Use NewOutgoingVideo to construct the video message.
-// On success, the sent message is returned as a MessageResponse.
-func (api *TelegramBotAPI) ResendVideo(ov *OutgoingVideo, fileID string) (*MessageResponse, error) {
-	resp := &MessageResponse{}
-	toSend := struct {
-		OutgoingVideo
-		Video string `json:"video"`
-	}{
-		OutgoingVideo: *ov,
-		Video:         fileID,
-	}
-	_, err := api.c.postJSON(sendVideo, resp, toSend)
-
-	if err != nil {
-		return nil, err
-	}
-	err = check(&resp.BaseResponse)
-	if err != nil {
-		return nil, err
-	}
-	return resp, nil
-}
-
-// SendVideo sends a video that is not already on the Telegram servers.
-// Use OutgoingVideo to construct the message and specify the path to the file.
-// Note that the Telegram servers may check the fileName for its extension.
-// For current limitations on what bots can send, please check the API documentation.
-// On success, the sent message is returned as a MessageResponse.
-func (api *TelegramBotAPI) SendVideo(ov *OutgoingVideo, filePath string) (*MessageResponse, error) {
-	resp := &MessageResponse{}
-	_, err := api.c.uploadFile(sendVideo, resp, file{fieldName: "video", path: filePath}, ov)
-
-	if err != nil {
-		return nil, err
-	}
-	err = check(&resp.BaseResponse)
-	if err != nil {
-		return nil, err
-	}
-	return resp, nil
-}
-
 // SendChatAction sends a chat action to the specified chatID.
 // Use the ChatAction constants to specify the action.
 // On success, a BaseResponse is returned.
@@ -504,6 +420,8 @@ func check(br *BaseResponse) error {
 	return fmt.Errorf("tbotapi: API error: %d - %s", br.ErrorCode, br.Description)
 }
 
+var ErrNoFileSpecified = errors.New("tbotapi: Neither a fileID nor a filePath were specified")
+
 func (api *TelegramBotAPI) send(s sendable) (resp *MessageResponse, err error) {
 	resp = &MessageResponse{}
 
@@ -512,6 +430,36 @@ func (api *TelegramBotAPI) send(s sendable) (resp *MessageResponse, err error) {
 		_, err = api.c.postJSON(sendMessage, resp, s)
 	case *OutgoingLocation:
 		_, err = api.c.postJSON(sendLocation, resp, s)
+	case *OutgoingVideo:
+		if s.filePath != "" {
+			_, err = api.c.uploadFile(sendVideo, resp, file{fieldName: "video", path: s.filePath}, s)
+		} else if s.fileID != "" {
+			toSend := struct {
+				OutgoingVideo
+				Video string `json:"video"`
+			}{
+				OutgoingVideo: *s,
+				Video:         s.fileID,
+			}
+			_, err = api.c.postJSON(sendVideo, resp, toSend)
+		} else {
+			return nil, ErrNoFileSpecified
+		}
+	case *OutgoingPhoto:
+		if s.filePath != "" {
+			_, err = api.c.uploadFile(sendPhoto, resp, file{fieldName: "photo", path: s.filePath}, s)
+		} else if s.fileID != "" {
+			toSend := struct {
+				OutgoingPhoto
+				Photo string `json:"photo"`
+			}{
+				OutgoingPhoto: *s,
+				Photo:         s.fileID,
+			}
+			_, err = api.c.postJSON(sendPhoto, resp, toSend)
+		} else {
+			return nil, ErrNoFileSpecified
+		}
 	default:
 		panic(fmt.Sprintf("tbotapi: internal: unexpected type for send(): %T", s))
 	}

@@ -121,7 +121,7 @@ func (oa *OutgoingAudio) SetTitle(to string) *OutgoingAudio {
 }
 
 // GetQueryString returns a Querystring representing the audio file
-func (oa *OutgoingAudio) GetQueryString() Querystring {
+func (oa *OutgoingAudio) queryString() Querystring {
 	toReturn := map[string]string(oa.GetBaseQueryString())
 
 	if oa.Duration != 0 {
@@ -154,7 +154,7 @@ func NewOutgoingDocument(recipient Recipient) *OutgoingDocument {
 }
 
 // GetQueryString returns a Querystring representing the outgoing file
-func (od *OutgoingDocument) GetQueryString() Querystring {
+func (od *OutgoingDocument) queryString() Querystring {
 	return od.GetBaseQueryString()
 }
 
@@ -181,16 +181,6 @@ type OutgoingLocation struct {
 	OutgoingBase
 	Latitude  float32 `json:"latitude"`
 	Longitude float32 `json:"longitude"`
-}
-
-// GetQueryString returns a Querystring representing the location
-func (ol *OutgoingLocation) GetQueryString() Querystring {
-	toReturn := map[string]string(ol.GetBaseQueryString())
-
-	toReturn["latitude"] = fmt.Sprint(ol.Latitude)
-	toReturn["longitude"] = fmt.Sprint(ol.Longitude)
-
-	return Querystring(toReturn)
 }
 
 // OutgoingMessage represents an outgoing message
@@ -220,16 +210,9 @@ func (om *OutgoingMessage) SetDisableWebPagePreview(to bool) *OutgoingMessage {
 // OutgoingPhoto represents an outgoing photo
 type OutgoingPhoto struct {
 	OutgoingBase
-	Caption string `json:"caption,omitempty"`
-}
-
-// NewOutgoingPhoto creates a new outgoing photo
-func NewOutgoingPhoto(recipient Recipient) *OutgoingPhoto {
-	return &OutgoingPhoto{
-		OutgoingBase: OutgoingBase{
-			Recipient: recipient,
-		},
-	}
+	filePath string
+	fileID   string
+	Caption  string `json:"caption,omitempty"`
 }
 
 // SetCaption sets a caption for the photo (optional)
@@ -239,7 +222,7 @@ func (op *OutgoingPhoto) SetCaption(to string) *OutgoingPhoto {
 }
 
 // GetQueryString returns a Querystring representing the photo
-func (op *OutgoingPhoto) GetQueryString() Querystring {
+func (op *OutgoingPhoto) queryString() Querystring {
 	toReturn := map[string]string(op.GetBaseQueryString())
 
 	if op.Caption != "" {
@@ -264,7 +247,7 @@ func NewOutgoingSticker(recipient Recipient) *OutgoingSticker {
 }
 
 // GetQueryString returns a Querystring representing the sticker message
-func (os *OutgoingSticker) GetQueryString() Querystring {
+func (os *OutgoingSticker) queryString() Querystring {
 	return os.GetBaseQueryString()
 }
 
@@ -295,7 +278,7 @@ func (op *OutgoingUserProfilePhotosRequest) SetLimit(to int) *OutgoingUserProfil
 }
 
 // GetQueryString returns a Querystring representing the request
-func (op *OutgoingUserProfilePhotosRequest) GetQueryString() Querystring {
+func (op *OutgoingUserProfilePhotosRequest) queryString() Querystring {
 	toReturn := map[string]string{}
 	toReturn["user_id"] = fmt.Sprint(op.UserID)
 
@@ -313,17 +296,10 @@ func (op *OutgoingUserProfilePhotosRequest) GetQueryString() Querystring {
 // OutgoingVideo represents an outgoing video file
 type OutgoingVideo struct {
 	OutgoingBase
+	fileID   string
+	filePath string
 	Duration int    `json:"duration,omitempty"`
 	Caption  string `json:"caption,omitempty"`
-}
-
-// NewOutgoingVideo creates a new outgoing video file
-func NewOutgoingVideo(recipient Recipient) *OutgoingVideo {
-	return &OutgoingVideo{
-		OutgoingBase: OutgoingBase{
-			Recipient: recipient,
-		},
-	}
 }
 
 // SetCaption sets a caption for the video file (optional)
@@ -339,7 +315,7 @@ func (ov *OutgoingVideo) SetDuration(to int) *OutgoingVideo {
 }
 
 // GetQueryString returns a Querystring representing the outgoing video file
-func (ov *OutgoingVideo) GetQueryString() Querystring {
+func (ov *OutgoingVideo) queryString() Querystring {
 	toReturn := map[string]string(ov.GetBaseQueryString())
 
 	if ov.Caption != "" {
@@ -375,7 +351,7 @@ func (ov *OutgoingVoice) SetDuration(to int) *OutgoingVoice {
 }
 
 // GetQueryString returns a Querystring representing the outgoing voice note
-func (ov *OutgoingVoice) GetQueryString() Querystring {
+func (ov *OutgoingVoice) queryString() Querystring {
 	toReturn := map[string]string(ov.GetBaseQueryString())
 
 	if ov.Duration != 0 {

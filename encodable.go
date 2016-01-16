@@ -1,11 +1,11 @@
 package tbotapi
 
 type encodable interface {
-	GetQueryString() Querystring
+	queryString() Querystring
 }
 
 type emptyEncodable struct{}
 
-func (emptyEncodable) GetQueryString() Querystring {
+func (emptyEncodable) queryString() Querystring {
 	return Querystring(map[string]string{})
 }

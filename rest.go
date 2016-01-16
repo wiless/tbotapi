@@ -54,7 +54,7 @@ func (c *client) postJSON(m method, result interface{}, data interface{}) (*rest
 }
 
 func (c *client) uploadFile(m method, result interface{}, data file, fields encodable) (*resty.Response, error) {
-	return c.c.R().SetFile(data.fieldName, data.path).SetResult(result).SetFormData(map[string]string(fields.GetQueryString())).Post(c.getEndpoint(m))
+	return c.c.R().SetFile(data.fieldName, data.path).SetResult(result).SetFormData(map[string]string(fields.queryString())).Post(c.getEndpoint(m))
 }
 
 func parseResponseBody(c *resty.Client, res *resty.Response) (err error) {
