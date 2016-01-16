@@ -67,3 +67,103 @@ func (api *TelegramBotAPI) NewOutgoingPhotoResend(recipient Recipient, fileID st
 		fileID: fileID,
 	}
 }
+
+// NewOutgoingSticker creates a new outgoing sticker message
+func (api *TelegramBotAPI) NewOutgoingSticker(recipient Recipient, filePath string) *OutgoingSticker {
+	return &OutgoingSticker{
+		OutgoingBase: OutgoingBase{
+			api:       api,
+			Recipient: recipient,
+		},
+		filePath: filePath,
+	}
+}
+
+// NewOutgoingSticker creates a new outgoing sticker message
+func (api *TelegramBotAPI) NewOutgoingStickerResend(recipient Recipient, fileID string) *OutgoingSticker {
+	return &OutgoingSticker{
+		OutgoingBase: OutgoingBase{
+			api:       api,
+			Recipient: recipient,
+		},
+		fileID: fileID,
+	}
+}
+
+// NewOutgoingVoice creates a new outgoing voice note
+func (api *TelegramBotAPI) NewOutgoingVoice(recipient Recipient, filePath string) *OutgoingVoice {
+	return &OutgoingVoice{
+		OutgoingBase: OutgoingBase{
+			api:       api,
+			Recipient: recipient,
+		},
+		filePath: filePath,
+	}
+}
+
+// NewOutgoingVoice creates a new outgoing voice note
+func (api *TelegramBotAPI) NewOutgoingVoiceResend(recipient Recipient, fileID string) *OutgoingVoice {
+	return &OutgoingVoice{
+		OutgoingBase: OutgoingBase{
+			api:       api,
+			Recipient: recipient,
+		},
+		fileID: fileID,
+	}
+}
+
+// NewOutgoingAudio creates a new outgoing audio file
+func (api *TelegramBotAPI) NewOutgoingAudio(recipient Recipient, filePath string) *OutgoingAudio {
+	return &OutgoingAudio{
+		OutgoingBase: OutgoingBase{
+			api:       api,
+			Recipient: recipient,
+		},
+		filePath: filePath,
+	}
+}
+
+// NewOutgoingAudio creates a new outgoing audio file
+func (api *TelegramBotAPI) NewOutgoingAudioResend(recipient Recipient, fileID string) *OutgoingAudio {
+	return &OutgoingAudio{
+		OutgoingBase: OutgoingBase{
+			api:       api,
+			Recipient: recipient,
+		},
+		fileID: fileID,
+	}
+}
+
+// NewOutgoingDocument creates a new outgoing file
+func (api *TelegramBotAPI) NewOutgoingDocument(recipient Recipient, filePath string) *OutgoingDocument {
+	return &OutgoingDocument{
+		OutgoingBase: OutgoingBase{
+			api:       api,
+			Recipient: recipient,
+		},
+		filePath: filePath,
+	}
+}
+
+// NewOutgoingDocument creates a new outgoing file
+func (api *TelegramBotAPI) NewOutgoingDocumentResend(recipient Recipient, fileID string) *OutgoingDocument {
+	return &OutgoingDocument{
+		OutgoingBase: OutgoingBase{
+			api:       api,
+			Recipient: recipient,
+		},
+		fileID: fileID,
+	}
+}
+
+// NewOutgoingForward creates a new outgoing, forwarded message
+func (api *TelegramBotAPI) NewOutgoingForward(recipient Recipient, origin Chat, messageID int) *OutgoingForward {
+	return &OutgoingForward{
+		OutgoingBase: OutgoingBase{
+			api:       api,
+			Recipient: recipient,
+		},
+		FromChatID: NewRecipientFromChat(origin),
+		MessageID:  messageID,
+	}
+}

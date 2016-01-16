@@ -88,18 +88,11 @@ func (op *OutgoingBase) GetBaseQueryString() Querystring {
 // OutgoingAudio represents an outgoing audio file
 type OutgoingAudio struct {
 	OutgoingBase
+	filePath  string
+	fileID    string
 	Duration  int    `json:"duration,omitempty"`
 	Title     string `json:"title,omitempty"`
 	Performer string `json:"performer,omitempty"`
-}
-
-// NewOutgoingAudio creates a new outgoing audio file
-func NewOutgoingAudio(recipient Recipient) *OutgoingAudio {
-	return &OutgoingAudio{
-		OutgoingBase: OutgoingBase{
-			Recipient: recipient,
-		},
-	}
 }
 
 // SetDuration sets a duration for the audio file (optional)
@@ -142,15 +135,8 @@ func (oa *OutgoingAudio) queryString() Querystring {
 // OutgoingDocument represents an outgoing file
 type OutgoingDocument struct {
 	OutgoingBase
-}
-
-// NewOutgoingDocument creates a new outgoing file
-func NewOutgoingDocument(recipient Recipient) *OutgoingDocument {
-	return &OutgoingDocument{
-		OutgoingBase: OutgoingBase{
-			Recipient: recipient,
-		},
-	}
+	filePath string
+	fileID   string
 }
 
 // GetQueryString returns a Querystring representing the outgoing file
@@ -163,17 +149,6 @@ type OutgoingForward struct {
 	OutgoingBase
 	FromChatID Recipient `json:"from_chat_id"`
 	MessageID  int       `json:"message_id"`
-}
-
-// NewOutgoingForward creates a new outgoing, forwarded message
-func NewOutgoingForward(recipient Recipient, origin Chat, messageID int) *OutgoingForward {
-	return &OutgoingForward{
-		OutgoingBase: OutgoingBase{
-			Recipient: recipient,
-		},
-		FromChatID: NewRecipientFromChat(origin),
-		MessageID:  messageID,
-	}
 }
 
 // OutgoingLocation represents an outgoing location on a map
@@ -235,15 +210,8 @@ func (op *OutgoingPhoto) queryString() Querystring {
 // OutgoingSticker represents an outgoing sticker message
 type OutgoingSticker struct {
 	OutgoingBase
-}
-
-// NewOutgoingSticker creates a new outgoing sticker message
-func NewOutgoingSticker(recipient Recipient) *OutgoingSticker {
-	return &OutgoingSticker{
-		OutgoingBase: OutgoingBase{
-			Recipient: recipient,
-		},
-	}
+	filePath string
+	fileID   string
 }
 
 // GetQueryString returns a Querystring representing the sticker message
@@ -332,16 +300,9 @@ func (ov *OutgoingVideo) queryString() Querystring {
 // OutgoingVoice represents an outgoing voice note
 type OutgoingVoice struct {
 	OutgoingBase
+	filePath string
+	fileID   string
 	Duration int `json:"duration,omitempty"`
-}
-
-// NewOutgoingVoice creates a new outgoing voice note
-func NewOutgoingVoice(recipient Recipient) *OutgoingVoice {
-	return &OutgoingVoice{
-		OutgoingBase: OutgoingBase{
-			Recipient: recipient,
-		},
-	}
 }
 
 // SetDuration sets a duration of the voice note (optional)

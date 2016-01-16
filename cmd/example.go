@@ -55,10 +55,10 @@ func main() {
 				//msg, err := api.NewOutgoingMessage(tbotapi.NewRecipientFromChat(val.Message.Chat), val.Message.Text).SetDisableWebPagePreview(true).Send()
 
 				// -> simple echo bot via forwarding
-				//msg, err = api.ForwardMessage(tbotapi.NewOutgoingForward(tbotapi.NewRecipientFromChat(val.Message.Chat), val.Message.Chat, val.Message.Id))
+				//msg, err = api.NewOutgoingForward(tbotapi.NewRecipientFromChat(val.Message.Chat), val.Message.Chat, val.Message.ID).Send()
 
 				// -> bot that always sends an image as response
-				//msg, err := api.SendPhoto(tbotapi.NewOutgoingPhoto(tbotapi.NewChatRecipient(val.Message.Chat.Id)), "/path/to/your/image.jpg")
+				//msg, err := api.NewOutgoingPhoto(tbotapi.NewChatRecipient(val.Message.Chat.ID), "/path/to/your/image.jpg").Send()
 
 				if err != nil {
 					fmt.Printf("Err: %s\n", err)

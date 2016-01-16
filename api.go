@@ -182,193 +182,6 @@ func (api *TelegramBotAPI) GetFile(fileID string) (*FileResponse, error) {
 	return resp, nil
 }
 
-// ForwardMessage forwards a message with ID messageID from the fromChatID to the toChatID chat.
-// On success, the sent message is returned as a MessageResponse.
-func (api *TelegramBotAPI) ForwardMessage(of *OutgoingForward) (*MessageResponse, error) {
-	resp := &MessageResponse{}
-	_, err := api.c.postJSON(forwardMessage, resp, of)
-
-	if err != nil {
-		return nil, err
-	}
-	err = check(&resp.BaseResponse)
-	if err != nil {
-		return nil, err
-	}
-	return resp, nil
-}
-
-// ResendVoice resends a voice message that is already on the Telegram servers by fileID.
-// Use NewOutgoingVoice to construct the voice message.
-// On success, the sent message is returned as a MessageResponse.
-func (api *TelegramBotAPI) ResendVoice(ov *OutgoingVoice, fileID string) (*MessageResponse, error) {
-	resp := &MessageResponse{}
-	toSend := struct {
-		OutgoingVoice
-		Audio string `json:"audio"`
-	}{
-		OutgoingVoice: *ov,
-		Audio:         fileID,
-	}
-	_, err := api.c.postJSON(sendVoice, resp, toSend)
-
-	if err != nil {
-		return nil, err
-	}
-	err = check(&resp.BaseResponse)
-	if err != nil {
-		return nil, err
-	}
-	return resp, nil
-}
-
-// SendVoice sends a voice message with the contents not already on the Telegram servers.
-// Use NewOutgoingVoice to construct the voice message and specify the path to the file.
-// Note that the Telegram servers check the extension of the file name and will reject non-audio files.
-// Check the current API documentation for the file types accepted.
-// On success, the sent message is returned as a MessageResponse.
-func (api *TelegramBotAPI) SendVoice(ov *OutgoingVoice, filePath string) (*MessageResponse, error) {
-	resp := &MessageResponse{}
-	_, err := api.c.uploadFile(sendVoice, resp, file{fieldName: "audio", path: filePath}, ov)
-
-	if err != nil {
-		return nil, err
-	}
-	err = check(&resp.BaseResponse)
-	if err != nil {
-		return nil, err
-	}
-	return resp, nil
-}
-
-// ResendAudio resends audio that is already on the Telegram servers by fileID.
-// Use NewOutgoingAudio to construct the audio message.
-// On success, the sent message is returned as a MessageResponse.
-func (api *TelegramBotAPI) ResendAudio(oa *OutgoingAudio, fileID string) (*MessageResponse, error) {
-	resp := &MessageResponse{}
-	toSend := struct {
-		OutgoingAudio
-		Audio string `json:"audio"`
-	}{
-		OutgoingAudio: *oa,
-		Audio:         fileID,
-	}
-	_, err := api.c.postJSON(sendAudio, resp, toSend)
-
-	if err != nil {
-		return nil, err
-	}
-	err = check(&resp.BaseResponse)
-	if err != nil {
-		return nil, err
-	}
-	return resp, nil
-}
-
-// SendAudio sends an audio message with the contents not already on the Telegram servers.
-// Use NewOutgoingAudio to construct the audio message and specify the path to the file.
-// Note that the Telegram servers check the extension of the file name and will reject non-audio files.
-// Check the current API documentation for the file types accepted.
-// On success, the sent message is returned as a MessageResponse.
-func (api *TelegramBotAPI) SendAudio(oa *OutgoingAudio, filePath string) (*MessageResponse, error) {
-	resp := &MessageResponse{}
-	_, err := api.c.uploadFile(sendAudio, resp, file{fieldName: "audio", path: filePath}, oa)
-
-	if err != nil {
-		return nil, err
-	}
-	err = check(&resp.BaseResponse)
-	if err != nil {
-		return nil, err
-	}
-	return resp, nil
-}
-
-// ResendDocument resends a general file that is already on the Telegram servers by fileID.
-// Use NewOutgoingDocument to construct the message.
-// On success, the sent message is returned as a MessageResponse.
-func (api *TelegramBotAPI) ResendDocument(od *OutgoingDocument, fileID string) (*MessageResponse, error) {
-	resp := &MessageResponse{}
-	toSend := struct {
-		OutgoingDocument
-		Document string `json:"document"`
-	}{
-		OutgoingDocument: *od,
-		Document:         fileID,
-	}
-	_, err := api.c.postJSON(sendDocument, resp, toSend)
-
-	if err != nil {
-		return nil, err
-	}
-	err = check(&resp.BaseResponse)
-	if err != nil {
-		return nil, err
-	}
-	return resp, nil
-}
-
-// SendDocument sends a general file that is not already on the Telegram servers.
-// Use NewOutgoingDocument to construct the message and specify the path to the file.
-// For current limitations on what a bot can send, check the bot API documentation.
-// On success, the sent message is returned as a MessageResponse.
-func (api *TelegramBotAPI) SendDocument(od *OutgoingDocument, filePath string) (*MessageResponse, error) {
-	resp := &MessageResponse{}
-	_, err := api.c.uploadFile(sendDocument, resp, file{fieldName: "document", path: filePath}, od)
-
-	if err != nil {
-		return nil, err
-	}
-	err = check(&resp.BaseResponse)
-	if err != nil {
-		return nil, err
-	}
-	return resp, nil
-}
-
-// ResendSticker resends a sticker that is already on the Telegram servers by fileID.
-// Use NewOutgoingSticker to construct the message.
-// On success, the sent message is returned as a MessageResponse.
-func (api *TelegramBotAPI) ResendSticker(os *OutgoingSticker, fileID string) (*MessageResponse, error) {
-	resp := &MessageResponse{}
-	toSend := struct {
-		OutgoingSticker
-		Sticker string `json:"sticker"`
-	}{
-		OutgoingSticker: *os,
-		Sticker:         fileID,
-	}
-	_, err := api.c.postJSON(sendSticker, resp, toSend)
-
-	if err != nil {
-		return nil, err
-	}
-	err = check(&resp.BaseResponse)
-	if err != nil {
-		return nil, err
-	}
-	return resp, nil
-}
-
-// SendSticker sends a sticker that is not already on the Telegram server.
-// Use NewOutgoingSticker to construct the message and specify the path to the file.
-// Note that the Telegram servers may check the fileName for its extension.
-// For current limitations on what a bot can send, check the API documentation.
-// On success, the sent message is returned as a MessageResponse.
-func (api *TelegramBotAPI) SendSticker(os *OutgoingSticker, filePath string) (*MessageResponse, error) {
-	resp := &MessageResponse{}
-	_, err := api.c.uploadFile(sendSticker, resp, file{fieldName: "sticker", path: filePath}, os)
-
-	if err != nil {
-		return nil, err
-	}
-	err = check(&resp.BaseResponse)
-	if err != nil {
-		return nil, err
-	}
-	return resp, nil
-}
-
 // SendChatAction sends a chat action to the specified chatID.
 // Use the ChatAction constants to specify the action.
 // On success, a BaseResponse is returned.
@@ -430,6 +243,8 @@ func (api *TelegramBotAPI) send(s sendable) (resp *MessageResponse, err error) {
 		_, err = api.c.postJSON(sendMessage, resp, s)
 	case *OutgoingLocation:
 		_, err = api.c.postJSON(sendLocation, resp, s)
+	case *OutgoingForward:
+		_, err = api.c.postJSON(forwardMessage, resp, s)
 	case *OutgoingVideo:
 		if s.filePath != "" {
 			_, err = api.c.uploadFile(sendVideo, resp, file{fieldName: "video", path: s.filePath}, s)
@@ -457,6 +272,66 @@ func (api *TelegramBotAPI) send(s sendable) (resp *MessageResponse, err error) {
 				Photo:         s.fileID,
 			}
 			_, err = api.c.postJSON(sendPhoto, resp, toSend)
+		} else {
+			return nil, ErrNoFileSpecified
+		}
+	case *OutgoingVoice:
+		if s.filePath != "" {
+			_, err = api.c.uploadFile(sendVoice, resp, file{fieldName: "audio", path: s.filePath}, s)
+		} else if s.fileID != "" {
+			toSend := struct {
+				OutgoingVoice
+				Audio string `json:"audio"`
+			}{
+				OutgoingVoice: *s,
+				Audio:         s.fileID,
+			}
+			_, err = api.c.postJSON(sendVoice, resp, toSend)
+		} else {
+			return nil, ErrNoFileSpecified
+		}
+	case *OutgoingAudio:
+		if s.filePath != "" {
+			_, err = api.c.uploadFile(sendAudio, resp, file{fieldName: "audio", path: s.filePath}, s)
+		} else if s.fileID != "" {
+			toSend := struct {
+				OutgoingAudio
+				Audio string `json:"audio"`
+			}{
+				OutgoingAudio: *s,
+				Audio:         s.fileID,
+			}
+			_, err = api.c.postJSON(sendAudio, resp, toSend)
+		} else {
+			return nil, ErrNoFileSpecified
+		}
+	case *OutgoingDocument:
+		if s.filePath != "" {
+			_, err = api.c.uploadFile(sendDocument, resp, file{fieldName: "document", path: s.filePath}, s)
+		} else if s.fileID != "" {
+			toSend := struct {
+				OutgoingDocument
+				Document string `json:"document"`
+			}{
+				OutgoingDocument: *s,
+				Document:         s.fileID,
+			}
+			_, err = api.c.postJSON(sendDocument, resp, toSend)
+		} else {
+			return nil, ErrNoFileSpecified
+		}
+	case *OutgoingSticker:
+		if s.filePath != "" {
+			_, err = api.c.uploadFile(sendSticker, resp, file{fieldName: "sticker", path: s.filePath}, s)
+		} else if s.fileID != "" {
+			toSend := struct {
+				OutgoingSticker
+				Sticker string `json:"sticker"`
+			}{
+				OutgoingSticker: *s,
+				Sticker:         s.fileID,
+			}
+			_, err = api.c.postJSON(sendSticker, resp, toSend)
 		} else {
 			return nil, ErrNoFileSpecified
 		}
