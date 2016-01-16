@@ -61,7 +61,7 @@ func (op *OutgoingBase) SetForceReply(to ForceReply) {
 }
 
 // GetBaseQueryString gets a Querystring representing this message
-func (op *OutgoingBase) GetBaseQueryString() Querystring {
+func (op *OutgoingBase) GetBaseQueryString() querystring {
 	toReturn := map[string]string{}
 	if op.Recipient.isChannel() {
 		//Channel
@@ -82,7 +82,7 @@ func (op *OutgoingBase) GetBaseQueryString() Querystring {
 		toReturn["reply_markup"] = string(b)
 	}
 
-	return Querystring(toReturn)
+	return querystring(toReturn)
 }
 
 // OutgoingAudio represents an outgoing audio file
@@ -113,8 +113,8 @@ func (oa *OutgoingAudio) SetTitle(to string) *OutgoingAudio {
 	return oa
 }
 
-// GetQueryString returns a Querystring representing the audio file
-func (oa *OutgoingAudio) queryString() Querystring {
+// querystring implements querystringer to represent the audio file
+func (oa *OutgoingAudio) querystring() querystring {
 	toReturn := map[string]string(oa.GetBaseQueryString())
 
 	if oa.Duration != 0 {
@@ -129,7 +129,7 @@ func (oa *OutgoingAudio) queryString() Querystring {
 		toReturn["title"] = oa.Title
 	}
 
-	return Querystring(toReturn)
+	return querystring(toReturn)
 }
 
 // OutgoingDocument represents an outgoing file
@@ -139,8 +139,8 @@ type OutgoingDocument struct {
 	fileID   string
 }
 
-// GetQueryString returns a Querystring representing the outgoing file
-func (od *OutgoingDocument) queryString() Querystring {
+// querystring implements querystringer to represent the outgoing file
+func (od *OutgoingDocument) querystring() querystring {
 	return od.GetBaseQueryString()
 }
 
@@ -196,15 +196,15 @@ func (op *OutgoingPhoto) SetCaption(to string) *OutgoingPhoto {
 	return op
 }
 
-// GetQueryString returns a Querystring representing the photo
-func (op *OutgoingPhoto) queryString() Querystring {
+// querystring implements querystringer to represent the photo
+func (op *OutgoingPhoto) querystring() querystring {
 	toReturn := map[string]string(op.GetBaseQueryString())
 
 	if op.Caption != "" {
 		toReturn["caption"] = op.Caption
 	}
 
-	return Querystring(toReturn)
+	return querystring(toReturn)
 }
 
 // OutgoingSticker represents an outgoing sticker message
@@ -214,8 +214,8 @@ type OutgoingSticker struct {
 	fileID   string
 }
 
-// GetQueryString returns a Querystring representing the sticker message
-func (os *OutgoingSticker) queryString() Querystring {
+// querystring implements querystringer to represent the sticker message
+func (os *OutgoingSticker) querystring() querystring {
 	return os.GetBaseQueryString()
 }
 
@@ -239,8 +239,8 @@ func (op *OutgoingUserProfilePhotosRequest) SetLimit(to int) *OutgoingUserProfil
 	return op
 }
 
-// GetQueryString returns a Querystring representing the request
-func (op *OutgoingUserProfilePhotosRequest) queryString() Querystring {
+// querystring implements querystringer to represent the request
+func (op *OutgoingUserProfilePhotosRequest) querystring() querystring {
 	toReturn := map[string]string{}
 	toReturn["user_id"] = fmt.Sprint(op.UserID)
 
@@ -252,7 +252,7 @@ func (op *OutgoingUserProfilePhotosRequest) queryString() Querystring {
 		toReturn["limit"] = fmt.Sprint(op.Limit)
 	}
 
-	return Querystring(toReturn)
+	return querystring(toReturn)
 }
 
 // OutgoingVideo represents an outgoing video file
@@ -276,8 +276,8 @@ func (ov *OutgoingVideo) SetDuration(to int) *OutgoingVideo {
 	return ov
 }
 
-// GetQueryString returns a Querystring representing the outgoing video file
-func (ov *OutgoingVideo) queryString() Querystring {
+// querystring implements querystringer to represent the outgoing video file
+func (ov *OutgoingVideo) querystring() querystring {
 	toReturn := map[string]string(ov.GetBaseQueryString())
 
 	if ov.Caption != "" {
@@ -288,7 +288,7 @@ func (ov *OutgoingVideo) queryString() Querystring {
 		toReturn["duration"] = fmt.Sprint(ov.Duration)
 	}
 
-	return Querystring(toReturn)
+	return querystring(toReturn)
 }
 
 // OutgoingVoice represents an outgoing voice note
@@ -305,15 +305,15 @@ func (ov *OutgoingVoice) SetDuration(to int) *OutgoingVoice {
 	return ov
 }
 
-// GetQueryString returns a Querystring representing the outgoing voice note
-func (ov *OutgoingVoice) queryString() Querystring {
+// querystring implements querystringer to represent the outgoing voice note
+func (ov *OutgoingVoice) querystring() querystring {
 	toReturn := map[string]string(ov.GetBaseQueryString())
 
 	if ov.Duration != 0 {
 		toReturn["duration"] = fmt.Sprint(ov.Duration)
 	}
 
-	return Querystring(toReturn)
+	return querystring(toReturn)
 }
 
 // ReplyMarkup is s marker interface for ReplyMarkups

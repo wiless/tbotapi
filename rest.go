@@ -53,8 +53,8 @@ func (c *client) postJSON(m method, result interface{}, data interface{}) (*rest
 	return c.c.R().SetBody(data).SetResult(result).Post(c.getEndpoint(m))
 }
 
-func (c *client) uploadFile(m method, result interface{}, data file, fields encodable) (*resty.Response, error) {
-	return c.c.R().SetFile(data.fieldName, data.path).SetResult(result).SetFormData(map[string]string(fields.queryString())).Post(c.getEndpoint(m))
+func (c *client) uploadFile(m method, result interface{}, data file, fields querystringer) (*resty.Response, error) {
+	return c.c.R().SetFile(data.fieldName, data.path).SetResult(result).SetFormData(map[string]string(fields.querystring())).Post(c.getEndpoint(m))
 }
 
 func parseResponseBody(c *resty.Client, res *resty.Response) (err error) {
