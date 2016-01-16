@@ -313,9 +313,10 @@ func (resp *updateResponse) sort() {
 
 // Update represents an incoming update
 type Update struct {
-	ID          int          `json:"update_id"`
-	Message     *Message     `json:"message"`
-	InlineQuery *InlineQuery `json:"inline_query"`
+	ID                 int                 `json:"update_id"`
+	Message            *Message            `json:"message"`
+	InlineQuery        *InlineQuery        `json:"inline_query"`
+	ChosenInlineResult *ChosenInlineResult `json:"chosen_inline_result"`
 }
 
 // Type returns the type of the update
@@ -324,6 +325,8 @@ func (u *Update) Type() UpdateType {
 		return MessageUpdate
 	} else if u.InlineQuery != nil {
 		return InlineQueryUpdate
+	} else if u.ChosenInlineResult != nil {
+		return ChosenInlineResultUpdate
 	}
 	return UnknownUpdate
 }
@@ -333,15 +336,17 @@ type UpdateType int
 
 // Update types
 const (
-	MessageUpdate     UpdateType = iota // message update
-	InlineQueryUpdate                   // inline query
+	MessageUpdate            UpdateType = iota // message update
+	InlineQueryUpdate                          // inline query
+	ChosenInlineResultUpdate                   // chosen inline result
 
 	UnknownUpdate // unkown, probably due to API changes
 )
 
 var updateTypes = map[UpdateType]string{
-	MessageUpdate:     "Message",
-	InlineQueryUpdate: "InlineQuery",
+	MessageUpdate:            "Message",
+	InlineQueryUpdate:        "InlineQuery",
+	ChosenInlineResultUpdate: "ChosenInlineResult",
 
 	UnknownUpdate: "Unknown",
 }
@@ -415,4 +420,11 @@ type InlineQuery struct {
 	From   User   `json:"from"`   // sender
 	Query  string `json:"query"`  // text of the query
 	Offset string `json:"offset"` // offset of the results to be returned, can be controlled by the bot
+}
+
+// ChosenInlineResult represents a result of an inline query that was chosen by the user and sent to their chat partner
+type ChosenInlineResult struct {
+	ID    string `json:"result_id"` // unique identifier for the result that was chosen
+	From  User   `json:"from"`      // user that chose the result
+	Query string `json:"query"`     // query that was used to obtain the result
 }

@@ -88,6 +88,9 @@ func main() {
 					if err != nil {
 						fmt.Printf("Err: %s\n", err)
 					}
+				case tbotapi.ChosenInlineResultUpdate:
+					//id, not value
+					fmt.Println("Chosen inline query result (ID): ", val.ChosenInlineResult.ID)
 				default:
 					fmt.Printf("Unknown Update type.")
 				}

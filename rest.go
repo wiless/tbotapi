@@ -39,8 +39,6 @@ func newClient(baseURI string) *client {
 		endpoints: createEndpoints(baseURI),
 	}
 
-	//toReturn.c.SetDebug(true)
-
 	return toReturn
 }
 
