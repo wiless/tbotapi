@@ -1,5 +1,7 @@
 package tbotapi
 
+import "io"
+
 // NewOutgoingMessage creates a new outgoing message
 func (api *TelegramBotAPI) NewOutgoingMessage(recipient Recipient, text string) *OutgoingMessage {
 	return &OutgoingMessage{
@@ -25,13 +27,16 @@ func (api *TelegramBotAPI) NewOutgoingLocation(recipient Recipient, latitude, lo
 }
 
 // NewOutgoingVideo creates a new outgoing video file
-func (api *TelegramBotAPI) NewOutgoingVideo(recipient Recipient, filePath string) *OutgoingVideo {
+func (api *TelegramBotAPI) NewOutgoingVideo(recipient Recipient, fileName string, reader io.Reader) *OutgoingVideo {
 	return &OutgoingVideo{
 		outgoingBase: outgoingBase{
 			api:       api,
 			Recipient: recipient,
 		},
-		filePath: filePath,
+		outgoingFileBase: outgoingFileBase{
+			fileName: fileName,
+			r:        reader,
+		},
 	}
 }
 
@@ -42,18 +47,23 @@ func (api *TelegramBotAPI) NewOutgoingVideoResend(recipient Recipient, fileID st
 			api:       api,
 			Recipient: recipient,
 		},
-		fileID: fileID,
+		outgoingFileBase: outgoingFileBase{
+			fileID: fileID,
+		},
 	}
 }
 
 // NewOutgoingPhoto creates a new outgoing photo
-func (api *TelegramBotAPI) NewOutgoingPhoto(recipient Recipient, filePath string) *OutgoingPhoto {
+func (api *TelegramBotAPI) NewOutgoingPhoto(recipient Recipient, fileName string, reader io.Reader) *OutgoingPhoto {
 	return &OutgoingPhoto{
 		outgoingBase: outgoingBase{
 			api:       api,
 			Recipient: recipient,
 		},
-		filePath: filePath,
+		outgoingFileBase: outgoingFileBase{
+			fileName: fileName,
+			r:        reader,
+		},
 	}
 }
 
@@ -64,18 +74,23 @@ func (api *TelegramBotAPI) NewOutgoingPhotoResend(recipient Recipient, fileID st
 			api:       api,
 			Recipient: recipient,
 		},
-		fileID: fileID,
+		outgoingFileBase: outgoingFileBase{
+			fileID: fileID,
+		},
 	}
 }
 
 // NewOutgoingSticker creates a new outgoing sticker message
-func (api *TelegramBotAPI) NewOutgoingSticker(recipient Recipient, filePath string) *OutgoingSticker {
+func (api *TelegramBotAPI) NewOutgoingSticker(recipient Recipient, fileName string, reader io.Reader) *OutgoingSticker {
 	return &OutgoingSticker{
 		outgoingBase: outgoingBase{
 			api:       api,
 			Recipient: recipient,
 		},
-		filePath: filePath,
+		outgoingFileBase: outgoingFileBase{
+			fileName: fileName,
+			r:        reader,
+		},
 	}
 }
 
@@ -86,18 +101,23 @@ func (api *TelegramBotAPI) NewOutgoingStickerResend(recipient Recipient, fileID 
 			api:       api,
 			Recipient: recipient,
 		},
-		fileID: fileID,
+		outgoingFileBase: outgoingFileBase{
+			fileID: fileID,
+		},
 	}
 }
 
 // NewOutgoingVoice creates a new outgoing voice note
-func (api *TelegramBotAPI) NewOutgoingVoice(recipient Recipient, filePath string) *OutgoingVoice {
+func (api *TelegramBotAPI) NewOutgoingVoice(recipient Recipient, fileName string, reader io.Reader) *OutgoingVoice {
 	return &OutgoingVoice{
 		outgoingBase: outgoingBase{
 			api:       api,
 			Recipient: recipient,
 		},
-		filePath: filePath,
+		outgoingFileBase: outgoingFileBase{
+			fileName: fileName,
+			r:        reader,
+		},
 	}
 }
 
@@ -108,18 +128,23 @@ func (api *TelegramBotAPI) NewOutgoingVoiceResend(recipient Recipient, fileID st
 			api:       api,
 			Recipient: recipient,
 		},
-		fileID: fileID,
+		outgoingFileBase: outgoingFileBase{
+			fileID: fileID,
+		},
 	}
 }
 
 // NewOutgoingAudio creates a new outgoing audio file
-func (api *TelegramBotAPI) NewOutgoingAudio(recipient Recipient, filePath string) *OutgoingAudio {
+func (api *TelegramBotAPI) NewOutgoingAudio(recipient Recipient, fileName string, reader io.Reader) *OutgoingAudio {
 	return &OutgoingAudio{
 		outgoingBase: outgoingBase{
 			api:       api,
 			Recipient: recipient,
 		},
-		filePath: filePath,
+		outgoingFileBase: outgoingFileBase{
+			fileName: fileName,
+			r:        reader,
+		},
 	}
 }
 
@@ -130,18 +155,23 @@ func (api *TelegramBotAPI) NewOutgoingAudioResend(recipient Recipient, fileID st
 			api:       api,
 			Recipient: recipient,
 		},
-		fileID: fileID,
+		outgoingFileBase: outgoingFileBase{
+			fileID: fileID,
+		},
 	}
 }
 
 // NewOutgoingDocument creates a new outgoing file
-func (api *TelegramBotAPI) NewOutgoingDocument(recipient Recipient, filePath string) *OutgoingDocument {
+func (api *TelegramBotAPI) NewOutgoingDocument(recipient Recipient, fileName string, reader io.Reader) *OutgoingDocument {
 	return &OutgoingDocument{
 		outgoingBase: outgoingBase{
 			api:       api,
 			Recipient: recipient,
 		},
-		filePath: filePath,
+		outgoingFileBase: outgoingFileBase{
+			fileName: fileName,
+			r:        reader,
+		},
 	}
 }
 
@@ -152,7 +182,9 @@ func (api *TelegramBotAPI) NewOutgoingDocumentResend(recipient Recipient, fileID
 			api:       api,
 			Recipient: recipient,
 		},
-		fileID: fileID,
+		outgoingFileBase: outgoingFileBase{
+			fileID: fileID,
+		},
 	}
 }
 

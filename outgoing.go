@@ -1,7 +1,10 @@
 package tbotapi
 
 import "fmt"
-import "encoding/json"
+import (
+	"encoding/json"
+	"io"
+)
 
 // OutgoingBase contains fields shared by most of the outgoing messages
 type outgoingBase struct {
@@ -85,11 +88,28 @@ func (op *outgoingBase) getBaseQueryString() querystring {
 	return querystring(toReturn)
 }
 
+type outgoingFileBase struct {
+	fileName string
+	r        io.Reader
+	fileID   string
+}
+
+func (b outgoingFileBase) valid() bool {
+	return b.isUpload() || b.isResend()
+}
+
+func (b outgoingFileBase) isUpload() bool {
+	return b.fileName != "" && b.r != nil && b.fileID == ""
+}
+
+func (b outgoingFileBase) isResend() bool {
+	return b.fileName == "" && b.r == nil && b.fileID != ""
+}
+
 // OutgoingAudio represents an outgoing audio file
 type OutgoingAudio struct {
 	outgoingBase
-	filePath  string
-	fileID    string
+	outgoingFileBase
 	Duration  int    `json:"duration,omitempty"`
 	Title     string `json:"title,omitempty"`
 	Performer string `json:"performer,omitempty"`
@@ -135,8 +155,7 @@ func (oa *OutgoingAudio) querystring() querystring {
 // OutgoingDocument represents an outgoing file
 type OutgoingDocument struct {
 	outgoingBase
-	filePath string
-	fileID   string
+	outgoingFileBase
 }
 
 // querystring implements querystringer to represent the outgoing file
@@ -185,9 +204,8 @@ func (om *OutgoingMessage) SetDisableWebPagePreview(to bool) *OutgoingMessage {
 // OutgoingPhoto represents an outgoing photo
 type OutgoingPhoto struct {
 	outgoingBase
-	filePath string
-	fileID   string
-	Caption  string `json:"caption,omitempty"`
+	outgoingFileBase
+	Caption string `json:"caption,omitempty"`
 }
 
 // SetCaption sets a caption for the photo (optional)
@@ -210,8 +228,7 @@ func (op *OutgoingPhoto) querystring() querystring {
 // OutgoingSticker represents an outgoing sticker message
 type OutgoingSticker struct {
 	outgoingBase
-	filePath string
-	fileID   string
+	outgoingFileBase
 }
 
 // querystring implements querystringer to represent the sticker message
@@ -258,8 +275,7 @@ func (op *OutgoingUserProfilePhotosRequest) querystring() querystring {
 // OutgoingVideo represents an outgoing video file
 type OutgoingVideo struct {
 	outgoingBase
-	fileID   string
-	filePath string
+	outgoingFileBase
 	Duration int    `json:"duration,omitempty"`
 	Caption  string `json:"caption,omitempty"`
 }
@@ -294,8 +310,7 @@ func (ov *OutgoingVideo) querystring() querystring {
 // OutgoingVoice represents an outgoing voice note
 type OutgoingVoice struct {
 	outgoingBase
-	filePath string
-	fileID   string
+	outgoingFileBase
 	Duration int `json:"duration,omitempty"`
 }
 

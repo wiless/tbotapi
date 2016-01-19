@@ -194,8 +194,8 @@ func check(br *baseResponse) error {
 	return fmt.Errorf("tbotapi: API error: %d - %s", br.ErrorCode, br.Description)
 }
 
-// ErrNoFileSpecified is returned in case neither a file path nor a fileID were specified
-var ErrNoFileSpecified = errors.New("tbotapi: Neither a fileID nor a filePath were specified")
+// ErrNoFileSpecified is returned in case neither a file name + io.Reader nor a fileID were specified
+var ErrNoFileSpecified = errors.New("tbotapi: Neither a fileID nor a fileName/reader were specified")
 
 func (api *TelegramBotAPI) send(s sendable) (resp *MessageResponse, err error) {
 	resp = &MessageResponse{}
@@ -208,9 +208,12 @@ func (api *TelegramBotAPI) send(s sendable) (resp *MessageResponse, err error) {
 	case *OutgoingForward:
 		_, err = api.c.postJSON(forwardMessage, resp, s)
 	case *OutgoingVideo:
-		if s.filePath != "" {
-			_, err = api.c.uploadFile(sendVideo, resp, file{fieldName: "video", path: s.filePath}, s)
-		} else if s.fileID != "" {
+		if !s.valid() {
+			return nil, ErrNoFileSpecified
+		}
+		if s.isUpload() {
+			_, err = api.c.uploadFile(sendVideo, resp, file{fieldName: "video", fileName: s.fileName, r: s.r}, s)
+		} else {
 			toSend := struct {
 				OutgoingVideo
 				Video string `json:"video"`
@@ -219,13 +222,14 @@ func (api *TelegramBotAPI) send(s sendable) (resp *MessageResponse, err error) {
 				Video:         s.fileID,
 			}
 			_, err = api.c.postJSON(sendVideo, resp, toSend)
-		} else {
-			return nil, ErrNoFileSpecified
 		}
 	case *OutgoingPhoto:
-		if s.filePath != "" {
-			_, err = api.c.uploadFile(sendPhoto, resp, file{fieldName: "photo", path: s.filePath}, s)
-		} else if s.fileID != "" {
+		if !s.valid() {
+			return nil, ErrNoFileSpecified
+		}
+		if s.isUpload() {
+			_, err = api.c.uploadFile(sendPhoto, resp, file{fieldName: "photo", fileName: s.fileName, r: s.r}, s)
+		} else {
 			toSend := struct {
 				OutgoingPhoto
 				Photo string `json:"photo"`
@@ -234,13 +238,14 @@ func (api *TelegramBotAPI) send(s sendable) (resp *MessageResponse, err error) {
 				Photo:         s.fileID,
 			}
 			_, err = api.c.postJSON(sendPhoto, resp, toSend)
-		} else {
-			return nil, ErrNoFileSpecified
 		}
 	case *OutgoingVoice:
-		if s.filePath != "" {
-			_, err = api.c.uploadFile(sendVoice, resp, file{fieldName: "audio", path: s.filePath}, s)
-		} else if s.fileID != "" {
+		if !s.valid() {
+			return nil, ErrNoFileSpecified
+		}
+		if s.isUpload() {
+			_, err = api.c.uploadFile(sendVoice, resp, file{fieldName: "audio", fileName: s.fileName, r: s.r}, s)
+		} else {
 			toSend := struct {
 				OutgoingVoice
 				Audio string `json:"audio"`
@@ -249,13 +254,14 @@ func (api *TelegramBotAPI) send(s sendable) (resp *MessageResponse, err error) {
 				Audio:         s.fileID,
 			}
 			_, err = api.c.postJSON(sendVoice, resp, toSend)
-		} else {
-			return nil, ErrNoFileSpecified
 		}
 	case *OutgoingAudio:
-		if s.filePath != "" {
-			_, err = api.c.uploadFile(sendAudio, resp, file{fieldName: "audio", path: s.filePath}, s)
-		} else if s.fileID != "" {
+		if !s.valid() {
+			return nil, ErrNoFileSpecified
+		}
+		if s.isUpload() {
+			_, err = api.c.uploadFile(sendAudio, resp, file{fieldName: "audio", fileName: s.fileName, r: s.r}, s)
+		} else {
 			toSend := struct {
 				OutgoingAudio
 				Audio string `json:"audio"`
@@ -264,13 +270,14 @@ func (api *TelegramBotAPI) send(s sendable) (resp *MessageResponse, err error) {
 				Audio:         s.fileID,
 			}
 			_, err = api.c.postJSON(sendAudio, resp, toSend)
-		} else {
-			return nil, ErrNoFileSpecified
 		}
 	case *OutgoingDocument:
-		if s.filePath != "" {
-			_, err = api.c.uploadFile(sendDocument, resp, file{fieldName: "document", path: s.filePath}, s)
-		} else if s.fileID != "" {
+		if !s.valid() {
+			return nil, ErrNoFileSpecified
+		}
+		if s.isUpload() {
+			_, err = api.c.uploadFile(sendDocument, resp, file{fieldName: "document", fileName: s.fileName, r: s.r}, s)
+		} else {
 			toSend := struct {
 				OutgoingDocument
 				Document string `json:"document"`
@@ -279,13 +286,14 @@ func (api *TelegramBotAPI) send(s sendable) (resp *MessageResponse, err error) {
 				Document:         s.fileID,
 			}
 			_, err = api.c.postJSON(sendDocument, resp, toSend)
-		} else {
-			return nil, ErrNoFileSpecified
 		}
 	case *OutgoingSticker:
-		if s.filePath != "" {
-			_, err = api.c.uploadFile(sendSticker, resp, file{fieldName: "sticker", path: s.filePath}, s)
-		} else if s.fileID != "" {
+		if !s.valid() {
+			return nil, ErrNoFileSpecified
+		}
+		if s.isUpload() {
+			_, err = api.c.uploadFile(sendSticker, resp, file{fieldName: "sticker", fileName: s.fileName, r: s.r}, s)
+		} else {
 			toSend := struct {
 				OutgoingSticker
 				Sticker string `json:"sticker"`
@@ -294,8 +302,6 @@ func (api *TelegramBotAPI) send(s sendable) (resp *MessageResponse, err error) {
 				Sticker:         s.fileID,
 			}
 			_, err = api.c.postJSON(sendSticker, resp, toSend)
-		} else {
-			return nil, ErrNoFileSpecified
 		}
 	default:
 		panic(fmt.Sprintf("tbotapi: internal: unexpected type for send(): %T", s))

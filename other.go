@@ -1,5 +1,7 @@
 package tbotapi
 
+import "io"
+
 // Querystring is a type to represent querystring-applicable data
 type querystring map[string]string
 
@@ -9,5 +11,6 @@ type querystringer interface {
 
 type file struct {
 	fieldName string
-	path      string
+	fileName  string
+	r         io.Reader
 }

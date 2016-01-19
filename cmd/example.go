@@ -61,7 +61,13 @@ func main() {
 					//msg, err = api.NewOutgoingForward(tbotapi.NewRecipientFromChat(val.Message.Chat), val.Message.Chat, val.Message.ID).Send()
 
 					// -> bot that always sends an image as response
-					//msg, err := api.NewOutgoingPhoto(tbotapi.NewChatRecipient(val.Message.Chat.ID), "/path/to/your/image.jpg").Send()
+					//file, err := os.Open("/path/to/your/image.jpg")
+					//if err != nil {
+					//	fmt.Printf("Error opening file: %s\n", err)
+					//	continue
+					//}
+					//defer file.Close()
+					//msg, err := api.NewOutgoingPhoto(tbotapi.NewChatRecipient(val.Message.Chat.ID), "name-of-your-image-with-correct-extension.jpg",file).Send()
 
 					if err != nil {
 						fmt.Printf("Err: %s\n", err)

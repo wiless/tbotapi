@@ -3,7 +3,7 @@ package tbotapi
 import (
 	"encoding/json"
 	"fmt"
-	"gopkg.in/resty.v0"
+	"github.com/go-resty/resty"
 	"net/http"
 )
 
@@ -55,7 +55,7 @@ func (c *client) postJSON(m method, result interface{}, data interface{}) (*rest
 }
 
 func (c *client) uploadFile(m method, result interface{}, data file, fields querystringer) (*resty.Response, error) {
-	return c.c.R().SetFile(data.fieldName, data.path).SetResult(result).SetFormData(map[string]string(fields.querystring())).Post(c.getEndpoint(m))
+	return c.c.R().SetFileReader(data.fieldName, data.fileName, data.r).SetResult(result).SetFormData(map[string]string(fields.querystring())).Post(c.getEndpoint(m))
 }
 
 func parseResponseBody(c *resty.Client, res *resty.Response) (err error) {
